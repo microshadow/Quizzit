@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import Banner from './banner.js';
+import Template from './mainTemplate.js';
 import { STUDENT } from './globals.js';
 
-ReactDOM.render(<Banner userType={STUDENT}/>, document.getElementById('root'));
+ReactDOM.render(<Template userType={STUDENT}/>, document.getElementById('root'));
