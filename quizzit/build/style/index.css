@@ -1,0 +1,41 @@
+html, body {
+  --background-light: #e8e8e8;
+  --detail-light: LightSteelBlue;
+  --detail-dark: solid 6px #4c84a3;
+  --font-family: "Helvetica";
+  --font-color: #e8e8e8;
+  --font-border: #a8a8a8;
+  --font-size: 1.2rem;
+
+  background-color: var(--background-light);
+  width: 100vw;
+  height: 100vh;
+}
+
+body {
+  margin: 0;
+}
+
+a, a:hover {
+  text-decoration: none;
+}
+
+.qButton {
+  text-align: center;
+  padding-left: 24px;
+  padding-right: 24px;
+
+  color: var(--font-color);
+  font-family: var(--font-typeface);
+  font-size: var(--font-size);
+  font-weight: bold;
+}
+
+.qButton:hover {
+  background-color: #95a6bca3;
+  cursor: pointer;
+}
+
+.textshadow {
+  text-shadow: 0 0 6px var(--font-border);
+}

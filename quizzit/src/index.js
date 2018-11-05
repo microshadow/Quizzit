@@ -2,10 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const rootElem = (
-  <div className='replace'>
-    Replace Me
-  </div>
-);
+import Banner from './banner.js';
+import { STUDENT } from './globals.js';
 
-ReactDOM.render(rootElem, document.getElementById('root'));
+ReactDOM.render(<Banner userType={STUDENT}/>, document.getElementById('root'));
