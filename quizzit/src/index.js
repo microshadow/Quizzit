@@ -5,4 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Template from './mainTemplate.js';
 import { STUDENT } from './globals.js';
 
-ReactDOM.render(<Template userType={STUDENT}/>, document.getElementById('root'));
+const rootElem = (
+  <Template userType={STUDENT}/>
+);
+ReactDOM.render(rootElem, document.getElementById('root'));

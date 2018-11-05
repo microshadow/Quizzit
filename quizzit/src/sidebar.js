@@ -135,7 +135,7 @@ class Sidebar extends Component {
 
   render() {
     return (
-      <div id="sidebar" className="flex-grow-1">
+      <div id="sidebar">
         <div id="coursesMenu">
           <div id="coursesHeader" className="textshadow">
             Courses

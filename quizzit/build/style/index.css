@@ -42,3 +42,8 @@ a, a:hover {
 .textshadow {
   text-shadow: 0 0 6px var(--font-border);
 }
+
+#pageContentRow {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
