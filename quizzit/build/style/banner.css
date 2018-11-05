@@ -1,6 +1,5 @@
 #banner {
   background-color: var(--detail-light);
-  border-bottom: var(--detail-dark);
 
   height: 100px;
   padding: 10px;
@@ -46,4 +45,9 @@
 
   margin-top: 12px;
   background-color: var(--detail-light);
+}
+
+.dividerDark {
+  background-color: var(--detail-dark);
+  width: 100%;
 }

@@ -1,13 +1,16 @@
 html, body {
   --background-light: #e8e8e8;
   --detail-light: LightSteelBlue;
-  --detail-dark: solid 6px #4c84a3;
+  --detail-dark: #4c84a3;
   --font-family: "Helvetica";
   --font-color: #e8e8e8;
   --font-border: #a8a8a8;
   --font-size: 1.2rem;
 
   background-color: var(--background-light);
+}
+
+html, body, #root, #appContainer {
   width: 100vw;
   height: 100vh;
 }
