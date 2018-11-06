@@ -1,9 +1,14 @@
+#sidebarContainer {
+  width: 20%;
+  margin-right: 32px;
+  margin-left: 108px;
+}
+
 #sidebar {
-  margin-right: 12px;
-  margin-left: 116px;
   padding-top: 24px;
 
-  width: 20%;
+  width: 100%;
+  height: 100%;
   background-color:var(--detail-light);
 }
 

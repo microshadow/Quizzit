@@ -1,18 +1,14 @@
 import React, { Component } from 'react';
+
+import { userType, createHorizontalDivider } from './globals.js';
 import './style/banner.css';
-import { userType } from './globals.js';
-
-
-function bannerBorder(thickness) {
-  let style = {"height": thickness};
-  return <div class="dividerDark" style={style}></div>;
-}
 
 
 class Banner extends Component {
   constructor(props) {
     super(props);
 
+    this.makeLogo = this.makeLogo.bind(this);
     this.getLoginButton = this.getLoginButton.bind(this);
     this.getStatsLink   = this.getStatsLink.bind(this);
   }
@@ -20,7 +16,16 @@ class Banner extends Component {
   makeLogo() {
     return (
       <div id="mainLogo"
-           style={{"width": "280px","background-color": "black", "color": "white", "font-family": "Helvetica", "font-weight": "bold", "font-size": "2rem", "line-height": "74px", "text-align": "center"}}>
+           style={{
+             "width": "280px",
+             "backgroundColor": "black",
+             "color": "white",
+             "fontFamily": "Helvetica",
+             "fontWeight": "bold",
+             "fontSize": "2rem",
+             "lineHeight": "74px",
+             "textAlign": "center"
+           }}>
         Logo Goes Here
       </div>
     )
@@ -62,7 +67,7 @@ class Banner extends Component {
             { this.getLoginButton() }
           </div>
         </div>
-        { bannerBorder(6) }
+        { createHorizontalDivider(6, "detail-dark") }
       </div>
     );
   }

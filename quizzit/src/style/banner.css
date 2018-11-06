@@ -1,14 +1,13 @@
 #banner {
   background-color: var(--detail-light);
-  border-bottom: var(--detail-dark);
 
   height: 100px;
   padding: 10px;
   margin-top: 60px;
 }
 
-#logo {
-  height: 100px;
+#mainLogo {
+  height: 100%;
   width: auto;
 
   float: left;
@@ -44,6 +43,5 @@
   height: 30px;
   width: 100%;
 
-  margin-top: 12px;
   background-color: var(--detail-light);
 }

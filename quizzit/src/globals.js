@@ -12,9 +12,29 @@ function translateUserType(user) {
   }
 }
 
+function createHorizontalDivider(height, color) {
+  const colorVar = `var(--${color})`;
+  return (
+    <div className="horDivider"
+         style={{backgroundColor: colorVar, height: height}}>
+    </div>
+  )
+}
+
+function createVerticalDivider(width, color) {
+  const colorVar = `var(--${color})`;
+  return (
+    <div className="vertDivider"
+         style={{backgroundColor: colorVar, width: width}}>
+    </div>
+  )
+}
+
 module.exports = {
   STUDENT: STUDENT,
   EDUCATOR: EDUCATOR,
   ADMIN: ADMIN,
-  userType: translateUserType
+  userType: translateUserType,
+  createHorizontalDivider: createHorizontalDivider,
+  createVerticalDivider: createVerticalDivider
 };

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { STUDENT, EDUCATOR, ADMIN } from './globals.js';
+import { STUDENT, EDUCATOR, ADMIN, createVerticalDivider } from './globals.js';
 
 
 class Sidebar extends Component {
@@ -135,13 +135,16 @@ class Sidebar extends Component {
 
   render() {
     return (
-      <div id="sidebar">
-        <div id="coursesMenu">
-          <div id="coursesHeader" className="textshadow">
-            Courses
-          </div>
-          <div className="courseList accordion">
-            { this.getCourseListComponent() }
+      <div id="sidebarContainer" className="d-flex align-items-stretch">
+        { createVerticalDivider(8, "detail-dark") }
+        <div id="sidebar">
+          <div id="coursesMenu">
+            <div id="coursesHeader" className="textshadow">
+              Courses
+            </div>
+            <div className="courseList accordion">
+              { this.getCourseListComponent() }
+            </div>
           </div>
         </div>
       </div>
