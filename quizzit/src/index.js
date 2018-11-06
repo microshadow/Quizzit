@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import Template from './mainTemplate.js';
+import Dashboard from './dashboard.js';
 import { STUDENT } from './globals.js';
 
 const rootElem = (
-  <Template userType={STUDENT}/>
+  <Dashboard userType={STUDENT}/>
 );
 ReactDOM.render(rootElem, document.getElementById('root'));
