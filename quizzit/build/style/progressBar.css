@@ -1,0 +1,42 @@
+.progressBar * {
+  color: var(--font-color);
+  font-family: var(--font-family);
+  font-weight: bold;
+}
+
+.progressBar {
+  position: relative;
+
+  width: 300px;
+  border: solid 2px var(--detail-light);
+}
+
+.progressFill {
+  position: relative;
+  text-align: left;
+  height: 30px;
+  line-height: 30px;
+  overflow: hidden;
+}
+
+.progressBarText {
+  position: absolute;
+  line-height: 30px;
+
+  top: 0px;
+  left: 12px;
+}
+
+.progressBarPercent {
+  position: absolute;
+  line-height: 24px;
+  right: 8px;
+  top: 4px;
+}
+
+.textOverlay {
+  color: var(--background-light);
+
+  z-index: 2;
+  white-space: nowrap;
+}
