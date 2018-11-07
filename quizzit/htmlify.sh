@@ -10,7 +10,7 @@ cp jsx.babelrc .babelrc
 TIMEOUT=4
 
 # Timeout the JSX processor after TIMEOUT seconds
-( npx babel --watch rmv --out-dir build --presets react-app/prod ) & pid=$!
+( npx babel --watch rmv --out-dir public --presets react-app/prod ) & pid=$!
 ( sleep ${TIMEOUT} && kill -HUP ${pid} ) 2>/dev/null & watcher=$!
 wait ${pid} 2>/dev/null && kill -HUP ${watcher}
 
@@ -18,4 +18,4 @@ rm -rf rmv
 
 echo "Bunding import statements..."
 cp require.babelrc .babelrc
-browserify build/index.js -o build/quizzit.js
+browserify public/index.js -o public/quizzit.js

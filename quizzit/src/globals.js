@@ -1,3 +1,5 @@
+import React from 'react';
+
 const STUDENT  = "S";
 const EDUCATOR = "T";
 const ADMIN    = "A";
@@ -30,11 +32,11 @@ function createVerticalDivider(width, color) {
   )
 }
 
-module.exports = {
-  STUDENT: STUDENT,
-  EDUCATOR: EDUCATOR,
-  ADMIN: ADMIN,
-  userType: translateUserType,
-  createHorizontalDivider: createHorizontalDivider,
-  createVerticalDivider: createVerticalDivider
+export {
+  STUDENT,
+  EDUCATOR,
+  ADMIN,
+  translateUserType as userType,
+  createHorizontalDivider,
+  createVerticalDivider
 };
