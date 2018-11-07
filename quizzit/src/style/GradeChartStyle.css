@@ -1,0 +1,8 @@
+h3{
+    position: relative;
+}
+
+#numberOfCorrect{
+    margin: 10px 10px;
+    width: 500px;
+}
