@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import WelcomeScreen from "./ScreenComponents/welcomeScreen.js";
-import LogInScreen from "./ScreenComponents/logInScreen.js";
+import WelcomeScreen from "./welcomeScreen.js";
+import LogInScreen from "./logInScreen.js";
 import Dashboard from "./dashboard.js";
-import SignUpScreen from "./ScreenComponents/signUpScreen.js";
+import SignUpScreen from "./signUpScreen.js";
 import { STUDENT } from "./globals.js";
 
 class Router extends Component {

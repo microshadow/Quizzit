@@ -1,0 +1,58 @@
+#dashHeader {
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+#dashWelcomeContainer {
+  padding: 10px 24px 5px 24px;
+  border-left: solid 6px var(--detail-light);
+  border-right: solid 6px var(--detail-light);
+  background-color: var(--background-medium);
+}
+
+#dashWelcome {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--background-light);
+}
+
+.dashboardNote {
+  margin-bottom: 16px;
+}
+
+.dashboardNote a {
+  color: var(--background-dark);
+}
+
+.dashboardNote a:hover {
+  color: grey;
+}
+
+.notification {
+  padding: 12px 24px 16px 24px;
+}
+
+.notificationDescription {
+  min-width: 300px;
+  padding: 4px 8px 4px 8px;
+  color: var(--font-color);
+  background-color: var(--background-medium);
+
+  box-shadow: 2px 2px 4px var(--detail-light);
+  z-index: 2;
+}
+
+.notification .progressBar {
+  box-shadow: 2px 2px 4px var(--background-medium);
+}
+
+.notification > .horDivider {
+  margin-top: 8px;
+  margin-bottom: 8px;
+
+  box-shadow: 0 1px 2px var(--background-medium);
+}
+
+.notificationMeta {
+  color: var(--background-dark);
+}

@@ -5,7 +5,8 @@
 /.pnp
 .pnp.js
 package-lock.json
-/build/*.js
+
+/public/*.js
 
 # misc
 .DS_Store
