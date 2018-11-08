@@ -1,4 +1,22 @@
 import React, { Component } from 'react';
+const divStyle = {
+    width: '500px',
+    marginTop: '100px',
+}
+
+const headerStyle = {
+    marginBottom: '20px'
+}
+
+const inputStyle = {
+    width: '200px'
+}
+
+const buttonStyle = {
+    width: '100px'
+}
+
+
 
 class LogInScreen extends Component {
     constructor(props) {
@@ -12,11 +30,12 @@ class LogInScreen extends Component {
 
     render() {
         return (
-            <div className="Login">
+            <div className="mx-auto" style={divStyle} align="center">
                <form>
-                     <input type="text" placeholder="Username" name="uname"></input><br/>
-                     <input type="password" placeholder="Password" name="pword"></input><br/>
-                     <button onClick={this.logIn}>Log In</button>
+                     <h1 style={headerStyle}>Enter your details below:</h1>
+                     <input type="text" style={inputStyle} className="form-control" placeholder="Username" name="uname"></input><br/>
+                     <input type="password" style={inputStyle} className="form-control" placeholder="Password" name="pword"></input><br/>
+                     <button className="btn btn-primary" style={buttonStyle} onClick={this.logIn}>Log In</button>
                 </form> 
             </div>
         );
