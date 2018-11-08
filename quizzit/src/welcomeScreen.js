@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 const divStyle = {
     width: '400px',
@@ -18,7 +18,7 @@ const headerStyle = {
     marginBottom: '20px',
 }
 
-class WelcomeScreen extends Component {
+class WelcomeScreen extends React.Component {
     constructor(props) {
         super(props);
         this.goToLogIn = this.goToLogIn.bind(this);

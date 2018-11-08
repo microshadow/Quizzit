@@ -6,6 +6,7 @@ import WelcomeScreen from "./welcomeScreen.js";
 import LogInScreen from "./logInScreen.js";
 import Dashboard from "./dashboard.js";
 import SignUpScreen from "./signUpScreen.js";
+import { GradeChart } from "./gradeChart.js";
 import { STUDENT } from "./globals.js";
 
 class Router extends Component {
@@ -16,6 +17,7 @@ class Router extends Component {
                     <Route path="/" exact component={WelcomeScreen}/>
                     <Route path="/logIn" exact component={LogInScreen}/>
                     <Route path="/signUp" exact component={SignUpScreen}/>
+                    <Route path="/gradeChart" exact component={GradeChart}/>
                     <Route path="/dashboard" exact render={()=><Dashboard userType={STUDENT}/>} />
                 </Switch>
             </HashRouter>

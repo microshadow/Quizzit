@@ -1,4 +1,5 @@
-let myChart = document.getElementById("myChart").getContext("2d");
+import React from 'react';
+import Chart from 'chart.js';
 
 const chartObject = []; // array of chart(myChart, object); 2nd parameter for class Chart.
 var arrayOfCorrect = []; //array of user input
@@ -31,14 +32,12 @@ const barChart1 = {
 
 chartObject.push(barChart1);
 
-function input() {
+function getInputValue() {
     arrayOfCorrect = document.getElementById("numberOfCorrect").value.split(",");
 
     if (chartObject[0].data.datasets[0].data.length == 0) {
         for (let i = 0; i < arrayOfCorrect.length; i++) {
             chartObject[0].data.datasets[0].data.push(arrayOfCorrect[i]);
-            //console.log(arrayOfCorrect.length);
-            //console.log(arrayOfCorrect[0]);
             }
     }
 }
@@ -49,21 +48,17 @@ function getTheMin() {
     for(let i = 0; i < arrayOfCorrect.length; i++)
     {
         numArray.push(parseInt(arrayOfCorrect[i]));
-        //console.log(numArray);
     }
 
     // compare the number in that array.
     // Note: made a mistake to compare string... (e.g. ["12","10","8","5"] instead of [12,10,8,5])
     var min = numArray[0];
-   // console.log(numArray);
     for(let i = 0; i < numArray.length; i++)
     {
         if(numArray[i] < min)
         {
             min = numArray[i];
         }
-        // console.log(i);
-        // console.log(min);
     }
 
     // then return the i, which is index, since we want to show 'where' holds the minimum number
@@ -71,7 +66,6 @@ function getTheMin() {
     {
         if(numArray[i] === min)
         {
-            //console.log("question #"+(i+1));
             return i+1;
         }
     }
@@ -84,11 +78,38 @@ function whichQuestionIsHard() {
     a.appendChild(document.createTextNode(qString));
 }
 
-function createChart() {
 
-    input();
 
-    barChart = new Chart(myChart, barChart1);
+export class GradeChart extends React.Component{
+    constructor(props){
+        super(props);
+        this.state = {};
+    }
 
-    whichQuestionIsHard();
+    componentDidMount(){
+        let myChart = document.getElementById("myChart").getContext("2d");
+        function createChart() {
+            getInputValue();
+            barChart = new Chart(myChart, barChart1);
+            whichQuestionIsHard();
+        }
+    }
+
+    render(){
+        return(
+            <div>
+                <div>
+                    <input type="text" id="numberOfCorrect" placeholder="input the number of students who answer correctly for each question" />
+                    <button onclick="createChart()">Show me the Grade Chart</button>
+                </div>
+                <div class="container">
+                    <canvas id="myChart"></canvas>
+                </div>
+                <div>
+                    <p id="outputMessage"></p>
+                </div>
+            </div>
+
+        );
+    }
 }
