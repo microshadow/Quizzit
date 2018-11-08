@@ -1,5 +1,23 @@
 import React, { Component } from 'react';
 
+const divStyle = {
+    width: '400px',
+    marginTop: '200px',
+}
+
+const button1Style = {
+    marginRight: '20px',
+    width: '100px'
+}
+
+const button2Style = {
+    width: '100px'
+}
+
+const headerStyle = {
+    marginBottom: '20px',
+}
+
 class WelcomeScreen extends Component {
     constructor(props) {
         super(props);
@@ -17,10 +35,10 @@ class WelcomeScreen extends Component {
 
     render() {
         return (
-            <div>
-                <h1>Welcome to Quizzit</h1>
-                <button onClick={this.goToLogIn}>Log In</button>
-                <button onClick={this.goToSignUp}>Sign Up</button>
+            <div className="mx-auto" align="center" style={divStyle}>
+                <h1 style={headerStyle} >Welcome to Quizzit</h1>
+                    <button className="btn btn-primary" style={button1Style} onClick={this.goToLogIn}>Log In</button>
+                    <button className="btn btn-primary" style={button2Style} onClick={this.goToSignUp}>Sign Up</button>
             </div>
         );
     }
