@@ -27,48 +27,68 @@ const barChart1 = {
         }
     },
 
-}
+};
 
 chartObject.push(barChart1);
 
 function input() {
+    arrayOfCorrect = document.getElementById("numberOfCorrect").value.split(",");
+
     if (chartObject[0].data.datasets[0].data.length == 0) {
-       // console.log("array is empty, push numbers...")
-    for (let i = 0; i < arrayOfCorrect.length; i++) {
-        chartObject[0].data.datasets[0].data.push(arrayOfCorrect[i]);
-        //console.log(arrayOfCorrect.length);
-        //console.log(arrayOfCorrect[0]);
+        for (let i = 0; i < arrayOfCorrect.length; i++) {
+            chartObject[0].data.datasets[0].data.push(arrayOfCorrect[i]);
+            //console.log(arrayOfCorrect.length);
+            //console.log(arrayOfCorrect[0]);
+            }
+    }
+}
+
+function getTheMin() {
+    // firstly, convert the array of string (from user input) to number.
+    const numArray = [];
+    for(let i = 0; i < arrayOfCorrect.length; i++)
+    {
+        numArray.push(parseInt(arrayOfCorrect[i]));
+        //console.log(numArray);
+    }
+
+    // compare the number in that array.
+    // Note: made a mistake to compare string... (e.g. ["12","10","8","5"] instead of [12,10,8,5])
+    var min = numArray[0];
+   // console.log(numArray);
+    for(let i = 0; i < numArray.length; i++)
+    {
+        if(numArray[i] < min)
+        {
+            min = numArray[i];
+        }
+        // console.log(i);
+        // console.log(min);
+    }
+
+    // then return the i, which is index, since we want to show 'where' holds the minimum number
+    for(let i = 0; i < numArray.length; i++)
+    {
+        if(numArray[i] === min)
+        {
+            //console.log("question #"+(i+1));
+            return i+1;
         }
     }
 }
 
+// DOM function to append text to HTML page.
+function whichQuestionIsHard() {
+    const qString = "The hardest question of this quiz is #" + getTheMin();
+    const a = document.getElementById("outputMessage");
+    a.appendChild(document.createTextNode(qString));
+}
+
 function createChart() {
-    arrayOfCorrect = document.getElementById("numberOfCorrect").value.split(",");
 
     input();
 
     barChart = new Chart(myChart, barChart1);
+
+    whichQuestionIsHard();
 }
-
-// the code above can only by hard coded, but our project is expected to get datas dynamically
-// so there is another way to get the chart, but this one does not use any bootstrap or JQuery,
-// it is kind of ugly, still prefer to fix the above code to make it run dynamically.
-// 2nd method to get chart blow
-// uncomment if wanna to choose this method
-
-
-// function draw() {
-//     var canvas = document.getElementById("myChart");
-//     var ctx = canvas.getContext("2d");
-//     var chartValue = document.getElementById("numberOfCorrect").value.split(",");
-
-//     const width = 40; // bar width
-//     let x = 50; // the 1st bar position
-
-//     for(let i = 0; i < chartValue.length; i++)
-//     {
-//         let h = chartValue[i];
-//         ctx.fillRect(x, canvas.height - h, width, h);
-//         x += width+15;
-//     }
-// }
