@@ -11,7 +11,6 @@ class WelcomeScreen extends Component {
                 <button>Log In</button>
                 <button>Sign Up</button>
                 <AnswerPage />
-                <CreateQuizPage />
             </div>
         );
     }

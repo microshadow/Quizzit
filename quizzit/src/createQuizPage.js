@@ -56,6 +56,7 @@ export class CreateQuizPage extends React.Component {
         let new_quizzes_array = this.state.quizzes;
         new_quizzes_array.push({title: title, questions: []});
         this.setState({quizzes: new_quizzes_array});
+        //do server request here after "optimistic" UI update
     }
 
     render(){
@@ -129,7 +130,12 @@ class CreatequestionForm extends React.Component{
         if(index == -1){ 
             //changing to "add question" mode, reset the "selected question" index
             // and the selected checkbox
-            this.setState({selectedIndex: index, selectedCheckbox: index});
+            this.setState({
+                selectedIndex: index, 
+                selectedCheckbox: index,
+                choiceValues: ["","","",""], 
+                questionTitle: ""
+            });
         }
         else{
             const activeQuiz = this.props.quizzes[this.state.selectedQuiz];
@@ -148,6 +154,7 @@ class CreatequestionForm extends React.Component{
         let new_quizzes_array = this.props.quizzes;
         new_quizzes_array[selectedQuiz].questions[activeQuestionIndex].splice(index, 1);
         this.setState({quizzes: new_quizzes_array});
+        //do server request here after "optimistic" UI update
     }
 
     addQuestion(event){
@@ -160,7 +167,13 @@ class CreatequestionForm extends React.Component{
             correct_index: this.state.selectedCheckbox,
             }
         new_quizzes_array[selectedQuiz].questions.push(new_question)
-        this.setState({quizzes: new_quizzes_array, choiceValues: ["","","",""], questionTitle: ""});
+        this.setState({
+            quizzes: new_quizzes_array, 
+            selectedCheckbox: -1,
+            choiceValues: ["","","",""], 
+            questionTitle: ""
+        });
+        //do server request here after "optimistic" UI update
     }
 
     modifyQuestion(event, index){
@@ -175,6 +188,7 @@ class CreatequestionForm extends React.Component{
             }
         new_quizzes_array[selectedQuiz].questions[activeQuestionIndex] = new_question;
         this.setState({quizzes: new_quizzes_array});
+        //do server request here after "optimistic" UI update
     }
 
     changeActiveQuiz(event){
