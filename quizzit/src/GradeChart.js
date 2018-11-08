@@ -1,13 +1,16 @@
 let myChart = document.getElementById("myChart").getContext("2d");
-var a = [10,20,30,40,50,60,70,80,90,95];//only for test
+
+const chartObject = []; // array of chart(myChart, object); 2nd parameter for class Chart.
+var arrayOfCorrect = []; //array of user input
+
 var barChart;
-barChart = new Chart(myChart, {
+const barChart1 = {
     type: "bar",
     data: {
         labels: ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10"],
         datasets: [{
             label: "class result",
-            data: [85, 92, 81, 76, 9, 54, 98, 80, 24, 32],
+            data: [],
             backgroundColor: ["red", "yellow", "blue", "green", "orange", "purple", "aqua", "blueviolet", "coral", "greenyellow"],
             borderWidth: 2,
             borderColor: "gray"
@@ -23,17 +26,29 @@ barChart = new Chart(myChart, {
             position: "right",
         }
     },
-});
+
+}
+
+chartObject.push(barChart1);
 
 function input() {
-    for(let i = 0; i<barChart.data.datasets[0].data.length; i++){
-        barChart.data.datasets[0].data.push(a[i]);
-        //console.log("hi");
+    if (chartObject[0].data.datasets[0].data.length == 0) {
+       // console.log("array is empty, push numbers...")
+    for (let i = 0; i < arrayOfCorrect.length; i++) {
+        chartObject[0].data.datasets[0].data.push(arrayOfCorrect[i]);
+        //console.log(arrayOfCorrect.length);
+        //console.log(arrayOfCorrect[0]);
+        }
     }
 }
 
-//85, 92, 81, 76, 9, 54, 98, 80, 24, 32
-//input();
+function createChart() {
+    arrayOfCorrect = document.getElementById("numberOfCorrect").value.split(",");
+
+    input();
+
+    barChart = new Chart(myChart, barChart1);
+}
 
 // the code above can only by hard coded, but our project is expected to get datas dynamically
 // so there is another way to get the chart, but this one does not use any bootstrap or JQuery,
