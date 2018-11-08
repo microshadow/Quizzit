@@ -38,8 +38,8 @@ export class StudentSummaryChart extends React.Component{
     render(){
         return(
             <div>
-                <div class="dropdown">
-                    <a class="btn btn-secondary dropdown-toggle" 
+                <div className="dropdown">
+                    <a className="btn btn-secondary dropdown-toggle" 
                     href="#" 
                     role="button" 
                     id="dropdownMenuLink" 
@@ -49,14 +49,14 @@ export class StudentSummaryChart extends React.Component{
                         Choose your Course
                     </a>
 
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <div className="dropdown-menu" aria-labelledby="dropdownMenuLink">
                         <a className="dropdown-item" href="#">Action</a>
                         <a className="dropdown-item" href="#">Another action</a>
                         <a className="dropdown-item" href="#">Something else here</a>
                     </div>
                 </div>
 
-                <div class="container">
+                <div className="container">
                     <canvas id="myChart"></canvas>
                 </div>
             </div>
