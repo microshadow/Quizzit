@@ -88,7 +88,7 @@ export class GradeChart extends React.Component{
 
     componentDidMount(){
         let myChart = document.getElementById("myChart").getContext("2d");
-        function createChart() {
+        this.createChart = () => {
             getInputValue();
             barChart = new Chart(myChart, barChart1);
             whichQuestionIsHard();
@@ -100,7 +100,7 @@ export class GradeChart extends React.Component{
             <div>
                 <div>
                     <input type="text" id="numberOfCorrect" placeholder="input the number of students who answer correctly for each question" />
-                    <button onclick="createChart()">Show me the Grade Chart</button>
+                    <button onClick={()=>{this.createChart()}}>Show me the Grade Chart</button>
                 </div>
                 <div class="container">
                     <canvas id="myChart"></canvas>
