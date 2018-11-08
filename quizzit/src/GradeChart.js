@@ -34,3 +34,26 @@ function input() {
 
 //85, 92, 81, 76, 9, 54, 98, 80, 24, 32
 //input();
+
+// the code above can only by hard coded, but our project is expected to get datas dynamically
+// so there is another way to get the chart, but this one does not use any bootstrap or JQuery,
+// it is kind of ugly, still prefer to fix the above code to make it run dynamically.
+// 2nd method to get chart blow
+// uncomment if wanna to choose this method
+
+
+// function draw() {
+//     var canvas = document.getElementById("myChart");
+//     var ctx = canvas.getContext("2d");
+//     var chartValue = document.getElementById("numberOfCorrect").value.split(",");
+
+//     const width = 40; // bar width
+//     let x = 50; // the 1st bar position
+
+//     for(let i = 0; i < chartValue.length; i++)
+//     {
+//         let h = chartValue[i];
+//         ctx.fillRect(x, canvas.height - h, width, h);
+//         x += width+15;
+//     }
+// }
