@@ -1,5 +1,6 @@
 import React from 'react';
 import Chart from 'chart.js';
+import './style/gradeChart.css';
 
 const chartObject = []; // array of chart(myChart, object); 2nd parameter for class Chart.
 var arrayOfCorrect = []; //array of user input
