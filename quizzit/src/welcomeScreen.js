@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { AnswerPage } from './answerPage.js';
+import { CreateQuizPage } from './createQuizPage.js';
 
 class WelcomeScreen extends Component {
 
@@ -8,6 +10,8 @@ class WelcomeScreen extends Component {
                 <h1>Welcome to Quizzit</h1>
                 <button>Log In</button>
                 <button>Sign Up</button>
+                <AnswerPage />
+                <CreateQuizPage />
             </div>
         );
     }
