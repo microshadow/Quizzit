@@ -8,7 +8,7 @@ import Dashboard from "./dashboard.js";
 import SignUpScreen from "./signUpScreen.js";
 import { GradeChart } from "./gradeChart.js";
 import { StudentSummaryChart } from "./studentSummaryChart.js";
-import { STUDENT } from "./globals.js";
+import { STUDENT, ADMIN, EDUCATOR } from "./globals.js";
 
 class Router extends Component {
     render() {
@@ -20,7 +20,9 @@ class Router extends Component {
                     <Route path="/signUp" exact component={SignUpScreen}/>
                     <Route path="/gradeChart" exact component={GradeChart}/>
                     <Route path="/studentSummary" exact component={StudentSummaryChart}/>
-                    <Route path="/dashboard" exact render={()=><Dashboard userType={STUDENT}/>} />
+                    <Route path="/dashboardStudent" exact render={()=><Dashboard userType={STUDENT}/>} />
+                    <Route path="/dashboardAdmin" exact render={()=><Dashboard userType={ADMIN}/>} />
+                    <Route path="/dashboardEducator" exact render={()=><Dashboard userType={EDUCATOR}/>} />
                 </Switch>
             </HashRouter>
         );
