@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { STUDENT, EDUCATOR, ADMIN, createVerticalDivider } from './globals.js';
-
+import './style/sidebar.css';
 
 class Sidebar extends Component {
   constructor(props) {
