@@ -5,6 +5,7 @@ import ReportNotification from './reportNotification.js';
 import EventNotification from './eventNotification.js';
 import ProgressBar from './progressBar.js';
 import { STUDENT, createHorizontalDivider, createVerticalDivider } from './globals.js';
+import './style/dash.css';
 
 class Dashboard extends Component {
   constructor(props) {
