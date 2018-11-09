@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 
 import Banner from './banner.js';
 import Sidebar from './sidebar.js';
-import { STUDENT } from './globals.js';
 
 class Template extends Component {
   constructor(props) {

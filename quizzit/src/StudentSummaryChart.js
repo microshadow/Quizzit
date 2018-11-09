@@ -1,6 +1,5 @@
 import React from 'react';
 import Chart from 'chart.js';
-import PopperJs from 'popper.js';
 import './style/gradeChart.css';
 import Button from 'react-bootstrap/lib/Button';
 

@@ -1,5 +1,3 @@
-import { AnswerPage } from './answerPage.js';
-import { CreateQuizPage } from './createQuizPage.js';
 import React from 'react';
 
 const divStyle = {

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { userType, createHorizontalDivider } from './globals.js';
+import { createHorizontalDivider } from './globals.js';
 import './style/banner.css';
 
 
