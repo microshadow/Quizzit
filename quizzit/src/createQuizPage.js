@@ -6,49 +6,16 @@ import Form from 'react-bootstrap/lib/Form';
 import Col from 'react-bootstrap/lib/Col';
 import Row from 'react-bootstrap/lib/Row';
 import ListGroup from 'react-bootstrap/lib/ListGroup';
-import Dropdown from 'react-bootstrap/lib/Dropdown'
 
 import './createquizpage.css';
-import './globals.js';
+var globals = require('./globals.js');
 
 export class CreateQuizPage extends React.Component {
     constructor(props){
         super(props);
+        /*here we would get the data from the database*/
         this.state = {
-            quizzes: [
-                {
-                    title: "Quiz 1 - historical battles",
-                    questions: [
-                        {
-                            question: "Where was the battle of Culloden?",
-                            choices: ["England", "Scottland", "Canada", "USA"],
-                            correct_index: 1,
-                        },
-                        {
-                            question: "When was the battle of the Somme?",
-                            choices: ["1916", "2001", "1943", "1945"],
-                            correct_index: 0,
-                        },
-                    ]
-                },
-                {
-                    title: "Quiz 2 - famous people",
-                    questions: [
-                        {
-                            question: "Who invented the induction motor?",
-                            choices: ["Nikola Tesla", "Elon Musk", "Thomas Edison", "Bill Gates"],
-                            correct_index: 0,
-                        },
-                        {
-                            question: "Who was the 40th president of the US?",
-                            choices: ["Donald Trump", "Barack Obama", "Ronald Reagan", "Jimmy Carter"],
-                            correct_index: 2,
-                        },
-                    ]
-                }
-
-            ]
-
+            quizzes: globals.quiz_data
         }
     }
 
@@ -57,6 +24,8 @@ export class CreateQuizPage extends React.Component {
         new_quizzes_array.push({title: title, questions: []});
         this.setState({quizzes: new_quizzes_array});
         //do server request here after "optimistic" UI update
+        //we just use a global variable for this phase
+        globals.quiz_data.data = new_quizzes_array;
     }
 
     render(){
@@ -152,9 +121,12 @@ class CreatequestionForm extends React.Component{
         const selectedQuiz = this.state.selectedQuiz;
         const activeQuestionIndex = this.state.selectedIndex;
         let new_quizzes_array = this.props.quizzes;
-        new_quizzes_array[selectedQuiz].questions[activeQuestionIndex].splice(index, 1);
-        this.setState({quizzes: new_quizzes_array});
+        new_quizzes_array[selectedQuiz].questions.splice(index, 1);
+        //make sure that you clear the modify field in case the deleted question is displayed there
+        this.setState({selectedIndex: -1, quizzes: new_quizzes_array});
         //do server request here after "optimistic" UI update
+        //we just use a global variable for this phase
+        globals.quiz_data.data = new_quizzes_array;
     }
 
     addQuestion(event){
@@ -174,6 +146,8 @@ class CreatequestionForm extends React.Component{
             questionTitle: ""
         });
         //do server request here after "optimistic" UI update
+        //we just use a global variable for this phase
+        globals.quiz_data.data = new_quizzes_array;
     }
 
     modifyQuestion(event, index){
@@ -189,6 +163,8 @@ class CreatequestionForm extends React.Component{
         new_quizzes_array[selectedQuiz].questions[activeQuestionIndex] = new_question;
         this.setState({quizzes: new_quizzes_array});
         //do server request here after "optimistic" UI update
+        //we just use a global variable for this phase
+        globals.quiz_data.data = new_quizzes_array;
     }
 
     changeActiveQuiz(event){
@@ -282,27 +258,27 @@ class CreatequestionForm extends React.Component{
             </Form.Row>
         <fieldset>
             <Form.Group as={Row}>
-            <Form.Label as="legend" column sm={2}>
-                Correct answer
-            </Form.Label>
-            <Col sm={10}>
-                {
-                    ["A","B","C","D"].map((letter, index) => {
-                        return (
-                            <Form.Check
-                                key={index}
-                                value={index}
-                                type="radio"
-                                label={"choice "+letter}
-                                name="formHorizontalRadios"
-                                id="formHorizontalRadios1"
-                                checked={index === this.state.selectedCheckbox}
-                                onChange={(event) => {this.handleSelect(event);}}
-                            />
-                            )
-                    })
-                }
-            </Col>
+                <Form.Label as="legend" column sm={2}>
+                    Correct answer
+                </Form.Label>
+                <Col sm={10}>
+                    {
+                        ["A","B","C","D"].map((letter, index) => {
+                            return (
+                                <Form.Check
+                                    key={index}
+                                    value={index}
+                                    type="radio"
+                                    label={"choice "+letter}
+                                    name="formHorizontalRadios"
+                                    id="formHorizontalRadios1"
+                                    checked={index === this.state.selectedCheckbox}
+                                    onChange={(event) => {this.handleSelect(event);}}
+                                />
+                                )
+                        })
+                    }
+                </Col>
             </Form.Group>
         </fieldset>
             <Button variant="primary" 

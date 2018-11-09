@@ -11,6 +11,8 @@ class WelcomeScreen extends Component {
                 <button>Log In</button>
                 <button>Sign Up</button>
                 <AnswerPage />
+
+                <div style={{marginTop: "700px"}}>xx</div>
                 <CreateQuizPage />
             </div>
         );
