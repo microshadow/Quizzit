@@ -8,7 +8,7 @@ import Dashboard from "./dashboard.js";
 import SignUpScreen from "./signUpScreen.js";
 import { GradeChart } from "./gradeChart.js";
 import { StudentSummaryChart } from "./studentSummaryChart.js";
-import { STUDENT } from "./globals.js";
+import { STUDENT, ADMIN, EDUCATOR } from "./globals.js";
 
 
 let userType = STUDENT;
@@ -32,6 +32,9 @@ class Router extends Component {
                       (props) => <StudentSummaryChart userType={userType} {...props}/>
                     }/>
                     <Route path="/dashboard" exact render={() => <Dashboard userType={STUDENT}/>} />
+                    <Route path="/dashboardStudent" exact render={()=><Dashboard userType={STUDENT}/>} />
+                    <Route path="/dashboardAdmin" exact render={()=><Dashboard userType={ADMIN}/>} />
+                    <Route path="/dashboardEducator" exact render={()=><Dashboard userType={EDUCATOR}/>} />
                 </Switch>
             </HashRouter>
         );

@@ -18,16 +18,14 @@ class Banner extends Component {
     return (
       <div id="mainLogo"
            style={{
-             "width": "280px",
-             "backgroundColor": "black",
+             "width": "150px",
              "color": "white",
              "fontFamily": "Helvetica",
-             "fontWeight": "bold",
              "fontSize": "2rem",
              "lineHeight": "74px",
              "textAlign": "center"
            }}>
-        Logo Goes Here
+        Quizzit
       </div>
     )
   }
