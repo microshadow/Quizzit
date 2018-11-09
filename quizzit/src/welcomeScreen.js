@@ -1,3 +1,5 @@
+import { AnswerPage } from './answerPage.js';
+import { CreateQuizPage } from './createQuizPage.js';
 import React from 'react';
 
 const divStyle = {
@@ -37,8 +39,8 @@ class WelcomeScreen extends React.Component {
         return (
             <div className="mx-auto" align="center" style={divStyle}>
                 <h1 style={headerStyle} >Welcome to Quizzit</h1>
-                    <button className="btn btn-primary" style={button1Style} onClick={this.goToLogIn}>Log In</button>
-                    <button className="btn btn-primary" style={button2Style} onClick={this.goToSignUp}>Sign Up</button>
+                <button className="btn btn-primary" style={button1Style} onClick={this.goToLogIn}>Log In</button>
+                <button className="btn btn-primary" style={button2Style} onClick={this.goToSignUp}>Sign Up</button>
             </div>
         );
     }
