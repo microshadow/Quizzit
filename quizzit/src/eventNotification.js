@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import Notification from './dashboardNotification.js';
-import { STUDENT, createHorizontalDivider, createVerticalDivider } from './globals.js';
+import { createVerticalDivider } from './globals.js';
 
 
 class EventNotification extends Component {

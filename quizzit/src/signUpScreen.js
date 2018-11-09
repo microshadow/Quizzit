@@ -9,10 +9,6 @@ const headerStyle = {
     marginBottom: '20px'
 }
 
-const buttonDivStyle = {
-    width: '220px'
-}
-
 const buttonStyle = {
     width: '100px'
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import Chart from 'chart.js';
 import PopperJs from 'popper.js';
+import Button from 'react-bootstrap/lib/Button';
 
 import Template from './mainTemplate.js';
 
@@ -8,9 +9,13 @@ export class StudentSummaryChart extends React.Component{
   constructor(props){
       super(props);
       this.state = {};
+
+      this.resetChart = this.resetChart.bind(this);
+      this.createChart = this.createChart.bind(this);
+      this.loadChart = this.loadChart.bind(this);
   }
 
-  getChart(course, quizNum) {
+  createChart(course, quizNum) {
     let myChart = document.getElementById("myChart").getContext("2d");
     return new Chart(myChart, {
       type: "pie",
@@ -36,26 +41,36 @@ export class StudentSummaryChart extends React.Component{
     });
   }
 
-  componentDidMount(){
-    console.log("Mounting");
+  loadChart() {
     const courseName = this.props.match.params.course;
-    const quizNum = this.props.match.params.quiz;
+    const quizNum = document.getElementById("quizInput").value;
 
-    this.state.barChart = this.getChart(courseName, quizNum);
+    this.state.barChart = this.createChart(courseName, quizNum);
+  }
+
+  resetChart() {
+    const chart = document.getElementById("myChart");
+
+    if (chart != undefined) {
+      const parent = chart.parentElement;
+
+      const newChart = document.createElement("canvas");
+      newChart.id = "myChart";
+
+      parent.removeChild(chart);
+      parent.appendChild(newChart);
+    }
   }
 
   render(){
-    console.log("Rendering");
-    if ("barChart" in this.state) {
-      console.log(this.state.barChart);
-      const courseName = this.props.match.params.course;
-      const quizNum = this.props.match.params.quiz;
-
-      this.state.barChart = this.getChart(courseName, quizNum);
-    }
+    this.resetChart();
 
     return(
       <Template userType={this.props.userType}>
+        <input id="quizInput" placeholder="Enter a Quiz Number"/>
+        <Button onClick={this.loadChart}>
+          Display Quiz Performance:
+        </Button>
         <div className="container">
           <canvas id="myChart"></canvas>
         </div>

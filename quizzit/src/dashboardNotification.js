@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
-import { STUDENT, createHorizontalDivider, createVerticalDivider } from './globals.js';
-import ProgressBar from './progressBar.js';
+import { createHorizontalDivider } from './globals.js';
 
 class Notification extends Component {
   constructor(props) {

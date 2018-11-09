@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
-import { STUDENT, EDUCATOR, ADMIN, createHorizontalDivider } from './globals.js';
+import { STUDENT, createHorizontalDivider } from './globals.js';
 import './style/banner.css';
 
 

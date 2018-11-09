@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { STUDENT, EDUCATOR, ADMIN, createVerticalDivider } from './globals.js';
 import './style/sidebar.css';
 
+
 class Sidebar extends Component {
   constructor(props) {
     super(props);
@@ -18,7 +19,7 @@ class Sidebar extends Component {
     return [
       {
         "name": "CSC309",
-        "quiz": null
+        "quiz": "/answerPage"
       },
       {
         "name": "CSC302",
@@ -26,7 +27,7 @@ class Sidebar extends Component {
       },
       {
         "name": "CSC367",
-        "quiz": "#"
+        "quiz": "/answerPage"
       }];
   }
 
@@ -35,7 +36,7 @@ class Sidebar extends Component {
       const links = [
         {
           "text": "View History",
-          "href": `/${course.name}/1/studentSummary`
+          "href": `/${course.name}/studentSummary`
         }];
 
       if (course.quiz != null) {
@@ -53,7 +54,7 @@ class Sidebar extends Component {
         firstOp["href"] = `${course.name}/${course.quiz}`;
       } else {
         firstOp["text"] = "Create Quiz";
-        firstOp["href"] = "#";
+        firstOp["href"] = "/createQuiz";
       }
 
       return [firstOp,
