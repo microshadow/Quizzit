@@ -10,7 +10,7 @@ import Jumbotron from 'react-bootstrap/lib/Jumbotron';
 import './answerpage.css'
 var globals = require('./globals');
 
-export class AnswerPage extends React.Component {
+class AnswerPage extends React.Component {
     constructor(props){
         super(props);
         /*here we would get the data from the database*/
@@ -170,3 +170,5 @@ export class AnswerPage extends React.Component {
     }
 
 }
+
+export default AnswerPage;

@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 
 import { STUDENT, EDUCATOR, ADMIN, createVerticalDivider } from './globals.js';
 import './style/sidebar.css';
+import { Link } from 'react-router-dom';
+
 
 class Sidebar extends Component {
   constructor(props) {
@@ -17,7 +19,7 @@ class Sidebar extends Component {
     return [
       {
         "name": "CSC309",
-        "quiz": null
+        "quiz": "/answerPage"
       },
       {
         "name": "CSC302",
@@ -25,7 +27,7 @@ class Sidebar extends Component {
       },
       {
         "name": "CSC367",
-        "quiz": "#"
+        "quiz": "/answerPage"
       }];
   }
 
@@ -34,7 +36,7 @@ class Sidebar extends Component {
       const links = [
         {
           "text": "View History",
-          "href": "#"
+          "href": "/viewHistory"
         }];
 
       if (course.quiz != null) {
@@ -52,7 +54,7 @@ class Sidebar extends Component {
         firstOp["href"] = course.quiz;
       } else {
         firstOp["text"] = "Create Quiz";
-        firstOp["href"] = "#";
+        firstOp["href"] = "/createQuiz";
       }
 
       return [firstOp,
@@ -93,11 +95,11 @@ class Sidebar extends Component {
 
     const createLink = (linkInfo) => (
       <li>
-        <a href={linkInfo.href}>
+        <Link to={linkInfo.href}>
           <div className="qButton">
             {linkInfo.text}
           </div>
-        </a>
+        </Link>
       </li>
     )
     const linkComponents = linkMeta.map(createLink);

@@ -10,7 +10,7 @@ import ListGroup from 'react-bootstrap/lib/ListGroup';
 import './createquizpage.css';
 var globals = require('./globals');
 
-export class CreateQuizPage extends React.Component {
+class CreateQuizPage extends React.Component {
     constructor(props){
         super(props);
         /*here we would get the data from the database*/
@@ -317,3 +317,5 @@ class QuestionsList extends React.Component{
         );
     }
 }
+
+export default CreateQuizPage;
