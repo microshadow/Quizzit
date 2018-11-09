@@ -2,36 +2,13 @@ import React from 'react';
 import Chart from 'chart.js';
 import './style/gradeChart.css';
 
+import Template from './mainTemplate.js';
+import ProgressBar from './progressBar.js';
+import { createVerticalDivider } from './globals.js';
+
 const chartObject = []; // array of chart(myChart, object); 2nd parameter for class Chart.
 var arrayOfCorrect = []; //array of user input
 
-var barChart;
-const barChart1 = {
-    type: "bar",
-    data: {
-        labels: ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10"],
-        datasets: [{
-            label: "class result",
-            data: [],
-            backgroundColor: ["red", "yellow", "blue", "green", "orange", "purple", "aqua", "blueviolet", "coral", "greenyellow"],
-            borderWidth: 2,
-            borderColor: "gray"
-        }]
-    },
-    options: {
-        title: {
-            display: true,
-            text: "Class Outcome for Quiz#1",
-            fontSize: 25,
-        },
-        legend: {
-            position: "right",
-        }
-    },
-
-};
-
-chartObject.push(barChart1);
 
 function getInputValue() {
     arrayOfCorrect = document.getElementById("numberOfCorrect").value.split(",");
@@ -80,37 +57,169 @@ function whichQuestionIsHard() {
 }
 
 
-
 export class GradeChart extends React.Component{
     constructor(props){
         super(props);
-        this.state = {};
+
+        this.getQuizData = this.getQuizData.bind(this);
+        this.getChart = this.getChart.bind(this);
+        this.createGraph = this.createGraph.bind(this);
+        this.createPerformanceGraphs = this.createPerformanceGraphs.bind(this);
+        this.resetPerformance = this.resetPerformance.bind(this);
+
+        this.state = {
+          quizData: {
+            name: "",
+            average: 100,
+            attendance: 0,
+            enrolment: 0
+          },
+          performanceGraphs: []
+        };
     }
 
-    componentDidMount(){
-        let myChart = document.getElementById("myChart").getContext("2d");
-        this.createChart = () => {
-            getInputValue();
-            barChart = new Chart(myChart, barChart1);
-            whichQuestionIsHard();
-        }
+    getQuizData(quizNum) {
+      return {
+        name: "Matter and the Elements",
+        average: 97.59,
+        attendance: 27,
+        enrolment: 36,
+        questions: [
+          {
+            name: "Question 1",
+            text: "Question Text Here",
+            topics: [],
+            answers: [
+              {
+                key: "a",
+                text: "Answer (a)",
+                chosenBy: 18
+              },
+              {
+                key: "c",
+                text: "Answer (b)",
+                chosenBy: 5
+              },
+              {
+                key: "d",
+                text: "Answer (c)",
+                chosenBy: 3
+              },
+              {
+                key: "b",
+                text: "Answer (b)",
+                chosenBy: 1
+              }
+            ],
+            correct: ["a"]
+          },
+          {
+            name: "Question 2",
+            text: "Question Text Here",
+            topics: [],
+            answers: [
+              {
+                key: "c",
+                text: "Answer (c)",
+                chosenBy: 26
+              },
+              {
+                key: "b",
+                text: "Answer (b)",
+                chosenBy: 1
+              }
+            ],
+            correct: ["c"]
+          },
+        ]
+      }
     }
 
-    render(){
-        return(
-            <div>
-                <div>
-                    <input type="text" id="numberOfCorrect" placeholder="input the number of students who answer correctly for each question" />
-                    <button onClick={()=>{this.createChart()}}>Show me the Grade Chart</button>
-                </div>
-                <div class="container">
-                    <canvas id="myChart"></canvas>
-                </div>
-                <div>
-                    <p id="outputMessage"></p>
-                </div>
-            </div>
+    getChart(quizName, chartContainer, question) {
+      const answerKeys = question.answers.map((answer) => answer.key);
+      const data = question.answers.map((answer) => answer.chosenBy);
+      const colorOptions = ["red", "yellow", "blue", "green", "orange",
+                            "purple", "aqua", "blueviolet", "coral",
+                            "greenyellow"];
 
-        );
+      return new Chart(chartContainer, {
+          type: "pie",
+          data: {
+              labels: answerKeys,
+              datasets: [{
+                  label: "class result",
+                  data: data,
+                  backgroundColor: colorOptions.splice(0, question.answers.length)
+              }]
+          },
+          options: {
+              title: {
+                  display: true,
+                  text: `${question.name} Performance`,
+                  fontSize: 25,
+              },
+              legend: {
+                  position: "right",
+              }
+          },
+      });
     }
+
+  createGraph(question, title) {
+    const container = document.getElementById("performanceStats");
+    const chartHolder = document.createElement("canvas");
+    chartHolder.classList.add("performanceGraph");
+    container.appendChild(chartHolder);
+
+    this.state.performanceGraphs.push(this.getChart(title, chartHolder, question));
+  }
+
+  createPerformanceGraphs(title) {
+    this.state.quizData.questions.map((question) => this.createGraph(question, title));
+  }
+
+  resetPerformance() {
+    const container = document.getElementById("performanceList");
+    while (container.children.length > 0) {
+      const child = container.children[0];
+      container.removeChild(child);
+    }
+
+    this.state.performanceGraphs = [];
+  }
+
+  componentDidMount() {
+    const quizNum = this.props.match.params.quizNum;
+    const courseName = this.props.match.params.course;
+    const quizTitle = `Quiz ${quizNum}: ${courseName}`;
+
+    this.state.quizData = this.getQuizData(quizTitle);
+    this.createPerformanceGraphs(quizTitle);
+  }
+
+  render() {
+    return (
+      <Template userType={this.props.userType}>
+        <div id="classStatsHeader">
+          <h1>
+            Quiz {this.props.match.params.quizNum}: {this.state.quizData.name}
+          </h1>
+          <h3>
+            Performance
+          </h3>
+          <div id="classInfo" className="d-flex">
+            <ProgressBar percent={this.state.quizData.average}>
+              Class Average
+            </ProgressBar>
+            { createVerticalDivider(24, "background-light") }
+            <ProgressBar percent={this.state.quizData.attendance / this.state.quizData.enrolment * 100}>
+              Attendance
+            </ProgressBar>
+          </div>
+          <div id="performanceStats" className="container">
+          </div>
+        </div>
+      </Template>
+    );
+  }
 }

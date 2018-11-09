@@ -10,7 +10,7 @@ import CreateQuizPage from "./createQuizPage.js";
 import AnswerPage  from "./answerPage.js"
 import { GradeChart } from "./GradeChart.js";
 import { StudentSummaryChart } from "./StudentSummaryChart.js";
-import { STUDENT, ADMIN, EDUCATOR } from "./globals.js";
+import { STUDENT, EDUCATOR, ADMIN } from "./globals.js";
 
 
 let userType = STUDENT;
@@ -29,11 +29,13 @@ class Router extends Component {
                     <Route path="/signUp" exact render={
                       () => <SignUpScreen setUserType={setUserType}/>
                     }/>
-                    <Route path="/:course/gradeChart" component={GradeChart}/>
+                    <Route path="/:course/:quizNum/gradeChart" render={
+                      (props) => <GradeChart userType={userType} {...props}/>
+                    }/>
                     <Route path="/:course/studentSummary" render={
                       (props) => <StudentSummaryChart userType={userType} {...props}/>
                     }/>
-                    <Route path="/dashboard" exact render={() => <Dashboard userType={STUDENT}/>} />
+                    <Route path="/dashboard" exact render={() => <Dashboard userType={EDUCATOR}/>} />
                     <Route path="/dashboardStudent" exact render={()=><Dashboard userType={STUDENT}/>} />
                     <Route path="/dashboardAdmin" exact render={()=><Dashboard userType={ADMIN}/>} />
                     <Route path="/dashboardEducator" exact render={()=><Dashboard userType={EDUCATOR}/>} />

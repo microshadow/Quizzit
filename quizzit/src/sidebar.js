@@ -60,7 +60,7 @@ class Sidebar extends Component {
       return [firstOp,
         {
           "text": "View History",
-          "href": `/${course.name}/gradeChart`
+          "href": `/${course.name}/1/gradeChart`
         },
         /**
         Not Yet Implemented
@@ -78,7 +78,7 @@ class Sidebar extends Component {
         },
         {
           "text": "View History",
-          "href": `/${course.name}/gradeChart`
+          "href": `/${course.name}/1/gradeChart`
         },
         /**
         Not Yet Implemented
@@ -97,6 +97,9 @@ class Sidebar extends Component {
     const targetSelector = `#${targetID}`;
     const parentSelector = `#${parentID}`;
 
+    // console.log("Blah");
+    // console.log(this.props);
+    // const linkMeta = [];
     const linkMeta = this.getCourseDropdownLinks(course);
 
     const createLink = (linkInfo) => (
@@ -142,7 +145,6 @@ class Sidebar extends Component {
   }
 
   render() {
-    console.log("Render");
     return (
       <div id="sidebarContainer" className="d-flex align-items-stretch">
         { createVerticalDivider(8, "detail-dark") }
