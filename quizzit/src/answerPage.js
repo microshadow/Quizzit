@@ -9,7 +9,7 @@ import ListGroup from 'react-bootstrap/lib/ListGroup';
 import Jumbotron from 'react-bootstrap/lib/Jumbotron';
 
 import './answerpage.css'
-var globals = require('./globals.js');
+var globals = require('./globals');
 
 export class AnswerPage extends React.Component {
     constructor(props){
