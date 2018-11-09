@@ -2,10 +2,11 @@ import React from 'react';
 import Chart from 'chart.js';
 import PopperJs from 'popper.js';
 import './style/gradeChart.css';
+import Button from 'react-bootstrap/lib/Button';
 
 var pieChart;
 var quizMarks = [];
-const peiChartObject = {
+const pieChartObject = {
     type: "pie",
     data: {
         labels: ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "chapter6", "chapter7", "chapter8", "chapter9", "chapter10"],
@@ -32,9 +33,9 @@ const peiChartObject = {
 function getQuizMarks() {
     quizMarks = document.getElementById("quizMarks").value.split(",");
 
-    if (peiChartObject.data.datasets[0].data.length == 0) {
+    if (pieChartObject.data.datasets[0].data.length == 0) {
         for (let i = 0; i < quizMarks.length; i++) {
-            peiChartObject.data.datasets[0].data.push(quizMarks[i]);
+            pieChartObject.data.datasets[0].data.push(quizMarks[i]);
             //console.log(arrayOfCorrect.length);
             //console.log(arrayOfCorrect[0]);
         }
@@ -87,22 +88,23 @@ export class StudentSummaryChart extends React.Component{
         let myChart = document.getElementById("myChart").getContext("2d");
         this.createChart = () => {
             getQuizMarks();
-            barChart = new Chart(myChart, peiChartObject);
+            this.barChart = new Chart(myChart, pieChartObject);
             getTheWorstQuiz();
         }
     }
    
     render(){
         return(
-            <input type="text" id="quizMarks" placeholder="input marks for each quiz">
+            <div>
+                <input type="text" id="quizMarks" placeholder="input marks for each quiz" />
 
-            <button id="peiChartBtn" onclick={()=>{this.createPieChart()}}>Show me my marks for all quizzes</button>
+                <Button id="pieChartBtn" onclick={()=>{this.createPieChart()}}>Show me my marks for all quizzes</Button>
 
-                <div className="container">
-                    <canvas id="myChart"></canvas>
-                </div>
+                    <div className="container">
+                        <canvas id="myChart"></canvas>
+                    </div>
+                <p id="outputWorstMark"></p>
             </div>
-            <p id="outputWorstMark"></p>
         );
     }
 }
