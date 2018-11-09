@@ -37,29 +37,15 @@ export class StudentSummaryChart extends React.Component{
 
     render(){
         return(
-            <div>
-                <div className="dropdown">
-                    <a className="btn btn-secondary dropdown-toggle" 
-                    href="#" 
-                    role="button" 
-                    id="dropdownMenuLink" 
-                    data-toggle="dropdown" 
-                    aria-haspopup="true" 
-                    aria-expanded="false">
-                        Choose your Course
-                    </a>
+            <input type="text" id="quizMarks" placeholder="input marks for each quiz">
 
-                    <div className="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <a className="dropdown-item" href="#">Action</a>
-                        <a className="dropdown-item" href="#">Another action</a>
-                        <a className="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </div>
+            <button id="peiChartBtn" onclick="createPieChart()">Show me my marks for all quizzes</button>
 
                 <div className="container">
                     <canvas id="myChart"></canvas>
                 </div>
             </div>
+            <p id="outputWorstMark"></p>
         );
     }
 }
