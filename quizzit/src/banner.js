@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
-import { userType, createHorizontalDivider } from './globals.js';
+import { STUDENT, EDUCATOR, ADMIN, createHorizontalDivider } from './globals.js';
 import './style/banner.css';
 
 
@@ -36,21 +37,26 @@ class Banner extends Component {
                         ? this.props.loggedIn
                         : false;
     const buttonText = loggedIn ? "Log In" : "Log Out";
+    const link = loggedIn ? "/logIn" : "/";
 
     return (
-      <a href="#">
+      <Link to={link}>
         <div id="logButton" className="linkButton qButton textshadow">
           { buttonText }
         </div>
-      </a>
+      </Link>
     );
   }
 
   getStatsLink() {
+    let href = this.props.userType === STUDENT ? "/studentStats" : "/gradeChart";
+
     return (
-      <div id="statsButton" className="linkButton qButton textshadow">
-        My Stats
-      </div>
+      <Link to="href">
+        <div id="statsButton" className="linkButton qButton textshadow">
+          My Stats
+        </div>
+      </Link>
     )
   }
 
@@ -60,9 +66,11 @@ class Banner extends Component {
         <div id="banner" className="d-flex justify-content-between align-items-center">
           { this.makeLogo() }
           <div className="links d-flex justify-content-end">
-            <div id="homeButton" className="linkButton qButton textshadow">
-              Home
-            </div>
+            <Link to="/dashboard">
+              <div id="homeButton" className="linkButton qButton textshadow">
+                Home
+              </div>
+            </Link>
             { this.getStatsLink() }
             { this.getLoginButton() }
           </div>

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 import { STUDENT, EDUCATOR, ADMIN, createVerticalDivider } from './globals.js';
 import './style/sidebar.css';
@@ -34,13 +35,13 @@ class Sidebar extends Component {
       const links = [
         {
           "text": "View History",
-          "href": "#"
+          "href": `/${course.name}/1/studentSummary`
         }];
 
       if (course.quiz != null) {
         links.push({
           "text": "Take Quiz",
-          "href": course.quiz
+          "href": `/${course.name}/${course.quiz}`
         });
       }
 
@@ -49,7 +50,7 @@ class Sidebar extends Component {
       let firstOp = {}
       if (course.quiz != null) {
         firstOp["text"] = "View Quiz";
-        firstOp["href"] = course.quiz;
+        firstOp["href"] = `${course.name}/${course.quiz}`;
       } else {
         firstOp["text"] = "Create Quiz";
         firstOp["href"] = "#";
@@ -58,12 +59,15 @@ class Sidebar extends Component {
       return [firstOp,
         {
           "text": "View History",
-          "href": "#"
+          "href": `/${course.name}/gradeChart`
         },
+        /**
+        Not Yet Implemented
         {
           "text": "Enrolment",
           "href": "#"
         }
+        **/
       ];
     } else if (this.props.userType === ADMIN) {
       return [
@@ -73,12 +77,15 @@ class Sidebar extends Component {
         },
         {
           "text": "View History",
-          "href": "#"
+          "href": `/${course.name}/gradeChart`
         },
+        /**
+        Not Yet Implemented
         {
           "text": "Enrolment",
           "href": "#"
         }
+        **/
       ];
     }
   }
@@ -93,11 +100,11 @@ class Sidebar extends Component {
 
     const createLink = (linkInfo) => (
       <li>
-        <a href={linkInfo.href}>
+        <Link to={linkInfo.href}>
           <div className="qButton">
             {linkInfo.text}
           </div>
-        </a>
+        </Link>
       </li>
     )
     const linkComponents = linkMeta.map(createLink);
@@ -134,6 +141,7 @@ class Sidebar extends Component {
   }
 
   render() {
+    console.log("Render");
     return (
       <div id="sidebarContainer" className="d-flex align-items-stretch">
         { createVerticalDivider(8, "detail-dark") }

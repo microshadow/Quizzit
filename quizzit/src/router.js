@@ -10,6 +10,12 @@ import { GradeChart } from "./gradeChart.js";
 import { StudentSummaryChart } from "./studentSummaryChart.js";
 import { STUDENT } from "./globals.js";
 
+
+let userType = STUDENT;
+function setUserType(newUserType) {
+  userType = newUserType;
+}
+
 class Router extends Component {
     render() {
         return (
@@ -17,10 +23,15 @@ class Router extends Component {
                 <Switch>
                     <Route path="/" exact component={WelcomeScreen}/>
                     <Route path="/logIn" exact component={LogInScreen}/>
-                    <Route path="/signUp" exact component={SignUpScreen}/>
-                    <Route path="/gradeChart" exact component={GradeChart}/>
-                    <Route path="/studentSummary" exact component={StudentSummaryChart}/>
-                    <Route path="/dashboard" exact render={()=><Dashboard userType={STUDENT}/>} />
+                    }/>
+                    <Route path="/signUp" exact render={
+                      () => <SignUpScreen setUserType={setUserType}/>
+                    }/>
+                    <Route path="/:course/:quiz/gradeChart" component={GradeChart}/>
+                    <Route path="/:course/:quiz/studentSummary" render={
+                      (props) => <StudentSummaryChart userType={userType} {...props}/>
+                    }/>
+                    <Route path="/dashboard" exact render={() => <Dashboard userType={STUDENT}/>} />
                 </Switch>
             </HashRouter>
         );
