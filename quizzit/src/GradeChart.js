@@ -5,7 +5,6 @@ import './style/gradeChart.css';
 const chartObject = []; // array of chart(myChart, object); 2nd parameter for class Chart.
 var arrayOfCorrect = []; //array of user input
 
-var barChart;
 const barChart1 = {
     type: "bar",
     data: {

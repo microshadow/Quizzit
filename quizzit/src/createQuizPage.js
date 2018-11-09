@@ -8,7 +8,7 @@ import Row from 'react-bootstrap/lib/Row';
 import ListGroup from 'react-bootstrap/lib/ListGroup';
 
 import './createquizpage.css';
-var globals = require('./globals.js');
+var globals = require('./globals');
 
 export class CreateQuizPage extends React.Component {
     constructor(props){

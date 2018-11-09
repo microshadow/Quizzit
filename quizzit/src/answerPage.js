@@ -5,7 +5,6 @@ import Tab from 'react-bootstrap/lib/Tab';
 import Form from 'react-bootstrap/lib/Form';
 import Col from 'react-bootstrap/lib/Col';
 import Row from 'react-bootstrap/lib/Row';
-import ListGroup from 'react-bootstrap/lib/ListGroup';
 import Jumbotron from 'react-bootstrap/lib/Jumbotron';
 
 import './answerpage.css'
