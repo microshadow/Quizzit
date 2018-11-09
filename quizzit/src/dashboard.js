@@ -6,6 +6,10 @@ import EventNotification from './eventNotification.js';
 import ProgressBar from './progressBar.js';
 import { STUDENT, createHorizontalDivider, createVerticalDivider } from './globals.js';
 import './style/dash.css';
+import './style/sidebar.css';
+import './style/banner.css';
+import './style/progressBar.css';
+import './style/index.css';
 
 class Dashboard extends Component {
   constructor(props) {
