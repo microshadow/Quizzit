@@ -17,15 +17,15 @@ class AnswerPage extends React.Component {
         /*or we pass it as props from a higher order component that gets the data for us*/
         this.state = {
             quizzes: globals.quiz_data,
-            selectedIndex: -1, 
-            selectedQuiz: 0, 
+            selectedIndex: -1,
+            selectedQuiz: 0,
             selectedCheckbox: -1,
             score: 0,
             progress: 0,
             answers: [],
         }
     }
-    
+
     startQuiz(){
         this.setState({selectedIndex: 0, progress: 0, score: 0, answers: []});
     }
@@ -63,10 +63,10 @@ class AnswerPage extends React.Component {
             alert("The correct answer was '"+correct_answer+"'.");
         }
         const new_progress = this.state.progress+1;
-        const isFinished = this.state.selectedIndex+1 == activeQuiz.questions.length;
+        const isFinished = this.state.selectedIndex+1 === activeQuiz.questions.length;
         const new_index = isFinished ? -2 : this.state.selectedIndex+1;
         this.setState({
-            score: new_score, 
+            score: new_score,
             progress: new_progress,
             selectedIndex: new_index,
             selectedCheckbox: -1,
@@ -83,7 +83,6 @@ class AnswerPage extends React.Component {
             let results_array = globals.score_data;
             results_array.push(result);
             globals.score_data.data = results_array;
-            console.log(globals.score_data);
         }
     }
 
@@ -92,7 +91,7 @@ class AnswerPage extends React.Component {
         const activeQuestionIndex = this.state.selectedIndex;
         const activeQuiz = this.state.quizzes[selectedQuiz];
         const activeQuestion = activeQuiz.questions[activeQuestionIndex];
-        return( 
+        return(
             <div className="createquiz_container">
                 <Tabs defaultActiveKey="quiz" id="uncontrolled-tab-example">
                     <Tab eventKey="quiz" title="Do Quiz" >
@@ -118,10 +117,10 @@ class AnswerPage extends React.Component {
                                     Progress: {this.state.progress}/{activeQuiz.questions.length}
                                 </Form.Label>
                             </Form.Group>
-                            {(this.state.selectedIndex === -1) ? 
+                            {(this.state.selectedIndex === -1) ?
                                 <Button bsStyle="primary" onClick={()=>this.startQuiz()}>Start Quiz</Button>
                             :
-                            (this.state.selectedIndex === -2) ? 
+                            (this.state.selectedIndex === -2) ?
                                 <div>
                                     <p>You got {this.state.score} out of {activeQuiz.questions.length} questions right. Congrats!</p>
                                     <Button bsStyle="primary" onClick={()=>this.startQuiz()}>Restart Quiz</Button>

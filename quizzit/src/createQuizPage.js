@@ -29,7 +29,7 @@ class CreateQuizPage extends React.Component {
     }
 
     render(){
-        return( 
+        return(
             <div className="createquiz_container">
                 <Tabs defaultActiveKey="question" id="uncontrolled-tab-example">
                     <Tab eventKey="quiz" title="New Quiz" >
@@ -70,7 +70,7 @@ class CreatequizForm extends React.Component {
                         <Form.Control value={this.state.title} onChange={(event)=>this.setTitle(event.target.value)} type="text" placeholder="Title" />
                     </Col>
                 </Form.Group>
-                <Button variant="primary" type="submit" onClick={() => 
+                <Button variant="primary" type="submit" onClick={() =>
                     {
                         this.props.createQuiz(this.state.title)
                         this.setTitle("");
@@ -86,8 +86,8 @@ class CreatequestionForm extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            selectedIndex: -1, 
-            selectedQuiz: 0, 
+            selectedIndex: -1,
+            selectedQuiz: 0,
             selectedCheckbox: -1,
             questionTitle: "",
             choiceValues: ["","","",""],
@@ -96,13 +96,13 @@ class CreatequestionForm extends React.Component{
     }
 
     changeActiveQuestion(index){
-        if(index == -1){ 
+        if(index === -1){
             //changing to "add question" mode, reset the "selected question" index
             // and the selected checkbox
             this.setState({
-                selectedIndex: index, 
+                selectedIndex: index,
                 selectedCheckbox: index,
-                choiceValues: ["","","",""], 
+                choiceValues: ["","","",""],
                 questionTitle: ""
             });
         }
@@ -110,8 +110,8 @@ class CreatequestionForm extends React.Component{
             const activeQuiz = this.props.quizzes[this.state.selectedQuiz];
             if(activeQuiz == null) return;
             const activeIndex = activeQuiz.questions[index].correct_index;
-            this.setState({selectedIndex: index, 
-                selectedCheckbox: activeIndex, 
+            this.setState({selectedIndex: index,
+                selectedCheckbox: activeIndex,
                 questionTitle: activeQuiz.questions[index].question,
                 choiceValues: activeQuiz.questions[index].choices});
         }
@@ -119,7 +119,6 @@ class CreatequestionForm extends React.Component{
 
     deleteQuestion(index){
         const selectedQuiz = this.state.selectedQuiz;
-        const activeQuestionIndex = this.state.selectedIndex;
         let new_quizzes_array = this.props.quizzes;
         new_quizzes_array[selectedQuiz].questions.splice(index, 1);
         //make sure that you clear the modify field in case the deleted question is displayed there
@@ -140,9 +139,9 @@ class CreatequestionForm extends React.Component{
             }
         new_quizzes_array[selectedQuiz].questions.push(new_question)
         this.setState({
-            quizzes: new_quizzes_array, 
+            quizzes: new_quizzes_array,
             selectedCheckbox: -1,
-            choiceValues: ["","","",""], 
+            choiceValues: ["","","",""],
             questionTitle: ""
         });
         //do server request here after "optimistic" UI update
@@ -210,8 +209,8 @@ class CreatequestionForm extends React.Component{
                 <Form.Label column sm={2}>
                     Questions
                 </Form.Label>
-                <QuestionsList 
-                    questions={activeQuiz.questions} 
+                <QuestionsList
+                    questions={activeQuiz.questions}
                     changeActiveQuestion={this.changeActiveQuestion.bind(this)}
                     deleteQuestion={this.deleteQuestion.bind(this)}
                     />
@@ -220,21 +219,21 @@ class CreatequestionForm extends React.Component{
                 <Form.Label column sm={2}>
                     <b>{(!hasActiveQuestion) ? "Add" : "Modify"} question</b>
                 </Form.Label>
-                {(hasActiveQuestion) ? 
+                {(hasActiveQuestion) ?
                     <Form.Label column sm={6}>
-                       <Form.Control onChange={(event)=>{this.handleChangeTitle(event)}} 
-                            value={this.state.questionTitle} 
+                       <Form.Control onChange={(event)=>{this.handleChangeTitle(event)}}
+                            value={this.state.questionTitle}
                             placeholder={this.props.quizzes[selectedQuiz].questions[activeQuestionIndex].question}/>
                     </Form.Label>
                 :   <Form.Label column sm={4}>
-                        <Form.Control onChange={(event)=>{this.handleChangeTitle(event)}} 
-                            value={this.state.questionTitle} 
+                        <Form.Control onChange={(event)=>{this.handleChangeTitle(event)}}
+                            value={this.state.questionTitle}
                             placeholder="type question"/>
                     </Form.Label>
                 }
-                {(hasActiveQuestion) ? 
+                {(hasActiveQuestion) ?
                     <Form.Label column sm={2}>
-                        <a id="changeMode_link" onClick={()=>{this.changeActiveQuestion(-1)}}>Add new question instead</a>
+                        <button id="changeMode_link" onClick={()=>{this.changeActiveQuestion(-1)}}>Add new question instead</button>
                     </Form.Label>
                 : ""
                 }
@@ -281,8 +280,8 @@ class CreatequestionForm extends React.Component{
                 </Col>
             </Form.Group>
         </fieldset>
-            <Button variant="primary" 
-                type="submit" 
+            <Button variant="primary"
+                type="submit"
                 onClick={hasActiveQuestion ? (event)=>this.modifyQuestion(event) : (event)=>this.addQuestion(event)}>
                 {hasActiveQuestion ? "Modify" : "Add"} question
             </Button>
@@ -292,7 +291,7 @@ class CreatequestionForm extends React.Component{
 
 class QuestionsList extends React.Component{
     render(){
-        if(this.props.questions.length == 0){
+        if(this.props.questions.length === 0){
             return (
                 <ListGroup>
                     <ListGroup.Item key={0}>No questions added</ListGroup.Item>
