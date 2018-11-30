@@ -27,15 +27,7 @@ class LogInScreen extends Component {
     logIn(e) {
         console.log(this.refs.username.value);
         const user = this.refs.username.value;
-        var pushLink = "";
-        if (user === "Admin") {
-            pushLink = "/dashboardAdmin";
-        } else if (user === "Educator") {
-            pushLink = "/dashboardEducator";
-        } else {
-            pushLink = "dashboardStudent";
-        }
-        this.props.history.push(pushLink);
+        this.props.history.push("/dashboard");
     }
 
     render() {
@@ -46,7 +38,7 @@ class LogInScreen extends Component {
                      <input ref="username" type="text" style={inputStyle} className="form-control" placeholder="Username" name="uname"></input><br/>
                      <input type="password" style={inputStyle} className="form-control" placeholder="Password" name="pword"></input><br/>
                      <button className="btn btn-primary" style={buttonStyle} onClick={this.logIn}>Log In</button>
-                </form> 
+                </form>
             </div>
         );
     }

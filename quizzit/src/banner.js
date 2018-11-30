@@ -47,15 +47,21 @@ class Banner extends Component {
   }
 
   getStatsLink() {
-    let href = this.props.userType === STUDENT ? "/studentStats" : "/gradeChart";
 
-    return (
-      <Link to="href">
-        <div id="statsButton" className="linkButton qButton textshadow">
-          My Stats
-        </div>
-      </Link>
-    )
+    if (this.props.userType === STUDENT) {
+      const studentId = 1;
+      let href = `/summary/${studentId}`;
+
+      return (
+        <Link to={href}>
+          <div id="statsButton" className="linkButton qButton textshadow">
+            My Stats
+          </div>
+        </Link>
+      );
+    } else {
+      return null;
+    }
   }
 
   render() {
