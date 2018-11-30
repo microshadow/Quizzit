@@ -8,8 +8,9 @@ import Dashboard from "./dashboard.js";
 import SignUpScreen from "./signUpScreen.js";
 import CreateQuizPage from "./createQuizPage.js";
 import AnswerPage  from "./answerPage.js"
-import { GradeChart } from "./GradeChart.js";
-import { StudentSummaryChart } from "./StudentSummaryChart.js";
+import ClassQuizResults from "./classQuizResults.js";
+import StudentQuizResults from "./studentQuizResults.js";
+import StudentSummary from './studentSummary.js';
 import { STUDENT, EDUCATOR, ADMIN } from "./globals.js";
 
 
@@ -29,16 +30,16 @@ class Router extends Component {
                     <Route path="/signUp" exact render={
                       () => <SignUpScreen setUserType={setUserType}/>
                     }/>
-                    <Route path="/:course/:quizNum/gradeChart" render={
-                      (props) => <GradeChart userType={userType} {...props}/>
+                    <Route path="/:course/:quizNum/grades" render={
+                      (props) => <StudentQuizResults userType={userType} {...props}/>
                     }/>
-                    <Route path="/:course/studentSummary" render={
-                      (props) => <StudentSummaryChart userType={userType} {...props}/>
+                    <Route path="/:course/:quizNum/overview" render={
+                      (props) => <ClassQuizResults userType={userType} {...props}/>
+                    }/>
+                    <Route path="/summary/:studentId" render={
+                      (props) => <StudentSummary userType={userType} {...props}/>
                     }/>
                     <Route path="/dashboard" exact render={() => <Dashboard userType={EDUCATOR}/>} />
-                    <Route path="/dashboardStudent" exact render={()=><Dashboard userType={STUDENT}/>} />
-                    <Route path="/dashboardAdmin" exact render={()=><Dashboard userType={ADMIN}/>} />
-                    <Route path="/dashboardEducator" exact render={()=><Dashboard userType={EDUCATOR}/>} />
                     <Route path="/createQuiz" exact component={CreateQuizPage}/>
                     <Route path="/answerPage" exact component={AnswerPage}/>
                 </Switch>

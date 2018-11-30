@@ -19,7 +19,7 @@ class Sidebar extends Component {
     return [
       {
         "name": "CSC309",
-        "quiz": "/answerPage"
+        "quiz": "1"
       },
       {
         "name": "CSC302",
@@ -27,7 +27,7 @@ class Sidebar extends Component {
       },
       {
         "name": "CSC367",
-        "quiz": "/answerPage"
+        "quiz": "1"
       }];
   }
 
@@ -36,7 +36,9 @@ class Sidebar extends Component {
       const links = [
         {
           "text": "View History",
-          "href": `/${course.name}/studentSummary`
+          "href": course.quiz === null
+                  ? null
+                  : `/${course.name}/${course.quiz}/grades`
         }];
 
       if (course.quiz != null) {
@@ -60,7 +62,9 @@ class Sidebar extends Component {
       return [firstOp,
         {
           "text": "View History",
-          "href": `/${course.name}/1/gradeChart`
+          "href": course.quiz === null
+                  ? null
+                  : `/${course.name}/${course.quiz}/overview`
         },
         /**
         Not Yet Implemented
@@ -78,7 +82,7 @@ class Sidebar extends Component {
         },
         {
           "text": "View History",
-          "href": `/${course.name}/1/gradeChart`
+          "href": `/${course.name}/${course.quiz}/overview`
         },
         /**
         Not Yet Implemented
@@ -97,31 +101,40 @@ class Sidebar extends Component {
     const targetSelector = `#${targetID}`;
     const parentSelector = `#${parentID}`;
 
-    // console.log("Blah");
-    // console.log(this.props);
-    // const linkMeta = [];
     const linkMeta = this.getCourseDropdownLinks(course);
 
-    const createLink = (linkInfo) => (
-      <li>
-        <Link to={linkInfo.href}>
-          <div className="qButton">
-            {linkInfo.text}
-          </div>
-        </Link>
-      </li>
-    )
+    const createLink = (linkInfo) => {
+      if (linkInfo.href) {
+        return (
+          <li>
+            <Link to={linkInfo.href}>
+              <div className="qButton">
+                {linkInfo.text}
+              </div>
+            </Link>
+          </li>
+        );
+      } else {
+        return (
+          <li>
+            <div className="qButton">
+              {linkInfo.text}
+            </div>
+          </li>
+        );
+      }
+    }
     const linkComponents = linkMeta.map(createLink);
 
     return (
       <div id={controllerID} className="courseControl">
-        <div class="qButton courseLabel textshadow" type="button"
+        <div className="qButton courseLabel textshadow" type="button"
              data-toggle="collapse" data-target={targetSelector}
              aria-expanded="true" aria-controls={targetID}
           >
           {course.name}
         </div>
-        <div id={targetID} class="courseMenu collapse"
+        <div id={targetID} className="courseMenu collapse"
              aria-labelledby={controllerID} data-parent={parentSelector}
           >
           <ul>
@@ -140,7 +153,6 @@ class Sidebar extends Component {
       (course) => this.constructCourseMenu(course, parentID)
     );
 
-    console.log(linkComponents);
     return linkComponents;
   }
 

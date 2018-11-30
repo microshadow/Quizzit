@@ -4,11 +4,11 @@ import Template from './mainTemplate.js';
 import ReportNotification from './reportNotification.js';
 import EventNotification from './eventNotification.js';
 import ProgressBar from './progressBar.js';
-import { STUDENT, createHorizontalDivider, createVerticalDivider } from './globals.js';
+import { STUDENT, createVerticalDivider } from './globals.js';
+
 import './style/dash.css';
 import './style/sidebar.css';
 import './style/banner.css';
-import './style/progressBar.css';
 import './style/index.css';
 
 class Dashboard extends Component {
@@ -28,9 +28,10 @@ class Dashboard extends Component {
       {
         type: "event",
         data: {
-          title: "ICS2P1 Quiz 2: String Parsing",
+          subject: "ICS2P1",
+          series: 2,
+          title: "String Parsing",
           description: "Description of quiz goes here...",
-          href: "#",
           meta: {
             numQuestions: 12,
             numStudents: 27
@@ -40,9 +41,10 @@ class Dashboard extends Component {
       {
         type: "event",
         data: {
-          title: "MPM1D3 Quiz 1: Set Theory",
+          subject: "MPM1D3",
+          series: 1,
+          title: "Set Theory",
           description: "Description of quiz goes here...",
-          href: "#",
           meta: {
             numQuestions: 8,
             numStudents: 23
@@ -52,9 +54,10 @@ class Dashboard extends Component {
       {
         type: "report",
         data: {
-          title: "SNC1D3 Quiz 4: Matter and the Elements",
+          subject: "SNC1D3",
+          series: 4,
+          title: "Matter and the Elements",
           description: "Description of quiz goes here...",
-          href: "#",
           average: 97.57,
           questions: [
             {
@@ -87,6 +90,12 @@ class Dashboard extends Component {
   }
 
   packageReportNotification(notification) {
+    if (this.props.userType === STUDENT) {
+      notification.href = `${notification.href}/grades`;
+    } else {
+      notification.href = `${notification.href}/overview`;
+    }
+
     const firstThreeQuestions = notification.questions.slice(0, 3);
     const children = firstThreeQuestions.map((question) => (
       <ProgressBar percent={question.score}>
@@ -107,10 +116,19 @@ class Dashboard extends Component {
   }
 
   packageNotification(notification) {
+    const noteData = notification.data;
+    const title = `${noteData.subject} Quiz ${noteData.series}: ${noteData.title}`;
+    const href = `#/${noteData.subject}/${noteData.series}`;
+
+    delete noteData.subject;
+    delete noteData.series;
+    noteData.title = title;
+    noteData.href  = href;
+
     if (notification.type === "event") {
-      return this.packageEventNotification(notification.data);
+      return this.packageEventNotification(noteData);
     } else if (notification.type === "report") {
-      return this.packageReportNotification(notification.data);
+      return this.packageReportNotification(noteData);
     }
   }
 
