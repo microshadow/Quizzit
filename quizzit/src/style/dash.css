@@ -20,16 +20,8 @@
   margin-bottom: 16px;
 }
 
-.dashboardNote a {
-  color: var(--background-dark);
-}
-
-.dashboardNote a:hover {
+.dashboardNote h5:hover {
   color: grey;
-}
-
-.notification {
-  padding: 12px 24px 16px 24px;
 }
 
 .notificationDescription {
@@ -42,15 +34,8 @@
   z-index: 2;
 }
 
-.notification .progressBar {
+.blockTitle .progressBar {
   box-shadow: 2px 2px 4px var(--background-medium);
-}
-
-.notification > .horDivider {
-  margin-top: 8px;
-  margin-bottom: 8px;
-
-  box-shadow: 0 1px 2px var(--background-medium);
 }
 
 .notificationMeta {

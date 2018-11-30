@@ -44,6 +44,10 @@ ul {
   padding: 0 0 0 18px;
 }
 
-li .qButton {
+#sidebar li .qButton {
   text-align: left;
+}
+
+#sidebar li > .qButton:hover {
+  background-color: var(--detail-light);
 }

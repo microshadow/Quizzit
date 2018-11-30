@@ -1,0 +1,224 @@
+/**
+ * Progress bar classes, colours and text positioning.
+**/
+
+.progressBar * {
+  color: var(--font-color);
+  font-family: var(--font-family);
+  font-weight: bold;
+}
+
+.progressBar {
+  position: relative;
+
+  width: 300px;
+  border: solid 2px var(--detail-light);
+}
+
+.progressFill {
+  position: relative;
+  text-align: left;
+  height: 30px;
+  line-height: 30px;
+  overflow: hidden;
+}
+
+.progressBarText {
+  position: absolute;
+  line-height: 30px;
+
+  top: 0px;
+  left: 12px;
+}
+
+.progressBarPercent {
+  position: absolute;
+  line-height: 24px;
+  right: 8px;
+  top: 4px;
+}
+
+.textOverlay {
+  color: var(--background-light);
+
+  z-index: 2;
+  white-space: nowrap;
+}
+
+/**
+ * Pie chart colours and element positioning.
+**/
+
+.pieChart {
+  display: inline-block;
+  box-shadow: 0 0 8px 4px var(--background-medium);
+
+  padding: 12px 32px 16px 32px;
+  margin: 0px 24px 24px 0px;
+}
+
+.ct-chart {
+   display: flex;
+   position: relative;
+   flex-direction: row-reverse;
+   max-height: 150px;
+   /* max-width: calc(100% - 800px); */
+
+   justify-content: left;
+   /* position: relative; */
+   /* left: -800px; */
+ }
+
+ .pieChart h5 {
+   color: var(--background-dark);
+   font-weight: bold;
+ }
+
+ .ct-chart-pie {
+   position: relative;
+
+   max-width: 150px;
+   max-height: 150px;
+   overflow: hidden;
+ }
+
+ .ct-chart-pie g:last-child {
+   display: none;
+ }
+
+ .ct-slice-pie {
+   stroke: var(--background-light);
+   stroke-width: 1px;
+ }
+
+ .ct-legend {
+   display: flex;
+   padding-top: 14px;
+
+   flex-direction: column;
+   flex-wrap: wrap;
+   max-height: 100%;
+ }
+
+ .ct-legend li {
+   font-family: var(--font-family);
+   color: #444;
+   line-height: 24px;
+
+   position: relative;
+   padding-left: 16px;
+   margin-right: 16px;
+ }
+
+ .ct-legend li:before {
+   width: 12px;
+   height: 12px;
+   position: absolute;
+   left: 0px;
+   top: 25%;
+
+   content: '';
+   border-radius: 2px;
+   border: 1px solid var(--background-dark);
+ }
+
+ .ct-series, .ct-legend li:before {
+   fill: var(--stat-elem-colour);
+   background-color: var(--stat-elem-colour);
+ }
+
+ .ct-series-a, .ct-series-0 {
+   --stat-elem-colour: darkred;
+ }
+
+ .ct-series-b, .ct-series-1 {
+   --stat-elem-colour: crimson;
+ }
+
+ .ct-series-c, .ct-series-2 {
+   --stat-elem-colour: salmon;
+ }
+
+ .ct-series-d, .ct-series-3 {
+   --stat-elem-colour: tomato;
+ }
+
+ .ct-series-e, .ct-series-4 {
+   --stat-elem-colour: orangered;
+ }
+
+ .ct-series-f, .ct-series-5 {
+   --stat-elem-colour: darkorange;
+ }
+
+ .ct-series-g, .ct-series-6 {
+   --stat-elem-colour: gold;
+ }
+
+ .ct-series-h, .ct-series-7 {
+   --stat-elem-colour: yellowgreen;
+ }
+
+ .ct-series-i, .ct-series-8 {
+   --stat-elem-colour: lawngreen;
+ }
+
+ .ct-series-j, .ct-series-9 {
+   --stat-elem-colour: springgreen;
+ }
+
+ .ct-series-k, .ct-series-10 {
+   --stat-elem-colour: mediumspringgreen;
+ }
+
+ .ct-series-l, .ct-series-11 {
+   --stat-elem-colour: lightseagreen;
+ }
+
+ .correctAnswer {
+   --stat-elem-colour: limegreen;
+ }
+
+
+/**
+ * Attendance Tables
+**/
+
+.displayTable {
+  display: inline-table;
+  border-collapse: separate;
+  border: 2px solid var(--detail-light);
+  padding: 1px;
+  border-spacing: 2px;
+}
+
+.displayTable th, .displayTable td {
+  text-align: center;
+  font-family: var(--font-family);
+  font-weight: bold;
+  color: var(--font-color);
+
+  background-color: var(--background-medium);
+}
+
+.displayTable td.target {
+  background-color: lightcoral;
+}
+
+.displayTable td, .displayTable th {
+  height: 28px;
+}
+
+.displayTable td div, .displayTable th div,
+.displayTable td a, .displayTable th a {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  padding: 4px 8px 4px 8px;
+  color: var(--font-color);
+}
+
+.displayTable td a:hover, .displayTable th a:hover {
+  background-color: var(--background-dark);
+}
