@@ -5,10 +5,6 @@ import { createVerticalDivider } from './globals.js';
 
 
 class EventNotification extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const exclaimedTitle = `ACTIVE - ${this.props.title}`;
 

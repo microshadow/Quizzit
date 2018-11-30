@@ -6,10 +6,6 @@ import { STUDENT, createHorizontalDivider, createVerticalDivider } from './globa
 
 
 class ReportNotification extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const avgReportText = this.props.userType === STUDENT
                             ? "My Grade"

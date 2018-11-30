@@ -3,16 +3,12 @@ import React, { Component } from 'react';
 import { createHorizontalDivider } from './globals.js';
 
 class Notification extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <div className="dashboardNote">
         { createHorizontalDivider(6, "detail-light") }
-        <div className="notification">
-          <a href={this.props.href}>
+        <div className="blockTitle ml-4 mt-3 mb-4">
+          <a className="font-dark" href={this.props.href}>
             <h5>
               {this.props.title}
             </h5>
