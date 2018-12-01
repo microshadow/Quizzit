@@ -38,9 +38,9 @@ class Banner extends Component {
 
   getStatsLink() {
     let href = this.props.userType === STUDENT ? "/studentStats" : "/gradeChart";
-
+    
     return (
-      <Link to="href">
+      <Link to={href}>
         <div id="statsButton" className="linkButton qButton textshadow">
           My Stats
         </div>
