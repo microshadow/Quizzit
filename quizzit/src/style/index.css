@@ -32,7 +32,7 @@ a, a:hover {
 
   color: var(--font-color);
   font-family: var(--font-typeface);
-  font-size: var(--font-size);
+  font-size: 1rem;
   font-weight: bold;
 }
 
@@ -64,6 +64,7 @@ a, a:hover {
 #pageContent {
   height: 100%;
   overflow-y: scroll;
+  padding-bottom: 100px;
 }
 
 #pageContentShadow {

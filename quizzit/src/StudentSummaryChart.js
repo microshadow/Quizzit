@@ -66,7 +66,7 @@ export class StudentSummaryChart extends React.Component{
     this.resetChart();
 
     return(
-      <Template userType={this.props.userType}>
+      <div>
         <input id="quizInput" placeholder="Enter a Quiz Number"/>
         <Button onClick={this.loadChart}>
           Display Quiz Performance:
@@ -74,7 +74,7 @@ export class StudentSummaryChart extends React.Component{
         <div className="container">
           <canvas id="myChart"></canvas>
         </div>
-      </Template>
+      </div>
     );
   }
 }

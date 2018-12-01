@@ -14,13 +14,14 @@
 
 #coursesHeader {
   color: var(--font-color);
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-family: var(--font-typeface);
   font-weight: bold;
 
-  padding: 8px 24px 8px 24px;
+  padding: 8px 14px 8px 14px;
   border-top: solid 1.5px var(--background-light);
   border-bottom: solid 1.5px var(--background-light);
+  text-align: center;
 }
 
 .courseLabel {

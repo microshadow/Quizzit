@@ -19,15 +19,15 @@ class Sidebar extends Component {
     return [
       {
         "name": "CSC309",
-        "quiz": "/answerPage"
+        "quiz": "answerPage"
       },
       {
         "name": "CSC302",
-        "quiz": null
+        "quiz": "answerPage"
       },
       {
         "name": "CSC367",
-        "quiz": "/answerPage"
+        "quiz": "answerPage"
       }];
   }
 
@@ -36,13 +36,13 @@ class Sidebar extends Component {
       const links = [
         {
           "text": "View History",
-          "href": `/${course.name}/studentSummary`
+          "href": `/studentSummary/${course.name}`
         }];
 
       if (course.quiz != null) {
         links.push({
           "text": "Take Quiz",
-          "href": `/${course.name}/${course.quiz}`
+          "href": `/${course.quiz}/${course.name}`
         });
       }
 
@@ -50,8 +50,8 @@ class Sidebar extends Component {
     } else if (this.props.userType === EDUCATOR) {
       let firstOp = {}
       if (course.quiz != null) {
-        firstOp["text"] = "View Quiz";
-        firstOp["href"] = `${course.name}/${course.quiz}`;
+        firstOp["text"] = "Open Quizzes";
+        firstOp["href"] = `${course.quiz}/${course.name}/`;
       } else {
         firstOp["text"] = "Create Quiz";
         firstOp["href"] = "/createQuiz";
@@ -59,16 +59,9 @@ class Sidebar extends Component {
 
       return [firstOp,
         {
-          "text": "View History",
-          "href": `/${course.name}/1/gradeChart`
+          "text": "Past Quizzes",
+          "href": `/gradeChart/${course.name}/`
         },
-        /**
-        Not Yet Implemented
-        {
-          "text": "Enrolment",
-          "href": "#"
-        }
-        **/
       ];
     } else if (this.props.userType === ADMIN) {
       return [
@@ -78,15 +71,8 @@ class Sidebar extends Component {
         },
         {
           "text": "View History",
-          "href": `/${course.name}/1/gradeChart`
+          "href": `/gradeChart/${course.name}/`
         },
-        /**
-        Not Yet Implemented
-        {
-          "text": "Enrolment",
-          "href": "#"
-        }
-        **/
       ];
     }
   }
@@ -102,30 +88,29 @@ class Sidebar extends Component {
     // const linkMeta = [];
     const linkMeta = this.getCourseDropdownLinks(course);
 
-    const createLink = (linkInfo) => (
-      <li>
-        <Link to={linkInfo.href}>
-          <div className="qButton">
-            {linkInfo.text}
-          </div>
-        </Link>
-      </li>
-    )
-    const linkComponents = linkMeta.map(createLink);
-
     return (
       <div id={controllerID} className="courseControl">
-        <div class="qButton courseLabel textshadow" type="button"
+        <div className="qButton courseLabel textshadow" type="button"
              data-toggle="collapse" data-target={targetSelector}
              aria-expanded="true" aria-controls={targetID}
           >
           {course.name}
         </div>
-        <div id={targetID} class="courseMenu collapse"
+        <div id={targetID} className="courseMenu collapse"
              aria-labelledby={controllerID} data-parent={parentSelector}
           >
           <ul>
-            {linkComponents}
+            {linkMeta.map(
+              (linkInfo) => (
+                <li>
+                  <Link to={linkInfo.href}>
+                    <div className="qButton">
+                      {linkInfo.text}
+                    </div>
+                  </Link>
+                </li>
+              )
+            )}
           </ul>
         </div>
       </div>
