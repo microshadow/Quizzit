@@ -185,10 +185,30 @@
 **/
 
 .displayTable {
-  display: inline-table;
-  border-collapse: separate;
+  display: inline-block;
   border: 2px solid var(--detail-light);
   padding: 1px;
+}
+
+.displayTable * {
+  text-shadow: 0 0 6px var(--font-border);
+}
+
+.displayTable .tableTitle {
+  text-align: center;
+  font-family: var(--font-family);
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: var(--font-color);
+
+  margin: 2px 2px 0 2px;
+  padding: 4px;
+  background-color: var(--background-medium);
+}
+
+.displayTable table {
+  display: inline-table;
+  border-collapse: separate;
   border-spacing: 2px;
 }
 
@@ -217,6 +237,11 @@
 
   padding: 4px 8px 4px 8px;
   color: var(--font-color);
+}
+
+.displayTable td a, .displayTable th a {
+  text-decoration: underline;
+  text-underline-position: under;
 }
 
 .displayTable td a:hover, .displayTable th a:hover {

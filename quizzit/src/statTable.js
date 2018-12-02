@@ -3,21 +3,45 @@ import { Link } from 'react-router-dom';
 
 import './style/statDisplays.css';
 
-export default class Table extends Component {
+
+function highlightWrongAnswer(row, col, ind) {
+  const cell = row[ind];
+  const qLabel = col;
+
+  const qIndex = this.state.quiz.questions.findIndex((q) => q.display === qLabel);
+  if (qIndex < 0) {
+    return false;
+  }
+  const question = this.state.quiz.questions[qIndex];
+
+  const answerIndex = question.options.findIndex((a) => a.display === cell.text);
+  return !question.correct.includes(answerIndex);
+}
+
+
+class Table extends Component {
   constructor(props) {
     super(props);
 
-    this.createInnerCell = this.createInnerCell.bind(this);
+    this.state = {
+      columnHeads: []
+    };
+
+    this.createInnerElem = this.createInnerElem.bind(this);
     this.createHeaders = this.createHeaders.bind(this);
     this.createRow = this.createRow.bind(this);
   }
 
-  createInnerCell(cellMeta) {
-    return "href" in cellMeta
-           ? (<Link to={cellMeta.href}>
-                {cellMeta.text}
-              </Link>)
-           : (<div>{cellMeta.text}</div>);
+  createInnerElem(cellMeta) {
+    if (!cellMeta) {
+      return (<div/>);
+    } else {
+      return "href" in cellMeta
+             ? (<Link to={cellMeta.href}>
+                  {cellMeta.text}
+                </Link>)
+             : (<div>{cellMeta.text}</div>);
+    }
   }
 
   createHeaders(headers) {
@@ -26,7 +50,7 @@ export default class Table extends Component {
         {headers.map((headerMeta) => {
           return (
             <th>
-              { this.createInnerCell(headerMeta) }
+              { this.createInnerElem(headerMeta) }
             </th>
           );
         })}
@@ -34,64 +58,67 @@ export default class Table extends Component {
     );
   }
 
-  createRow(leadMeta, data, isTarget) {
-    let regularCount = data.length;
-    const indices = [...Array(data.length).keys()];
+  createRow(index, heads, rowData, tails) {
+    const tailValues = tails.map((tail) => {
+      return {text: tail.generate(index, rowData)};
+    });
 
-    let dataCells = indices.map((ind) => {
-      const text = data[ind];
-      const head  = this.props.headers[ind + 1].text;
+    const textLabels = heads.concat(rowData).concat(tailValues);
+    const indices = [...Array(textLabels.length).keys()];
 
-      let className = "";
-      if (isTarget([leadMeta].concat(data), head, text)) {
-        regularCount -= 1.0;
-        className = "target";
-      }
+    const dataCells = indices.map((ind) => {
+      const cell = textLabels[ind];
+      const head = this.state.columnHeads[ind].text;
+
+      const className = this.props.highlight(textLabels, head, ind) ? "target" : "";
       return (
         <td className={className}>
-          {text}
+          {this.createInnerElem(cell)}
         </td>
-      )});
-
-      console.log(leadMeta, data);
-
-    const totalCount = data.length;
-    const percentage = (regularCount * 100.0) / totalCount;
+      );
+    });
 
     return (
       <tr>
-        <td>
-          {this.createInnerCell(leadMeta)}
-        </td>
         {dataCells}
-        <td className="percentReport">
-          <div>
-            {`${percentage.toFixed(2)}%`}
-          </div>
-        </td>
       </tr>
-    )
+    );
   }
 
   render() {
-    const heads = this.props.headers;
-    const cells = this.props.data;
+    const isString = (obj) => typeof obj === "string" || obj instanceof String;
+    const convertToObj = (unit) => isString(unit) ? {text: unit} : unit;
 
-    const absentMark = "A";
-    const classGenerator = (cell) => {
-      return cell === absentMark ? "absent" : "";
-    }
+    const extractColHeads = (aux) => aux.map((auxCol) => auxCol.colHead);
+    const heads = extractColHeads(this.props.heads)
+                  .concat(this.props.columnHeads)
+                  .concat(extractColHeads(this.props.tails))
+                  .map(convertToObj);
+    const cells = this.props.data.map((row) => row.map(convertToObj));
+
+    const rowIndices = [...Array(cells.length).keys()];
+
+    this.state.columnHeads = heads;
 
     return (
-      <table className="displayTable">
-        <thead>
-        </thead>
-        <tbody>
-          {this.createHeaders(heads)}
-          {cells.map((row) => this.createRow(row[0], row.splice(1),
-                                             this.props.targetter))}
-        </tbody>
-      </table>
+      <div className="displayTable">
+        <div className="tableTitle">
+          {this.props.title}
+        </div>
+        <table>
+          <thead>
+            {this.createHeaders(heads)}
+          </thead>
+          <tbody>
+            {rowIndices.map((ind) => this.createRow(ind,
+                                                    this.props.heads.map((head) => convertToObj(head.rows[ind])),
+                                                    cells[ind],
+                                                    this.props.tails))}
+          </tbody>
+        </table>
+      </div>
     );
   }
 }
+
+export { Table, highlightWrongAnswer };
