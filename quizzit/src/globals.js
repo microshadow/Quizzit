@@ -89,6 +89,14 @@ function createVerticalDivider(width, color) {
   )
 }
 
+function nRange(n) {
+  return [...Array(n).keys()];
+}
+
+function toPercent(num, digits) {
+  return `${num.toFixed(digits)}%`;
+}
+
 export {
   quiz_data,
   score_data,
@@ -97,5 +105,7 @@ export {
   ADMIN,
   translateUserType as userType,
   createHorizontalDivider,
-  createVerticalDivider
+  createVerticalDivider,
+  toPercent,
+  nRange
 };

@@ -50,7 +50,7 @@ export default class StudentSummary extends Component {
   render() {
     const fullName = this.state.first + " " + this.state.last;
     return (
-      <Template userType={this.props.userType}>
+      <div className="studentWholeSummary">
         <div className="blockTitle ml-4 mb-3 mt-3">
           <h3 className="figure mb-1">
             {fullName}
@@ -60,7 +60,7 @@ export default class StudentSummary extends Component {
           </h5>
         </div>
         { this.getCourseSummaries() }
-      </Template>
+      </div>
     )
   }
 }

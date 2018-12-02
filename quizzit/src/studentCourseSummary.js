@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 
 import Template from './mainTemplate.js';
 import ProgressBar from './progressBar.js';
-import Table from './statTable.js';
-import { createHorizontalDivider } from './globals.js';
+import { Table } from './statTable.js';
+import { createHorizontalDivider, toPercent } from './globals.js';
 
 
 export default class StudentCourseSummary extends Component {
@@ -11,82 +11,95 @@ export default class StudentCourseSummary extends Component {
     super(props);
 
     this.state = {
-      id: null,
-      first: null,
-      last: null,
-      quizzes: []
+      student: {
+        id: null,
+        first: null,
+        last: null
+      },
+      performance: {
+        average: 0,
+        history: []
+      }
     };
 
     this.createAverageBar = this.createAverageBar.bind(this);
-    this.createAttendanceGraph = this.createAttendanceGraph.bind(this);
+    this.createPerformanceGraph = this.createPerformanceGraph.bind(this);
   }
 
   createAverageBar() {
-    const reducer = (acc, quiz) => quiz.grade ? acc + quiz.grade : acc;
-    const gradesSum = this.state.quizzes.reduce(reducer, 0);
-    const gradesPercent = gradesSum / this.state.quizzes.length;
-
     return (
-      <ProgressBar percent={gradesPercent}>
+      <ProgressBar percent={this.state.performance.average}>
         Current Average
       </ProgressBar>
     )
   }
 
-  createAttendanceGraph() {
-    const data = this.state.quizzes.map((quiz) =>
-      quiz.grade ? "P" : "A"
+  createPerformanceGraph() {
+    // Define table cell values: either "A" if the student missed the quiz,
+    // or their grade otherwise.
+    const data = this.state.performance.history.map((quiz) =>
+      quiz.grade ? toPercent(quiz.grade, 2) : "A"
     );
-    const headers = this.state.quizzes.map((quiz) => {
-      const quizHead = {
+
+    // Define values for the row of headers at the top of the table.
+    // Quizzes the student did not skip contain links to their results page.
+    const headers = this.state.performance.history.map((quiz) => {
+      const basis = {
         text: `Quiz ${quiz.series}`,
+        expanded: quiz.title
       };
 
       if (quiz.grade) {
-        quizHead.href = `/${this.props.course}/${quiz.series}/grades`;
+        basis.href = `/${this.props.course}/${quiz.series}/grades`;
       }
 
-      return quizHead;
+      return basis;
     });
 
     return (
-      <Table title="Attendance Record"
-             headers={[{text: null}].concat(headers) }
-             data={ [[{text: "Grade"}].concat(data)] }
-             targetter={(row, column, value) => value === "A"}>
+      <Table title={`${this.props.course} Performance Record`}
+             columnHeads={[""].concat(headers)}
+             data={[["Grade"].concat(data)]}
+             highlight={(row, column, ind) => row[ind].text === "A"}
+             heads={[]}
+             tails={[{colHead: "Average", generate: (ind, row) => toPercent(this.state.performance.average, 2)},
+                     {colHead: "Attendance", generate: (ind, row) => toPercent(row.filter((cell) => cell.text !== "A").length * 100.0 / row.length)}]}>
       </Table>
-
-      // I want to display attendance, overall average,
     );
   }
 
   componentDidMount() {
     const loadState = {
-      id: this.props.studentId,
-      first: "Daniel",
-      last: "Hubbs",
-      quizzes: [
-        {
-          series: 1,
-          title: "Units and Scientific Notation",
-          grade: 92.2125152
-        },
-        {
-          series: 2,
-          title: "The Solar System",
-          grade: null
-        },
-        {
-          series: 3,
-          title: "Astronomy Unit Test",
-          grade: 96.2951251
-        },
-        {
-          series: 4,
-          title: "Matter and the Elements",
-          grade: 75.0000000
-        }
-      ]
+      student: {
+        id: this.props.studentId,
+        first: "Daniel",
+        last: "Hubbs"
+      },
+      performance: {
+        average: 60.25126126,
+        history: [
+          {
+            series: 1,
+            title: "Units and Scientific Notation",
+            grade: 92.2125152
+          },
+          {
+            series: 2,
+            title: "Stars and Planets",
+            grade: null
+          },
+          {
+            series: 3,
+            title: "Astronomy Unit Test",
+            grade: 96.2951251
+          },
+          {
+            series: 4,
+            title: "Matter and the Elements",
+            grade: 75.0000000
+          }
+        ]
+      }
     };
 
     this.setState(loadState);
@@ -104,8 +117,8 @@ export default class StudentCourseSummary extends Component {
         </div>
         <div className="ml-4">
           { this.createAverageBar() }
-          { createHorizontalDivider(16, "background-light") }
-          { this.createAttendanceGraph() }
+          { createHorizontalDivider(14, "background-light")}
+          { this.createPerformanceGraph() }
         </div>
       </div>
     );

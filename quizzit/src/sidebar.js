@@ -23,7 +23,6 @@ class Sidebar extends Component {
       },
       {
         "name": "CSC302",
-        "quiz": "answerPage"
       },
       {
         "name": "CSC367",
@@ -36,7 +35,7 @@ class Sidebar extends Component {
       const links = [
         {
           "text": "View History",
-          "href": course.quiz === null
+          "href": !course.quiz && course.quiz !== 0
                   ? null
                   : `/${course.name}/${course.quiz}/grades`
         }];
@@ -52,16 +51,20 @@ class Sidebar extends Component {
     } else if (this.props.userType === EDUCATOR) {
       let firstOp = {}
       if (course.quiz != null) {
-        firstOp["text"] = "Open Quizzes";
+        firstOp["text"] = "Open Quiz";
         firstOp["href"] = `${course.quiz}/${course.name}/`;
       } else {
         firstOp["text"] = "Create Quiz";
-        firstOp["href"] = "/createQuiz";
+        firstOp["href"] = `/createQuiz/${course.name}`;
       }
 
       return [firstOp,
         {
+<<<<<<< HEAD
           "text": "View History",
+=======
+          "text": "Past Quizzes",
+>>>>>>> statsViewPrep
           "href": course.quiz === null
                   ? null
                   : `/${course.name}/${course.quiz}/overview`
@@ -89,7 +92,11 @@ class Sidebar extends Component {
 
     const linkMeta = this.getCourseDropdownLinks(course);
 
+<<<<<<< HEAD
     const createLink = (linkInfo) => {
+=======
+    const linkComponents = linkMeta.map((linkInfo) => {
+>>>>>>> statsViewPrep
       if (linkInfo.href) {
         return (
           <li>
@@ -109,8 +116,7 @@ class Sidebar extends Component {
           </li>
         );
       }
-    }
-    const linkComponents = linkMeta.map(createLink);
+    });
 
     return (
       <div id={controllerID} className="courseControl">
@@ -124,17 +130,7 @@ class Sidebar extends Component {
              aria-labelledby={controllerID} data-parent={parentSelector}
           >
           <ul>
-            {linkMeta.map(
-              (linkInfo) => (
-                <li>
-                  <Link to={linkInfo.href}>
-                    <div className="qButton">
-                      {linkInfo.text}
-                    </div>
-                  </Link>
-                </li>
-              )
-            )}
+            { linkComponents }
           </ul>
         </div>
       </div>
