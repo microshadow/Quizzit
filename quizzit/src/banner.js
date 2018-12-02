@@ -16,24 +16,14 @@ class Banner extends Component {
 
   makeLogo() {
     return (
-      <div id="mainLogo"
-           style={{
-             "width": "150px",
-             "color": "white",
-             "fontFamily": "Helvetica",
-             "fontSize": "2rem",
-             "lineHeight": "74px",
-             "textAlign": "center"
-           }}>
+      <div id="mainLogo">
         Quizzit
       </div>
     )
   }
 
   getLoginButton() {
-    const loggedIn = 'loggedIn' in this.props
-                        ? this.props.loggedIn
-                        : false;
+    const loggedIn = this.props.loggedIn;
     const buttonText = loggedIn ? "Log In" : "Log Out";
     const link = loggedIn ? "/logIn" : "/";
 

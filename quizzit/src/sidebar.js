@@ -23,7 +23,7 @@ class Sidebar extends Component {
       },
       {
         "name": "CSC302",
-        "quiz": null
+        "quiz": "answerPage"
       },
       {
         "name": "CSC367",
@@ -44,7 +44,7 @@ class Sidebar extends Component {
       if (course.quiz != null) {
         links.push({
           "text": "Take Quiz",
-          "href": `/${course.name}/${course.quiz}`
+          "href": `/${course.quiz}/${course.name}`
         });
       }
 
@@ -52,8 +52,8 @@ class Sidebar extends Component {
     } else if (this.props.userType === EDUCATOR) {
       let firstOp = {}
       if (course.quiz != null) {
-        firstOp["text"] = "View Quiz";
-        firstOp["href"] = `${course.name}/${course.quiz}`;
+        firstOp["text"] = "Open Quizzes";
+        firstOp["href"] = `${course.quiz}/${course.name}/`;
       } else {
         firstOp["text"] = "Create Quiz";
         firstOp["href"] = "/createQuiz";
@@ -66,13 +66,6 @@ class Sidebar extends Component {
                   ? null
                   : `/${course.name}/${course.quiz}/overview`
         },
-        /**
-        Not Yet Implemented
-        {
-          "text": "Enrolment",
-          "href": "#"
-        }
-        **/
       ];
     } else if (this.props.userType === ADMIN) {
       return [
@@ -84,13 +77,6 @@ class Sidebar extends Component {
           "text": "View History",
           "href": `/${course.name}/${course.quiz}/overview`
         },
-        /**
-        Not Yet Implemented
-        {
-          "text": "Enrolment",
-          "href": "#"
-        }
-        **/
       ];
     }
   }
@@ -138,7 +124,17 @@ class Sidebar extends Component {
              aria-labelledby={controllerID} data-parent={parentSelector}
           >
           <ul>
-            {linkComponents}
+            {linkMeta.map(
+              (linkInfo) => (
+                <li>
+                  <Link to={linkInfo.href}>
+                    <div className="qButton">
+                      {linkInfo.text}
+                    </div>
+                  </Link>
+                </li>
+              )
+            )}
           </ul>
         </div>
       </div>

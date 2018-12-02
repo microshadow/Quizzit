@@ -17,7 +17,7 @@ class Dashboard extends Component {
 
     this.state = {name: "Daniel"};
 
-    this.getNotifications    = this.getNotifications.bind(this);
+    this.getNotifications = this.getNotifications.bind(this);
     this.packageEventNotification  = this.packageEventNotification.bind(this);
     this.packageReportNotification = this.packageReportNotification.bind(this);
     this.packageNotification = this.packageNotification.bind(this);
@@ -137,7 +137,7 @@ class Dashboard extends Component {
     const notificationElements = notifications.map(this.packageNotification);
 
     return (
-      <Template userType={this.props.userType}>
+      <div>
         <div id="dashHeader" className="d-inline-flex align-items-stretch">
           { createVerticalDivider(12, "detail-light") }
           { createVerticalDivider(6, "background-light") }
@@ -150,7 +150,7 @@ class Dashboard extends Component {
           { createVerticalDivider(12, "detail-light") }
         </div>
         { notificationElements }
-      </Template>
+      </div>
     );
   }
 }
