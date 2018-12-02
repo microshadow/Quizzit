@@ -45,7 +45,7 @@ class Dashboard extends Component {
           series: 1,
           title: "Set Theory",
           description: "Description of quiz goes here...",
-          meta: {
+          extra: {
             numQuestions: 8,
             numStudents: 23
           }
@@ -58,21 +58,23 @@ class Dashboard extends Component {
           series: 4,
           title: "Matter and the Elements",
           description: "Description of quiz goes here...",
-          average: 97.57,
-          questions: [
-            {
-              name: "Question 5",
-              score: 24.31
-            },
-            {
-              name: "Question 2",
-              score: 41.20
-            },
-            {
-              name: "Question 3",
-              score: 47.84
-            }
-          ]
+          extra: {
+            average: 97.57,
+            questions: [
+              {
+                name: "Question 5",
+                score: 24.31
+              },
+              {
+                name: "Question 2",
+                score: 41.20
+              },
+              {
+                name: "Question 3",
+                score: 47.84
+              }
+            ]
+          }
         }
       }
     ];
@@ -83,7 +85,7 @@ class Dashboard extends Component {
       <EventNotification title={notification.title}
                          description={notification.description}
                          href={notification.href}
-                         meta={notification.meta}
+                         meta={notification.extra}
                          userType={this.props.userType}
       />
     );
@@ -96,7 +98,9 @@ class Dashboard extends Component {
       notification.href = `${notification.href}/overview`;
     }
 
-    const firstThreeQuestions = notification.questions.slice(0, 3);
+    const firstThreeQuestions = notification.extra.questions.length > 3
+                                : notification.extra.questions.slice(0, 3)
+                                ? notification.extra.questions;
     const children = firstThreeQuestions.map((question) => (
       <ProgressBar percent={question.score}>
         {question.name}
@@ -107,7 +111,7 @@ class Dashboard extends Component {
       <ReportNotification title={notification.title}
                           description={notification.description}
                           href={notification.href}
-                          average={notification.average}
+                          average={notification.extra.average}
                           userType={this.props.userType}
         >
         {children}

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
 import { STUDENT, createHorizontalDivider } from './globals.js';
+import bannerImage from './media/QuizzitLogoHorizontal.png';
 import './style/banner.css';
 
 
@@ -16,18 +17,9 @@ class Banner extends Component {
 
   makeLogo() {
     return (
-      <div id="mainLogo"
-           style={{
-             "width": "150px",
-             "color": "white",
-             "fontFamily": "Helvetica",
-             "fontSize": "2rem",
-             "lineHeight": "74px",
-             "textAlign": "center"
-           }}>
-        Quizzit
-      </div>
-    )
+      <img src={bannerImage} id="mainLogo"
+           alt="Quizzit Logo"/>
+    );
   }
 
   getLoginButton() {
