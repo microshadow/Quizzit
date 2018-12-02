@@ -17,7 +17,7 @@ class Dashboard extends Component {
 
     this.state = {name: "Daniel"};
 
-    this.getNotifications    = this.getNotifications.bind(this);
+    this.getNotifications = this.getNotifications.bind(this);
     this.packageEventNotification  = this.packageEventNotification.bind(this);
     this.packageReportNotification = this.packageReportNotification.bind(this);
     this.packageNotification = this.packageNotification.bind(this);
@@ -81,6 +81,12 @@ class Dashboard extends Component {
   }
 
   packageEventNotification(notification) {
+    if (this.props.userType === STUDENT) {
+      notification.href = `#/answerPage/${notification.subject}`;
+    } else {
+      notification.href = `#/createQuiz/${notification.subject}`;
+    }
+
     return (
       <EventNotification title={notification.title}
                          description={notification.description}
@@ -92,10 +98,11 @@ class Dashboard extends Component {
   }
 
   packageReportNotification(notification) {
+    const hrefBase = `#/${notification.subject}/${notification.series}`;
     if (this.props.userType === STUDENT) {
-      notification.href = `${notification.href}/grades`;
+      notification.href = `${hrefBase}/grades`;
     } else {
-      notification.href = `${notification.href}/overview`;
+      notification.href = `${hrefBase}/overview`;
     }
 
     const firstThreeQuestions = notification.extra.questions.length > 3
@@ -122,12 +129,9 @@ class Dashboard extends Component {
   packageNotification(notification) {
     const noteData = notification.data;
     const title = `${noteData.subject} Quiz ${noteData.series}: ${noteData.title}`;
-    const href = `#/${noteData.subject}/${noteData.series}`;
 
-    delete noteData.subject;
     delete noteData.series;
     noteData.title = title;
-    noteData.href  = href;
 
     if (notification.type === "event") {
       return this.packageEventNotification(noteData);
@@ -141,7 +145,7 @@ class Dashboard extends Component {
     const notificationElements = notifications.map(this.packageNotification);
 
     return (
-      <Template userType={this.props.userType}>
+      <div>
         <div id="dashHeader" className="d-inline-flex align-items-stretch">
           { createVerticalDivider(12, "detail-light") }
           { createVerticalDivider(6, "background-light") }
@@ -154,7 +158,7 @@ class Dashboard extends Component {
           { createVerticalDivider(12, "detail-light") }
         </div>
         { notificationElements }
-      </Template>
+      </div>
     );
   }
 }

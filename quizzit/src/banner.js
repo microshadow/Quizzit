@@ -23,9 +23,7 @@ class Banner extends Component {
   }
 
   getLoginButton() {
-    const loggedIn = 'loggedIn' in this.props
-                        ? this.props.loggedIn
-                        : false;
+    const loggedIn = this.props.loggedIn;
     const buttonText = loggedIn ? "Log In" : "Log Out";
     const link = loggedIn ? "/logIn" : "/";
 

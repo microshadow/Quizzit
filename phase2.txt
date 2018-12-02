@@ -1,0 +1,6 @@
+Include a phase2.txt explaining in detail how to use the application, the roles of users and how the users would go about using all the features of your website. Using the main features of your project should be intuitive enough that any user with access to your URL should be able to discover all its features.
+Also, provide an overview of the routes in your Express server, and what they are used for in your app.
+
+You will also create and edit a file called phase2.txt in your repo, which will give the TA instructions on how to use your web app, including appropriate login credentials. It should briefly explain any edits you made to the features of your web application (and any new features), and how an end user would use each of your features (include separate instructions for user and admin).
+
+

@@ -241,7 +241,7 @@ export default class StudentQuizResults extends React.Component{
     };
 
     return(
-      <Template userType={this.props.userType}>
+      <div className="studentQuizResults">
         <div className="blockTitle ml-4 mt-3 mb-4">
           <h3 className="figure">
             {quizTitle}
@@ -302,7 +302,7 @@ export default class StudentQuizResults extends React.Component{
                  }}]}>
           </Table>
         </div>
-      </Template>
+      </div>
     );
   }
 }

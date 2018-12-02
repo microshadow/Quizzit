@@ -361,7 +361,7 @@ export default class ClassQuizResults extends Component {
     const questionStatCharts = this.generateQuestionStatsChart(questionStats);
 
     return (
-      <Template userType={this.props.userType}>
+      <div className="classResults">
         <div className="blockTitle ml-4 mt-3 mb-4">
           <h3 className="figure mb-1">
             {quizTitle}
@@ -384,15 +384,12 @@ export default class ClassQuizResults extends Component {
           </ProgressBar>
           { createHorizontalDivider(16, "background-light") }
           { performanceRecord }
-          { createHorizontalDivider(16, "background-light") }
+          { createHorizontalDivider(20, "background-light") }
           <div className="d-flex flex-wrap">
             { questionStatCharts }
           </div>
         </div>
-      </Template>
+      </div>
     )
   }
 }
-
-// { attendanceRecord }
-// { createHorizontalDivider(40, "background-light") }

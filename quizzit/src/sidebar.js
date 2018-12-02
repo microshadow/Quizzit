@@ -23,7 +23,6 @@ class Sidebar extends Component {
       },
       {
         "name": "CSC302",
-        "quiz": null
       },
       {
         "name": "CSC367",
@@ -36,7 +35,7 @@ class Sidebar extends Component {
       const links = [
         {
           "text": "View History",
-          "href": course.quiz === null
+          "href": !course.quiz && course.quiz !== 0
                   ? null
                   : `/${course.name}/${course.quiz}/grades`
         }];
@@ -44,7 +43,7 @@ class Sidebar extends Component {
       if (course.quiz != null) {
         links.push({
           "text": "Take Quiz",
-          "href": `/${course.name}/${course.quiz}`
+          "href": `/${course.quiz}/${course.name}`
         });
       }
 
@@ -52,27 +51,20 @@ class Sidebar extends Component {
     } else if (this.props.userType === EDUCATOR) {
       let firstOp = {}
       if (course.quiz != null) {
-        firstOp["text"] = "View Quiz";
-        firstOp["href"] = `${course.name}/${course.quiz}`;
+        firstOp["text"] = "Open Quiz";
+        firstOp["href"] = `${course.quiz}/${course.name}/`;
       } else {
         firstOp["text"] = "Create Quiz";
-        firstOp["href"] = "/createQuiz";
+        firstOp["href"] = `/createQuiz/${course.name}`;
       }
 
       return [firstOp,
         {
-          "text": "View History",
+          "text": "Past Quizzes",
           "href": course.quiz === null
                   ? null
                   : `/${course.name}/${course.quiz}/overview`
         },
-        /**
-        Not Yet Implemented
-        {
-          "text": "Enrolment",
-          "href": "#"
-        }
-        **/
       ];
     } else if (this.props.userType === ADMIN) {
       return [
@@ -84,13 +76,6 @@ class Sidebar extends Component {
           "text": "View History",
           "href": `/${course.name}/${course.quiz}/overview`
         },
-        /**
-        Not Yet Implemented
-        {
-          "text": "Enrolment",
-          "href": "#"
-        }
-        **/
       ];
     }
   }
@@ -103,7 +88,7 @@ class Sidebar extends Component {
 
     const linkMeta = this.getCourseDropdownLinks(course);
 
-    const createLink = (linkInfo) => {
+    const linkComponents = linkMeta.map((linkInfo) => {
       if (linkInfo.href) {
         return (
           <li>
@@ -123,8 +108,7 @@ class Sidebar extends Component {
           </li>
         );
       }
-    }
-    const linkComponents = linkMeta.map(createLink);
+    });
 
     return (
       <div id={controllerID} className="courseControl">
@@ -138,7 +122,7 @@ class Sidebar extends Component {
              aria-labelledby={controllerID} data-parent={parentSelector}
           >
           <ul>
-            {linkComponents}
+            { linkComponents }
           </ul>
         </div>
       </div>

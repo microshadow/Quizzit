@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { HashRouter, Switch, Route } from 'react-router-dom';
+import { HashRouter, Switch, Route, Redirect} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import WelcomeScreen from "./welcomeScreen.js";
@@ -12,7 +12,7 @@ import ClassQuizResults from "./classQuizResults.js";
 import StudentQuizResults from "./studentQuizResults.js";
 import StudentSummary from './studentSummary.js';
 import { STUDENT, EDUCATOR, ADMIN } from "./globals.js";
-
+import Template from './mainTemplate.js';
 
 let userType = STUDENT;
 function setUserType(newUserType) {
@@ -25,25 +25,50 @@ class Router extends Component {
             <HashRouter>
                 <Switch>
                     <Route path="/" exact component={WelcomeScreen}/>
-                    <Route path="/logIn" exact component={LogInScreen}/>
-                    }/>
+                    <Route path="/login" exact component={LogInScreen}/>
                     <Route path="/signUp" exact render={
-                      () => <SignUpScreen setUserType={setUserType}/>
+                        () => <SignUpScreen setUserType={setUserType}/>
                     }/>
-                    <Route path="/:course/:quizNum/grades" render={
-                      (props) => <StudentQuizResults userType={userType} {...props}/>
-                    }/>
-                    <Route path="/:course/:quizNum/overview" render={
-                      (props) => <ClassQuizResults userType={userType} {...props}/>
-                    }/>
-                    <Route path="/summary/:studentId" render={
-                      (props) => <StudentSummary userType={userType} {...props}/>
-                    }/>
-                    <Route path="/dashboard" exact render={() => <Dashboard userType={EDUCATOR}/>} />
-                    <Route path="/createQuiz" exact component={CreateQuizPage}/>
-                    <Route path="/answerPage" exact component={AnswerPage}/>
+                    <LoggedInPages />
                 </Switch>
             </HashRouter>
+        );
+    }
+}
+
+class LoggedInPages extends Component {
+    render() {
+        const notLoggedIn = false;
+        if(notLoggedIn){
+            console.log(this.props);
+            return (
+                <Redirect
+                    to={{
+                    pathname: "/login",
+                    state: { from: this.props.location }
+                    }}
+                />
+            );
+        }
+        return (
+            <div>
+                <Template userType={EDUCATOR} loggedIn={true}>
+                    <Switch>
+                        <Route path="/:course/:quizNum/grades" render={
+                          (props) => <StudentQuizResults userType={userType} {...props}/>
+                        }/>
+                        <Route path="/:course/:quizNum/overview" render={
+                          (props) => <ClassQuizResults userType={userType} {...props}/>
+                        }/>
+                        <Route path="/summary/:studentId" render={
+                            (props) => <StudentSummary userType={userType} {...props}/>
+                        }/>
+                        <Route path="/dashboard" exact render={() => <Dashboard userType={EDUCATOR}/>} />
+                        <Route path="/createQuiz/:course_id" component={CreateQuizPage}/>
+                        <Route path="/answerPage/:course_id" component={AnswerPage}/>
+                    </Switch>
+                </Template>
+            </div>
         );
     }
 }
