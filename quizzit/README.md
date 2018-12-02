@@ -48,6 +48,82 @@ GET:
   get_quiz_class_results(quiz_id) => returns all completed questions
   get_quiz(quiz_id) => returns quiz object
 
-# Models
+## Model Specifications
 Completed question: question_id, chosen_answer, correct_answer
 Quiz: list of questions, title
+
+### Notifications:
+{
+  type: event | report   // Notification type: ongoing event or finished event report.
+  id: id                 // Auto-generated ID field
+  data: {
+    subject: string,     // Course code
+    series: 2,           // Quiz number
+    title: string,       // Quiz title
+    description: string  // Quiz description (may be null or omitted?)
+    other: {
+      ...                // Additional data for the notification, see dashboard.js
+    }
+  }
+}
+
+### Quiz Answers:
+{
+  id: id                 // Auto-generated ID field
+  display: string        // Short display for answer, e.g. (a)
+  text: string           // The full text describing the answer
+}
+
+### Quiz Questions:
+{
+  id: id                 // Auto-generated ID field
+  display: string        // Short display for question, e.g. Q1
+  text: string           // The full question being asked
+  weight: number         // How many marks the question is worth
+                            // (we may just auto-set to 1 and ignore)
+  correct: [index]       // List of correct answer indices
+  options: [answer]      // List of answer objects
+}
+
+### Quiz:
+{
+  id: id                 // Auto-generated ID field
+  subject: string        // Course in which the quiz is involved, e.g. SNC1D3
+  series: number         // Quiz number: n if this is the n'th quiz in the course
+  title: string          // Quiz title
+  description: string    // Quiz description (may be null or omitted?)
+  questions: [question]  // List of quiz questions
+}
+
+### Student:
+{
+  id: id                 // Auto-generated in-database student ID
+  first: string          // First name
+  last: string           // Last name
+  passHash: string       // bcrypt'ed password for authentication
+  userType: S | E | A    // S for student, E for educator, A for admin
+  courses: [courseId]    // List of IDs of courses enrolled in
+}
+
+### Performance:
+// Report of a student's performance on a quiz.
+{
+  id: id,                // Auto-generate ID field
+  quizId: id,            // ID of the quiz being reported
+  student: {             // Pull out ID, first and last name from student object
+    id: id,
+    first: string,
+    last: string
+  },
+  performance: {
+    grade: number,       // Grade earned on quiz
+    classAverage: number // Class average for the whole quiz.
+    answers: [
+    {
+      qId: id            // Id of the question being answered
+      choice: index      // The index of the answer selected by the student,
+                            // omitted or set null if the student did not answer.
+      classAverage: number  // Percent of students in the class who got a right answer.
+    }
+  ]
+}

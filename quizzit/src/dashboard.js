@@ -32,7 +32,7 @@ class Dashboard extends Component {
           series: 2,
           title: "String Parsing",
           description: "Description of quiz goes here...",
-          meta: {
+          extra: {
             numQuestions: 12,
             numStudents: 27
           }
@@ -99,8 +99,8 @@ class Dashboard extends Component {
     }
 
     const firstThreeQuestions = notification.extra.questions.length > 3
-                                : notification.extra.questions.slice(0, 3)
-                                ? notification.extra.questions;
+                                ? notification.extra.questions.slice(0, 3)
+                                : notification.extra.questions;
     const children = firstThreeQuestions.map((question) => (
       <ProgressBar percent={question.score}>
         {question.name}
