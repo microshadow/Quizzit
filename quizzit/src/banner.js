@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
-import { STUDENT, createHorizontalDivider } from './globals.js';
+import { STUDENT, createHorizontalDivider,
+         registerAuthToken, getAuthorizedUser,
+         trashAuthToken } from './globals.js';
 import bannerImage from './media/QuizzitLogoHorizontal.png';
 import './style/banner.css';
 
@@ -10,7 +12,13 @@ class Banner extends Component {
   constructor(props) {
     super(props);
 
-    this.makeLogo = this.makeLogo.bind(this);
+    this.state = {
+      isLoggedIn: false,
+      userType: null
+    };
+
+    this.logOut = this.logOut.bind(this);
+    this.makeLogo  = this.makeLogo.bind(this);
     this.getLoginButton = this.getLoginButton.bind(this);
     this.getStatsLink   = this.getStatsLink.bind(this);
   }
@@ -22,13 +30,19 @@ class Banner extends Component {
     );
   }
 
+  logOut() {
+    trashAuthToken();
+  }
+
   getLoginButton() {
-    const loggedIn = this.props.loggedIn;
-    const buttonText = loggedIn ? "Log In" : "Log Out";
-    const link = loggedIn ? "/logIn" : "/";
+    const loggedIn = this.state.isLoggedIn;
+    const buttonText = loggedIn ? "Log Out" : "Log In";
+
+    const href = loggedIn ? "/" : "/dashboard"
+    const onClickFunc = loggedIn ? trashAuthToken : null;
 
     return (
-      <Link to={link}>
+      <Link to={href} onClick={onClickFunc}>
         <div id="logButton" className="linkButton qButton textshadow">
           { buttonText }
         </div>
@@ -37,7 +51,6 @@ class Banner extends Component {
   }
 
   getStatsLink() {
-
     if (this.props.userType === STUDENT) {
       const studentId = 1;
       let href = `/summary/${studentId}`;
@@ -54,7 +67,18 @@ class Banner extends Component {
     }
   }
 
+  componentDidMount() {
+    const user = getAuthorizedUser;
+    const initialState = {
+      isLoggedIn: getAuthorizedUser() !== null,
+      userType: user === null ? null : user.userType
+    }
+
+    this.setState(initialState);
+  }
+
   render() {
+    console.log("Render");
     return (
       <div id="banner-container">
         <div id="banner" className="d-flex justify-content-between align-items-center">

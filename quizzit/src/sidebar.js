@@ -60,11 +60,7 @@ class Sidebar extends Component {
 
       return [firstOp,
         {
-<<<<<<< HEAD
-          "text": "View History",
-=======
           "text": "Past Quizzes",
->>>>>>> statsViewPrep
           "href": course.quiz === null
                   ? null
                   : `/${course.name}/${course.quiz}/overview`
@@ -92,11 +88,7 @@ class Sidebar extends Component {
 
     const linkMeta = this.getCourseDropdownLinks(course);
 
-<<<<<<< HEAD
-    const createLink = (linkInfo) => {
-=======
     const linkComponents = linkMeta.map((linkInfo) => {
->>>>>>> statsViewPrep
       if (linkInfo.href) {
         return (
           <li>
