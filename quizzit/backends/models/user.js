@@ -3,10 +3,16 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const Schema = mongoose.Schema;
+const ObjectID = Schema.Types.ObjectId;
 
 const CourseSchema = new Schema({
   courseCode: {
     type: String,
+    required: true
+  },
+  instructor: {
+    type: ObjectID,
+    ref: 'User',
     required: true
   },
 });
@@ -59,4 +65,4 @@ UserSchema.pre('save', function (next) {
 const User = mongoose.model('User', UserSchema);
 const Course = mongoose.model('Course', CourseSchema);
 
-module.exports = { CourseSchema, User, };
+module.exports = { Course, CourseSchema, User, UserSchema };

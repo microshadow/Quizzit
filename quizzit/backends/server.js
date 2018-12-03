@@ -12,7 +12,7 @@ const { prepareToken, authorizeUserTypes } = require('./jwtauth.js');
 const { mongoose } = require('./db/mongoose');
 
 // Import the models
-const { User } = require('./models/user.js');
+const { User, Course } = require('./models/user.js');
 const { Quiz, UserNotification } = require('./models/quiz');
 
 const port = process.env.QUIZZIT_PORT || 8000;    // Port 3000 is already used by
@@ -66,7 +66,6 @@ passport.use('register', new LocalStrategy({
 // Middleware for checking whether a user exists.
 passport.use("login", new LocalStrategy((username, password, done) => {
   User.findOne({ username: username }, (err, user) => {
-    console.log(user);
     if (!user) {
       return done(null, false, `No user found with username ${username}.`);
     }
@@ -99,25 +98,6 @@ app.post("/login",
   response.status(200).send(request.user);
 });
 
-// Set up a POST route to create a student
-app.post('/api/quizzes', (req, res) => {
-	log(req.body)
-
-	// Create a new student
-	const student = new Quiz({
-		name: req.body.name,
-		year: req.body.year
-	})
-
-	// save student to database
-	student.save().then((result) => {
-		// Save and send object that was saved
-		res.send({result})
-	}, (error) => {
-		res.status(400).send(error) // 400 for bad request
-	})
-
-})
 
 // GET all students
 app.get('/api/quizzes', (req, res) => {
@@ -197,7 +177,21 @@ app.patch('/api/students/:id', (req, res) => {
 	})
 })
 
-app.get("/api/courseEvents/:userId",
+app.post("/api/courses/",
+         passport.authenticate("jwt_educator_and_above", { session: false }),
+         (request, response) => {
+  const courseCode = request.body.course;
+  const instructor = request.body.instructor;
+
+  const newEntry = new Course({ courseCode, instructor });
+  newEntry.save().then((result) => {
+    response.status(201).send(result);
+  }).catch((error) => {
+    response.status(400).send(error);
+  })
+})
+
+app.get("/api/courses/:userId",
         passport.authenticate("jwt_all_users", { session: false }),
         (request, response) => {
   const id = request.params.userId;
@@ -317,11 +311,77 @@ app.get("/api/notifications/:userId",
     }
 
     const parsedNotifications = notifications.map(convertToReports);
-    console.log(parsedNotifications);
 
     response.send({ notifications: parsedNotifications });
   })
 });
+
+app.get('api/quizzes/:quizId',
+        passport.authenticate("jwt_educator_and_above", { session: false }),
+        (request, response) => {
+  const quizId = request.params.quizId;
+
+  Quiz.findById(quizId).populate('course').then((quiz) => {
+    if (!quiz) {
+      response.status(404).send({ message: "Quiz not found."});
+    }
+
+    // Incomplete. Next steps: populate questions and return.
+  })
+});
+
+// Create a new quiz with no questions.
+app.post("/api/quizzes/:course",
+         passport.authenticate("jwt_educator_and_above", { session: false }),
+         (request, response) => {
+  const courseId = request.params.course;
+
+  Quiz.findOne({ course: courseId, active: true }).then((match) => {
+    if (match) {
+      Promise.resolve(response.status(202).send(match));
+    } else {
+      return Quiz.find({}, { series: 1 }).sort({series: -1}).limit(1);
+    }
+  }).then((maxSeries) => {
+    const newSeries = maxSeries.length ? maxSeries[0] + 1 : 1;
+    const body = request.body;
+
+    const quiz = new Quiz({
+      course: courseId,
+      series: newSeries,
+      title: request.body.title,
+      description: request.body.description,
+      questions: [],
+      active: true
+    });
+
+    return quiz.save();
+  }).then((quiz) => {
+    response.status(201).send(quiz);
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
+  });
+});
+
+app.patch("/api/quizzes/:course",
+         passport.authenticate("jwt_educator_and_above", { session: false }),
+         (request, response) => {
+  const courseId = request.params.course;
+  const newTitle = request.body.title;
+  const newDescr = request.body.description;
+
+  Quiz.findOneAndUpdate({ course: courseId, active: true },
+                        { $set: { title: newTitle, description: newDescr}},
+                        { new: true }).then((match) => {
+    if (match) {
+      response.send(match);
+    } else {
+      response.status(400).send({ message: "Quiz not found."});
+    }
+  });
+});
+
 
 // // serve the React SPA for all other routes
 // app.get('/', function (req, res) {

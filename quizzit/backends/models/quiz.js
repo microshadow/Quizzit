@@ -1,20 +1,38 @@
 const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
+const ObjectID = Schema.Types.ObjectId;
 const { CourseSchema, User } = require('./user.js');
 
+
+const QuestionOptionSchema = new Schema({
+  display: {
+    type: String,
+    required: true
+  },
+  text: {
+    type: String,
+    required: true
+  }
+});
+
 const QuestionSchema = new Schema({
-    title: String,
+    display: String,
     description: Number,
-    choices: [String],
-    correct_index: Number,
+    weight: Number,
+    correct: {
+      type: ObjectID,
+      ref: 'QuestionOption',
+      required: true
+    },
+    options: [QuestionOptionSchema],
 });
 
 // Reservations will be embedded in the Restaurant model
 const QuizSchema = new Schema({
     title: String,
     course: {
-      type: String,
+      type: ObjectID,
       ref: 'Course',
       required: true
     },
@@ -30,7 +48,7 @@ const NotificationSchema = new Schema({
     required: false
   },
   target: {
-    type: String,
+    type: ObjectID,
     ref: 'User',
     required: true
   },
@@ -38,6 +56,7 @@ const NotificationSchema = new Schema({
 })
 
 const Quiz = mongoose.model('Quiz', QuizSchema);
+const QuestionOption = mongoose.model('QuestionOption', QuestionOptionSchema);
 const UserNotification = mongoose.model('Notification', NotificationSchema);
 
 module.exports = { QuizSchema, Quiz, UserNotification };
