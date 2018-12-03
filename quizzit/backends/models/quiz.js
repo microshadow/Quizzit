@@ -18,13 +18,9 @@ const QuestionOptionSchema = new Schema({
 
 const QuestionSchema = new Schema({
     display: String,
-    description: Number,
+    text: String,
     weight: Number,
-    correct: {
-      type: ObjectID,
-      ref: 'QuestionOption',
-      required: true
-    },
+    correct: [QuestionOptionSchema],
     options: [QuestionOptionSchema],
 });
 
@@ -49,14 +45,16 @@ const NotificationSchema = new Schema({
   },
   target: {
     type: ObjectID,
-    ref: 'User',
+    ref: 'Course',
     required: true
   },
   quiz: QuizSchema
 })
 
 const Quiz = mongoose.model('Quiz', QuizSchema);
+const Question = mongoose.model('Question', QuestionSchema);
 const QuestionOption = mongoose.model('QuestionOption', QuestionOptionSchema);
 const UserNotification = mongoose.model('Notification', NotificationSchema);
 
-module.exports = { QuizSchema, Quiz, UserNotification };
+module.exports = { Question, QuestionSchema, QuestionOption,
+                   QuizSchema, Quiz, UserNotification };

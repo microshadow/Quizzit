@@ -13,7 +13,8 @@ const { mongoose } = require('./db/mongoose');
 
 // Import the models
 const { User, Course } = require('./models/user.js');
-const { Quiz, UserNotification } = require('./models/quiz');
+const { Quiz, Question, QuestionOption,
+        UserNotification } = require('./models/quiz');
 
 const port = process.env.QUIZZIT_PORT || 8000;    // Port 3000 is already used by
 const app = express();                            // React through npm start.
@@ -303,7 +304,13 @@ app.get("/api/notifications/:userId",
         (request, response) => {
   const id = request.params.userId;
 
-  UserNotification.find({ "target._id": id }).then((notifications) => {
+  User.findById(id).then((user) => {
+    if (!user) {
+      return Promise.reject({ message: `User ID ${id} not found.` });
+    } else {
+      return UserNotification.find({ "target": { $in: user.courses }});
+    }
+  }).then((notifications) => {
     const convertToReports = (notification) => {
       return notification.quiz.active
              ? packageEventNotification(notification)
@@ -311,8 +318,10 @@ app.get("/api/notifications/:userId",
     }
 
     const parsedNotifications = notifications.map(convertToReports);
-
     response.send({ notifications: parsedNotifications });
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
   })
 });
 
@@ -379,6 +388,100 @@ app.patch("/api/quizzes/:course",
     } else {
       response.status(400).send({ message: "Quiz not found."});
     }
+  });
+});
+
+app.post("/api/quiz/:quizId",
+         passport.authenticate("jwt_educator_and_above", { session: false }),
+         (request, response) => {
+  const quizId = request.params.quizId;
+  const questionMeta = request.body.question;
+  const answersMeta  = request.body.answers;
+
+  const question = new Question({
+    display: questionMeta.display,
+    text: questionMeta.text,
+    weight: questionMeta.weight,
+    correct: [],
+    options: answersMeta
+  });
+
+  return question.save().then((question) => {
+    if (!question) {
+      response.status(400).send({ message: "Unable to create new question." });
+    }
+
+    const correctAnswers = questionMeta.correct.map((index) => question.options[index]);
+
+    for (let i = 0; i < correctAnswers.length; i++) {
+      question.correct.push(correctAnswers[i]);
+    }
+    return question.save();
+  }).then((question) => {
+    Quiz.findById(quizId).then((quiz) => {
+      if (quiz) {
+        quiz.questions.push(question);
+        return quiz.save();
+      } else {
+        return Promise.reject({ message: `Quiz with ID ${quizId} not found.`});
+      }
+    }).then((quiz) => {
+      response.status(201).send(quiz);
+    });
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
+  });
+});
+
+// Activate a quiz, and push notifications to all students in the class.
+app.post("/api/quiz/:quizId/publish",
+         passport.authenticate("jwt_educator_and_above", { session: false }),
+         (request, response) => {
+  const quizId = request.params.quizId;
+
+  Quiz.findById(quizId).then((quiz) => {
+    if (!quiz) {
+      return Promise.reject({ message: `Quiz with id ${quizId} not found.`});
+    }
+
+    const note = new UserNotification({
+      type: "event",
+      target: quiz.course,
+      quiz: quiz
+    });
+
+    return note.save().then((notification) => {
+      response.status(201).send(quiz);
+    });
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
+  });
+});
+
+// End a quiz, and remove all active quiz notifications from the students.
+// Replace those notifications with complete event report notifications.
+app.delete("/api/quiz/:quizId",
+           passport.authenticate("jwt_educator_and_above", { session: false }),
+           (request, response) => {
+  const quizId = request.params.quizId;
+
+  Quiz.findById(quizId).then((quiz) => {
+    quiz.active = false;
+    return quiz.save();
+  }).then((quiz) => {
+    if (!quiz) {
+      return Promise.reject({ message: `Quiz ID ${quizId} not found.` });
+    }
+
+    return UserNotification.update({ "quiz._id" : quizId },
+                                   { $set: { type: "report" }});
+  }).then((result) => {
+    response.send(result);
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
   });
 });
 
