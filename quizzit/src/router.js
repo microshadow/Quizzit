@@ -25,9 +25,11 @@ class Router extends Component {
             <HashRouter>
                 <Switch>
                     <Route path="/" exact component={WelcomeScreen}/>
-                    <Route path="/login" exact component={LogInScreen}/>
+                    <Route path="/login" exact render={
+                        (props) => <LogInScreen {...props}/>
+                    }/>
                     <Route path="/signUp" exact render={
-                        () => <SignUpScreen setUserType={setUserType}/>
+                        (props) => <SignUpScreen {...props}/>
                     }/>
                     <LoggedInPages />
                 </Switch>

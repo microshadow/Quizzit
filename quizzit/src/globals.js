@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 
 function QuizData() {
   Object.defineProperty(this, 'data', {
@@ -61,14 +62,21 @@ const STUDENT  = "S";
 const EDUCATOR = "T";
 const ADMIN    = "A";
 
-function translateUserType(user) {
-  if (user === STUDENT) {
-    return "Student";
-  } else if (user === EDUCATOR) {
-    return "Teacher";
-  } else if (user === ADMIN) {
-    return "Admin";
-  }
+axios.defaults.baseURL = "http://localhost:8000";
+
+function registerAuthToken(token, user) {
+  localStorage.setItem("user", JSON.stringify(user));
+  axios.defaults.headers.common['Authorization'] = 'JWT ' + token;
+}
+
+function getAuthorizedUser() {
+  return localStorage.getItem("user");
+}
+
+function trashAuthToken() {
+  console.log("Junk the damn stuff");
+  localStorage.removeItem("user");
+  delete axios.defaults.headers.common['Authorization'];
 }
 
 function createHorizontalDivider(height, color) {
@@ -103,7 +111,9 @@ export {
   STUDENT,
   EDUCATOR,
   ADMIN,
-  translateUserType as userType,
+  registerAuthToken,
+  getAuthorizedUser,
+  trashAuthToken,
   createHorizontalDivider,
   createVerticalDivider,
   toPercent,
