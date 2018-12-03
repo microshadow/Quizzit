@@ -14,7 +14,7 @@ const { mongoose } = require('./db/mongoose');
 // Import the models
 const { User, Course } = require('./models/user.js');
 const { Quiz, Question, QuestionOption,
-        UserNotification } = require('./models/quiz');
+        Answer, UserNotification } = require('./models/quiz');
 
 const port = process.env.QUIZZIT_PORT || 8000;    // Port 3000 is already used by
 const app = express();                            // React through npm start.
@@ -431,6 +431,133 @@ app.post("/api/quiz/:quizId",
   }).catch((error) => {
     console.log(error);
     response.status(400).send(error);
+  });
+});
+
+// Returns the question that comes after prevQuestion in quizId.
+app.get("/api/quiz/:quizId/:prevQuestion",
+        passport.authenticate("jwt_student_only", { session: false }),
+        (request, response) => {
+  const quizId = request.params.quizId;
+  const prevId = request.params.prevQuestion;
+
+  Quiz.findById(quizId).then((quiz) => {
+    if (!quiz) {
+      return response.status(404).send({ message: `Quiz ${quizId} not found.`});
+    }
+
+    let nextQuestionIndex = -1;
+    if (prevId === "null") {
+      nextQuestionIndex = 0;
+    } else {
+      for (let i = 0; i < quiz.questions.length; i++) {
+        console.log(quiz.questions[i]._id.toString(), prevId[0]);
+        if (quiz.questions[i]._id.toString() === prevId) {
+          nextQuestionIndex = i + 1;
+        }
+      }
+    }
+
+    if (nextQuestionIndex === -1) {
+      response.status(400).send({ message: `Question ID ${prevId} not found.`});
+    } else if (nextQuestionIndex === quiz.questions.length) {
+      response.send({ next: null });
+    } else {
+      const question = quiz.questions[nextQuestionIndex];
+      // Remove correct answers from the question incase hackers try to cheat.
+      const strippedQuestion = {
+        _id: question._id,
+        display: question.display,
+        text: question.text,
+        weight: question.weight,
+        options: question.options
+      };
+
+      response.send({ next: strippedQuestion });
+    }
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
+  });
+});
+
+app.post("/api/quiz/:quizId/:question",
+         passport.authenticate("jwt_student_only", { session: false }),
+         (request, response) => {
+  const quizId = request.params.quizId;
+  const question = request.params.question;
+  const stuId  = request.body.studentId;
+  const choice = request.body.answer;
+
+  console.log("A");
+
+  const answer = new Answer({
+    student: stuId,
+    question: question,
+    choice: choice._id
+  });
+
+  answer.save().then((newAnswer) => {
+    console.log("B");
+    if (!newAnswer) {
+      response.status(404).send({ message: `Failed to save answer.` });
+    }
+
+    console.log("C");
+    newAnswer.populate('question', (error, newerAnswer) => {
+      console.log("D");
+      if (error) {
+        response.send(404).send({ message: `Failed to save answer` });
+      }
+
+      const question = newerAnswer.question;
+      const correctIds = question.correct.map((option) => option._id.toString());
+      const score = correctIds.includes(choice._id) ? question.weight : 0;
+      console.log("E");
+
+      question.score = score;
+      console.log(question);
+      response.send({
+        _id: question.id,
+        display: question.display,
+        text: question.text,
+        weight: question.weight,
+        correct: question.correct,
+        options: question.options,
+        score: score
+      });
+    })
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
+  })
+})
+
+app.patch("/api/quiz/:quizId/:question",
+          passport.authenticate("jwt_educator_and_above", { session: false }),
+          (request, response) => {
+  const questionId = request.params.question;
+
+  const newDisplay = request.body.display;
+  const newText    = request.body.text;
+  const newWeight  = request.body.weight;
+  const newOptions = request.body.options;
+  const newCorrect = request.body.correct;
+
+  Question.findOneAndUpdate({ _id: questionId },
+                            { $set: { display: newDisplay, text: newText,
+                                      weight: newWeight, options: newOptions }},
+                            { new: true }).then((match) => {
+    if (!match) {
+      return Promise.reject({ message: `Question ID ${questionID} not found.`});
+    }
+
+    const newCorrectObj = newCorrect.map((index) => match.options[index]);
+    match.correct = newCorrectObj;
+
+    return match.save();
+  }).then((question) => {
+    response.send(question);
   });
 });
 
