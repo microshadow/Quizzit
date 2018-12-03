@@ -1,7 +1,5 @@
 'use strict';
 
-const passport = require('passport');
-
 const jwt = require('jsonwebtoken');
 const jwtPassport = require('passport-jwt');
 const JWTStrategy = jwtPassport.Strategy;
@@ -9,8 +7,6 @@ const ExtractJWT  = jwtPassport.ExtractJwt;
 
 const jwtSecret = "jesstheiguana";
 const jwtFromRequest = ExtractJWT.fromAuthHeaderWithScheme("JWT");
-
-const STUDENT = "S", EDUCATOR = "E", ADMIN = "A";
 
 
 function getSignedToken(user) {
@@ -43,6 +39,7 @@ const authorizeUserTypes = (userTypes) => new JWTStrategy({
   secretOrKey: jwtSecret,
   jwtFromRequest: jwtFromRequest
 }, (token, done) => {
+  console.log("SDGDSGSGDSG");
   try {
     const userType = token.user.userType;
 
@@ -56,12 +53,7 @@ const authorizeUserTypes = (userTypes) => new JWTStrategy({
   }
 });
 
-passport.use("jwt_all_users", authorizeUserTypes([STUDENT, EDUCATOR, ADMIN]));
-passport.use("jwt_educator_and_above", authorizeUserTypes([EDUCATOR, ADMIN]));
-passport.use("jwt_admin_only", authorizeUserTypes([ADMIN]));
-passport.use("jwt_educator_only", authorizeUserTypes([EDUCATOR]));
-passport.use("jwt_student_only", authorizeUserTypes([STUDENT]));
-
 module.exports = {
+  authorizeUserTypes,
   prepareToken: prepareTokenPackage
 }

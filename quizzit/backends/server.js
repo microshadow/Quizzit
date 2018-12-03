@@ -8,18 +8,20 @@ const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
 const path = require('path');
 
-const { prepareToken } = require('./jwtauth.js');
+const { prepareToken, authorizeUserTypes } = require('./jwtauth.js');
 const { mongoose } = require('./db/mongoose');
 
 // Import the models
 const { User } = require('./models/user.js');
-const { Quiz } = require('./models/quiz');
+const { Quiz, UserNotification } = require('./models/quiz');
 
 const port = process.env.QUIZZIT_PORT || 8000;    // Port 3000 is already used by
 const app = express();                            // React through npm start.
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'build')));
+
+const STUDENT = "S", EDUCATOR = "E", ADMIN = "A";
 
 
 // For those who want to run the server against React using npm start,
@@ -76,6 +78,12 @@ passport.use("login", new LocalStrategy((username, password, done) => {
     done(null, prepareToken(user));
   });
 }));
+
+passport.use("jwt_all_users", authorizeUserTypes([STUDENT, EDUCATOR, ADMIN]));
+passport.use("jwt_educator_and_above", authorizeUserTypes([EDUCATOR, ADMIN]));
+passport.use("jwt_admin_only", authorizeUserTypes([ADMIN]));
+passport.use("jwt_educator_only", authorizeUserTypes([EDUCATOR]));
+passport.use("jwt_student_only", authorizeUserTypes([STUDENT]));
 
 // Create a new user in the database, passing back a JSON Web Token in the meantime.
 app.post("/register",
@@ -189,10 +197,136 @@ app.patch('/api/students/:id', (req, res) => {
 	})
 })
 
-// serve the React SPA for all other routes
-app.get('/', function (req, res) {
-	res.sendFile(path.join(__dirname, 'build', 'index.html'));
+app.get("/api/courseEvents/:userId",
+        passport.authenticate("jwt_all_users", { session: false }),
+        (request, response) => {
+  const id = request.params.userId;
+
+  User.findById(id).then((user) => {
+    if (!user) {
+      response.status(404).send({ message: `User ${id} not found.`});
+    } else if (!user.courses.length) {
+      response.send({ courses: [] });
+    }
+  });
 });
+
+function packageEventNotification(notification) {
+  const quiz = notification.quiz;
+  const numQuestions = quiz.questions.length;
+  const numStudents  = 0;
+
+  return {
+    type: "event",
+    data: {
+      subject: quiz.course.courseCode,
+      series: quiz.series,
+      title: quiz.title,
+      description: quiz.description,
+      extra: {
+        numQuestions: numQuestions,
+        numStudents: numStudents
+      }
+    }
+  };
+}
+
+function packageReportNotification(notification) {
+  const quiz = notification.quiz;
+  const user = notification.target;
+
+  const base = {
+    type: "report",
+    data: {
+      subject: quiz.course.courseCode,
+      series: quiz.series,
+      title: quiz.title,
+      description: quiz.description
+    }
+  }
+
+  if (user.userType === "S") {
+    // Get user's average on quiz, and questions they answered wrong.
+    base.extra = {
+      grade: 97.57,
+      worstQuestions: [
+        {
+          id: 1,
+          display: "Q1",
+          text: "Which of the following is an example of a chemical change?",
+          weight: 1,
+          correct: [1],
+          options: [
+            {
+              id: 1,
+              display: "(a)",
+              text: "Oil and water separate into layers after mixing."
+            },
+            {
+              id: 2,
+              display: "(b)",
+              text: "A white powder emerges when two liquids are mixed."
+            },
+            {
+              id: 3,
+              display: "(c)",
+              text: "Salt dissolves in water when stirred."
+            },
+            {
+              id: 4,
+              display: "(d)",
+              text: "An electric current heats up metal in a lightbulb."
+            }
+          ]
+        }
+      ]
+    }
+  } else {
+    // Get class average and questions with worst performance.
+    base.extra = {
+      average: 97.57,
+      questions: [
+        {
+          name: "Q5",
+          score: 24.31
+        },
+        {
+          name: "Q2",
+          score: 41.20
+        }, {
+          name: "Q3",
+          score: 47.84
+        }
+      ]
+    }
+  }
+
+  return base;
+}
+
+app.get("/api/notifications/:userId",
+        passport.authenticate("jwt_all_users", { session: false }),
+        (request, response) => {
+  const id = request.params.userId;
+
+  UserNotification.find({ "target._id": id }).then((notifications) => {
+    const convertToReports = (notification) => {
+      return notification.quiz.active
+             ? packageEventNotification(notification)
+             : packageReportNotification(notification);
+    }
+
+    const parsedNotifications = notifications.map(convertToReports);
+    console.log(parsedNotifications);
+
+    response.send({ notifications: parsedNotifications });
+  })
+});
+
+// // serve the React SPA for all other routes
+// app.get('/', function (req, res) {
+// 	res.sendFile(path.join(__dirname, 'build', 'index.html'));
+// });
 
 app.listen(port, () => {
 	console.log(`Listening on port ${port}...`)

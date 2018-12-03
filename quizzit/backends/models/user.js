@@ -1,14 +1,14 @@
 'use strict'
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const Schema = mongoose.Schema;
 
+const Schema = mongoose.Schema;
 
 const CourseSchema = new Schema({
   courseCode: {
     type: String,
     required: true
-  }
+  },
 });
 
 const UserSchema = new Schema({
@@ -57,5 +57,6 @@ UserSchema.pre('save', function (next) {
 
 
 const User = mongoose.model('User', UserSchema);
+const Course = mongoose.model('Course', CourseSchema);
 
-module.exports = { User };
+module.exports = { CourseSchema, User, };

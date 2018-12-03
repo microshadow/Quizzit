@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 
 import Template from './mainTemplate.js';
 import ReportNotification from './reportNotification.js';
 import EventNotification from './eventNotification.js';
 import ProgressBar from './progressBar.js';
-import { STUDENT, createVerticalDivider } from './globals.js';
+import { STUDENT, createVerticalDivider, getAuthorizedUser } from './globals.js';
 
 import './style/dash.css';
 import './style/sidebar.css';
@@ -15,7 +16,11 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {name: "Daniel"};
+    this.state = {
+      name: null,
+      userType: null,
+      notifications: []
+    };
 
     this.getNotifications = this.getNotifications.bind(this);
     this.packageEventNotification  = this.packageEventNotification.bind(this);
@@ -24,64 +29,21 @@ class Dashboard extends Component {
   }
 
   getNotifications() {
-    return [
-      {
-        type: "event",
-        data: {
-          subject: "ICS2P1",
-          series: 2,
-          title: "String Parsing",
-          description: "Description of quiz goes here...",
-          extra: {
-            numQuestions: 12,
-            numStudents: 27
-          }
-        }
-      },
-      {
-        type: "event",
-        data: {
-          subject: "MPM1D3",
-          series: 1,
-          title: "Set Theory",
-          description: "Description of quiz goes here...",
-          extra: {
-            numQuestions: 8,
-            numStudents: 23
-          }
-        }
-      },
-      {
-        type: "report",
-        data: {
-          subject: "SNC1D3",
-          series: 4,
-          title: "Matter and the Elements",
-          description: "Description of quiz goes here...",
-          extra: {
-            average: 97.57,
-            questions: [
-              {
-                name: "Question 5",
-                score: 24.31
-              },
-              {
-                name: "Question 2",
-                score: 41.20
-              },
-              {
-                name: "Question 3",
-                score: 47.84
-              }
-            ]
-          }
-        }
+    const user = getAuthorizedUser();
+
+    axios.get(`/api/notifications/${user._id}`).then((response) => {
+      const newState = {
+        userType: user.userType,
+        username: user.first + " " + user.last,
+        notifications: response.data.notifications
       }
-    ];
+
+      this.setState(newState);
+    })
   }
 
   packageEventNotification(notification) {
-    if (this.props.userType === STUDENT) {
+    if (this.state.userType === STUDENT) {
       notification.href = `#/answerPage/${notification.subject}`;
     } else {
       notification.href = `#/createQuiz/${notification.subject}`;
@@ -99,7 +61,7 @@ class Dashboard extends Component {
 
   packageReportNotification(notification) {
     const hrefBase = `#/${notification.subject}/${notification.series}`;
-    if (this.props.userType === STUDENT) {
+    if (this.state.userType === STUDENT) {
       notification.href = `${hrefBase}/grades`;
     } else {
       notification.href = `${hrefBase}/overview`;
@@ -140,8 +102,12 @@ class Dashboard extends Component {
     }
   }
 
+  componentDidMount() {
+    this.getNotifications();
+  }
+
   render() {
-    const notifications = this.getNotifications();
+    const notifications = this.state.notifications;
     const notificationElements = notifications.map(this.packageNotification);
 
     return (

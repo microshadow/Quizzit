@@ -66,18 +66,30 @@ axios.defaults.baseURL = "http://localhost:8000";
 
 function registerAuthToken(token, user) {
   localStorage.setItem("user", JSON.stringify(user));
+  localStorage.setItem("token", token);
   axios.defaults.headers.common['Authorization'] = 'JWT ' + token;
 }
 
 function getAuthorizedUser() {
-  return localStorage.getItem("user");
+  return JSON.parse(localStorage.getItem("user"));
 }
 
 function trashAuthToken() {
-  console.log("Junk the damn stuff");
   localStorage.removeItem("user");
+  localStorage.removeItem("token");
   delete axios.defaults.headers.common['Authorization'];
 }
+
+// Automatically try to load in JWT token from a previous session, without
+// polluting the namespace.
+(function reloadAuthHeaders() {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    console.log(`Restoring token ${token}`);
+    axios.defaults.headers.common['Authorization'] = 'JWT ' + token;
+  }
+})();
 
 function createHorizontalDivider(height, color) {
   const colorVar = `var(--${color})`;

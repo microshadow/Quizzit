@@ -52,3 +52,9 @@ ul {
 #sidebar li > .qButton:hover {
   background-color: var(--detail-light);
 }
+
+#sidebar .no-results {
+  font-family: var(--font-family);
+  font-weight: bold;
+  color: var(--font-color);
+}

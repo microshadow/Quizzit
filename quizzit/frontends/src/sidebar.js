@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
-import { STUDENT, EDUCATOR, ADMIN, createVerticalDivider } from './globals.js';
+import { STUDENT, EDUCATOR, ADMIN, createVerticalDivider,
+         getAuthorizedUser } from './globals.js';
 import './style/sidebar.css';
 
 
@@ -9,25 +10,9 @@ class Sidebar extends Component {
   constructor(props) {
     super(props);
 
-    this.getMyCourses = this.getMyCourses.bind(this);
     this.constructCourseMenu = this.constructCourseMenu.bind(this);
     this.getCourseDropdownLinks = this.getCourseDropdownLinks.bind(this);
     this.getCourseListComponent = this.getCourseListComponent.bind(this);
-  }
-
-  getMyCourses() {
-    return [
-      {
-        "name": "CSC309",
-        "quiz": "1"
-      },
-      {
-        "name": "CSC302",
-      },
-      {
-        "name": "CSC367",
-        "quiz": "1"
-      }];
   }
 
   getCourseDropdownLinks(course) {
@@ -130,14 +115,26 @@ class Sidebar extends Component {
   }
 
   getCourseListComponent() {
-    const courses = this.getMyCourses();
-    const parentID = "coursesMenu";
+    const courses = this.props.courses;
+    const parentId = "coursesMenu";
 
-    const linkComponents = courses.map(
-      (course) => this.constructCourseMenu(course, parentID)
-    );
+    const blank = !courses.length && this.props.userType === STUDENT;
+    const baseComponents = blank ? (
+        <div className="stdFont textshadow no-results px-4 mt-3">
+          You are not in any courses right now. Contact an instructor
+          or administrator to be added to a course.
+        </div>
+      ) : courses.map((course) => this.constructCourseMenu(course, parentId));
 
-    return linkComponents;
+    if (this.props.userType !== STUDENT) {
+      baseComponents.push((
+        <div id="addCourse" className="qButton courseLabel textshadow">
+          Add Course
+        </div>
+      ))
+    }
+
+    return baseComponents;
   }
 
   render() {
