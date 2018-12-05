@@ -11,7 +11,7 @@ import AnswerPage  from "./answerPage.js"
 import ClassQuizResults from "./classQuizResults.js";
 import StudentQuizResults from "./studentQuizResults.js";
 import StudentSummary from './studentSummary.js';
-import { STUDENT, EDUCATOR, ADMIN } from "./globals.js";
+import { STUDENT, EDUCATOR, ADMIN, getAuthorizedUser } from "./globals.js";
 import Template from './mainTemplate.js';
 
 let userType = STUDENT;
@@ -40,8 +40,8 @@ class Router extends Component {
 
 class LoggedInPages extends Component {
     render() {
-        const notLoggedIn = false;
-        if(notLoggedIn){
+        const user = getAuthorizedUser();
+        if(!user){
             console.log(this.props);
             return (
                 <Redirect
@@ -54,18 +54,18 @@ class LoggedInPages extends Component {
         }
         return (
             <div>
-                <Template userType={EDUCATOR} loggedIn={true}>
+                <Template userType={user.userType} loggedIn={true}>
                     <Switch>
                         <Route path="/:course/:quizNum/grades" render={
-                            (props) => <StudentQuizResults userType={userType} {...props}/>
+                            (props) => <StudentQuizResults userType={user.userType} {...props}/>
                         }/>
                         <Route path="/:course/:quizNum/overview" render={
-                            (props) => <ClassQuizResults userType={userType} {...props}/>
+                            (props) => <ClassQuizResults userType={user.userType} {...props}/>
                         }/>
                         <Route path="/summary/:studentId" render={
-                            (props) => <StudentSummary userType={userType} {...props}/>
+                            (props) => <StudentSummary userType={user.userType} {...props}/>
                         }/>
-                        <Route path="/dashboard" exact render={() => <Dashboard userType={EDUCATOR}/>} />
+                        <Route path="/dashboard" exact render={() => <Dashboard userType={user.userType}/>} />
                         <Route path="/createQuiz/:course_id" component={CreateQuizPage}/>
                         <Route path="/answerPage/:course_id" component={AnswerPage}/>
                     </Switch>

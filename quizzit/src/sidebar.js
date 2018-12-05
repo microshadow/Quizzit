@@ -118,6 +118,11 @@ class Sidebar extends Component {
     const courses = this.props.courses;
     const parentId = "coursesMenu";
 
+    console.log("Printing Values for SideBar:");
+    console.log(this.props.userType);
+    console.log(this.props.name);
+    console.log(courses);
+
     const blank = !courses.length && this.props.userType === STUDENT;
     const baseComponents = blank ? (
         <div className="stdFont textshadow no-results px-4 mt-3">

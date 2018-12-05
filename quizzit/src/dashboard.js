@@ -35,14 +35,14 @@ class Dashboard extends Component {
     axios.get(`/api/notifications/${user._id}`).then((response) => {
       const newState = {
         userType: user.userType,
-        username: user.first + " " + user.last,
+        name: user.first + " " + user.last,
         notifications: response.data.notifications
       }
-
+      console.log("Callback function for getNotifications:")
+      console.log(response)
       this.setState(newState);
+      console.log(this.state);
     })
-    console.log("printing state update");
-    console.log(this.state);
   }
 
   packageEventNotification(notification) {
