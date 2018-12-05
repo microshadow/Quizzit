@@ -29,7 +29,8 @@ const STUDENT = "S", EDUCATOR = "E", ADMIN = "A";
 // turn on the Chrome extension Allow-Control-Allow-Origin*.
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
   next();
 });
 
@@ -303,7 +304,8 @@ app.get("/api/notifications/:userId",
         passport.authenticate("jwt_all_users", { session: false }),
         (request, response) => {
   const id = request.params.userId;
-
+  console.log("Attempting to find by ID");
+  console.log(id);
   User.findById(id).then((user) => {
     if (!user) {
       return Promise.reject({ message: `User ID ${id} not found.` });

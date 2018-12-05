@@ -30,7 +30,8 @@ class Dashboard extends Component {
 
   getNotifications() {
     const user = getAuthorizedUser();
-
+    console.log("getNotifications gets called");
+    console.log(user.username);
     axios.get(`/api/notifications/${user._id}`).then((response) => {
       const newState = {
         userType: user.userType,
@@ -40,6 +41,8 @@ class Dashboard extends Component {
 
       this.setState(newState);
     })
+    console.log("printing state update");
+    console.log(this.state);
   }
 
   packageEventNotification(notification) {
