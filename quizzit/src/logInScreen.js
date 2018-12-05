@@ -34,7 +34,8 @@ class LogInScreen extends Component {
     if (username && password) {
       axios.post("/login", { username, password }).then((response) => {
         const status = response.status;
-
+        console.log("Printing Log In status");
+        console.log(response.status);
         if (status === 200) {
           const token = response.data.token;
           const user  = response.data.user;

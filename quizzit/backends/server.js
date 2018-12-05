@@ -28,7 +28,7 @@ const STUDENT = "S", EDUCATOR = "E", ADMIN = "A";
 // For those who want to run the server against React using npm start,
 // turn on the Chrome extension Allow-Control-Allow-Origin*.
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "localhost:3000");
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
