@@ -34,14 +34,20 @@ class SignUpScreen extends Component {
     const lastname = this.refs.lastname.value;
     const password = this.refs.password.value;
     const confirm  = this.refs.confirmpassword.value;
+    const type = this.refs.userTypeSelect.options.selectedIndex;
 
     if (password !== confirm) {
       console.log("Mismatch");
       alert("Password and confirm password do not match!");
     } else {
+      var usertype = "S";
+      
+      if (type==1) {
+        usertype = "E";
+      }
+
       const userBody = {
-        username, firstname, lastname, password,
-        usertype: "S"
+        username, firstname, lastname, password, usertype
       };
 
       axios.post('/register', userBody).then((response) => {
@@ -79,6 +85,11 @@ class SignUpScreen extends Component {
           <br/>
           <input style={inputStyle} className="form-control" type="password"
                  placeholder="Confirm Password" ref="confirmpassword"></input>
+          <br/>
+          <select style={inputStyle} class="form-control" ref="userTypeSelect">
+            <option>Student</option>
+            <option>Educator</option>
+          </select>
           <br/>
           <button className="btn btn-primary" style={buttonStyle}
                   onClick={this.registerStudentAccount}>Sign Up</button>

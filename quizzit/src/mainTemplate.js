@@ -41,7 +41,7 @@ class Template extends Component {
       <div id="appContainer" className="d-flex flex-column">
         <Banner userType={userType} isLoggedIn={loggedIn}/>
         <div id="pageContentRow" className="d-flex align-items-stretch flex-grow-1">
-          <Sidebar userType="E" courses={this.state.courses}/>
+          <Sidebar userType={userType} courses={this.state.courses}/>
           <div id="pageContentWrapper" className="flex-grow-1">
             <div id="pageContent">
               { this.props.children }
