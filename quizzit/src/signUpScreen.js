@@ -25,10 +25,10 @@ class SignUpScreen extends Component {
     super(props);
 
     this.state = { loginSuccessful: false };
-    this.registerStudentAccount = this.registerStudentAccount.bind(this);
+    this.registerAccount = this.registerAccount.bind(this);
   }
 
-  registerStudentAccount() {
+  registerAccount() {
     const username = this.refs.username.value;
     const firstname = this.refs.firstname.value;
     const lastname = this.refs.lastname.value;
@@ -92,7 +92,7 @@ class SignUpScreen extends Component {
           </select>
           <br/>
           <button className="btn btn-primary" style={buttonStyle}
-                  onClick={this.registerStudentAccount}>Sign Up</button>
+                  onClick={this.registerAccount}>Sign Up</button>
         </form>
       </div>
     );
