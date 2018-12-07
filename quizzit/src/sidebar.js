@@ -16,6 +16,8 @@ class Sidebar extends Component {
   }
 
   getCourseDropdownLinks(course) {
+    console.log("In course drop down area");
+    console.log(this.props.userType)
     if (this.props.userType === STUDENT) {
       const links = [
         {
@@ -33,7 +35,8 @@ class Sidebar extends Component {
       }
 
       return links;
-    } else if (this.props.userType === EDUCATOR) {
+    } else if (this.props.userType === "E") {
+      console.log("Entered Educator if statement")
       let firstOp = {}
       if (course.quiz != null) {
         firstOp["text"] = "Open Quiz";
@@ -72,6 +75,10 @@ class Sidebar extends Component {
     const parentSelector = `#${parentID}`;
 
     const linkMeta = this.getCourseDropdownLinks(course);
+    console.log("Printing link meta");
+    console.log(linkMeta)
+    console.log("Printing course shit");
+    console.log(course)
 
     const linkComponents = linkMeta.map((linkInfo) => {
       if (linkInfo.href) {
@@ -95,13 +102,15 @@ class Sidebar extends Component {
       }
     });
 
+    console.log("printing link components");
+    console.log(linkComponents)
     return (
       <div id={controllerID} className="courseControl">
         <div className="qButton courseLabel textshadow" type="button"
              data-toggle="collapse" data-target={targetSelector}
              aria-expanded="true" aria-controls={targetID}
           >
-          {course.name}
+          {course.courseCode}
         </div>
         <div id={targetID} className="courseMenu collapse"
              aria-labelledby={controllerID} data-parent={parentSelector}
@@ -117,6 +126,8 @@ class Sidebar extends Component {
   getCourseListComponent() {
     const courses = this.props.courses;
     const parentId = "coursesMenu";
+    console.log("Printing courses recieved in the sidebar")
+    console.log(courses)
 
     const blank = !courses.length && this.props.userType === STUDENT;
     const baseComponents = blank ? (
@@ -135,6 +146,9 @@ class Sidebar extends Component {
         </Link>
       ))
     }
+
+    console.log("Printing base components")
+    console.log(baseComponents);
 
     return baseComponents;
   }

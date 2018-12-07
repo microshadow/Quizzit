@@ -195,20 +195,59 @@ app.post("/api/courses/",
   }).catch((error) => {
     response.status(400).send(error);
   })
+
+
+  // if(!ObjectID.isValid(instructor)) {
+	// 	return res.status(404).send()
+	// }
+
+	// User.findById(instructor).then((user) => {
+	// 	if (!user) {
+	// 		response.status(404).send()
+	// 	} else {
+	// 		const newEntry = new Course({ courseCode, instructor });
+  //     console.log(newEntry);
+  //     user.courses.push(newEntry)
+  //     console.log(user);
+	// 		user.save().then((result) => {
+  //       console.log("successfullly added the course")
+  //       console.log(result)
+	// 			response.send({result})
+	// 		}, (error) => {
+	// 			response.status(400).send(error)
+	// 		})
+	// 		response.send({ restaurant,reservation })
+	// 	}
+		
+	// }).catch((error) => {
+	// 	response.status(400).send(error)
+	// })
 })
 
 app.get("/api/courses/:userId",
         passport.authenticate("jwt_all_users", { session: false }),
         (request, response) => {
   const id = request.params.userId;
-
-  User.findById(id).then((user) => {
-    if (!user) {
-      response.status(404).send({ message: `User ${id} not found.`});
-    } else if (!user.courses.length) {
-      response.send({ courses: [] });
-    }
-  });
+  console.log("Testing get request for courses/userID")
+  console.log(id);
+  // User.findById(id).then((user) => {
+  //   console.log(user);
+  //   console.log(user.courses)
+  //   if (!user) {
+  //     response.status(404).send({ message: `User ${id} not found.`});
+  //   } else if (!user.courses.length) {
+  //     response.send({ courses: [] });
+  //   }
+  // });
+  Course.find({instructor: id}).then((courses) => {
+    console.log("printing list of courses with instructor id")
+    console.log(courses)
+    response.send({ courses })
+    console.log("courses sent")
+  }, (error) => {
+    console.log("error occured")
+    response.status(400).send(error);
+  })
 });
 
 function packageEventNotification(notification) {

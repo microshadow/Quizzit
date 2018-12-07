@@ -20,8 +20,9 @@ class Template extends Component {
   componentDidMount() {
     const user = getAuthorizedUser();
     console.log(user, user._id);
-
-    axios.get(`/api/courseEvents/${user._id}`).then((response) => {
+    console.log("Entered place for courses to be set");
+    axios.get(`/api/courses/${user._id}`).then((response) => {
+      console.log("PRINTING COURSE LIST:");
       console.log(response.data.courses);
       const newState = {
         userType: user.userType,
