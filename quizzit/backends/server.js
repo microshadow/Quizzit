@@ -109,6 +109,54 @@ app.get('/api/quizzes', (req, res) => {
 	})
 })
 
+// GET student by username:
+app.get('/api/students/getByUsername/:username', (req, res) => {
+  const username = req.params.username;
+
+  console.log("in student search query");
+  console.log(username)
+  console.log(User)
+
+  User.findOne({'username' : username}).then((match) => {
+    console.log("Printing the match value")
+    console.log(match)
+    if (match) {
+      console.log("match successfully found")
+      res.status(202).send(match);
+    } else {
+      res.status(400).send();
+    }
+  })
+
+})
+
+// app.post('/api/students/enrollUserByUsername/:username/:courseId', (req, res) => {
+//   const username = req.params.username;
+//   const courseID = req.params.courseId;
+
+//   console.log("in student search query");
+//   console.log(username)
+//   console.log(User)
+
+//   User.findOne({'username' : username}).then((user) => {
+//     console.log("Printing the match value")
+//     console.log(user)
+//     if (user) {
+//       console.log("match successfully found")
+//       user.courses.push(courseID)
+//       user.save().then((result) => {
+//         console.log("User successfully saved")
+// 				response.status(201).send(result);
+// 			}, (error) => {
+//         console.log("user could not be saved")
+// 				response.status(400).send(error)
+//       })
+//     } else {
+//       res.status(400).send();
+//     }
+//   })
+
+// })
 // GET student by id
 app.get('/api/students/:id', (req, res) => {
 	const id = req.params.id // the id is in the req.params object
@@ -190,48 +238,28 @@ app.post("/api/courses/",
   }).catch((error) => {
     response.status(400).send(error);
   })
-
-
-  // if(!ObjectID.isValid(instructor)) {
-	// 	return res.status(404).send()
-	// }
-
-	// User.findById(instructor).then((user) => {
-	// 	if (!user) {
-	// 		response.status(404).send()
-	// 	} else {
-	// 		const newEntry = new Course({ courseCode, instructor });
-  //     console.log(newEntry);
-  //     user.courses.push(newEntry)
-  //     console.log(user);
-	// 		user.save().then((result) => {
-  //       console.log("successfullly added the course")
-  //       console.log(result)
-	// 			response.send({result})
-	// 		}, (error) => {
-	// 			response.status(400).send(error)
-	// 		})
-	// 		response.send({ restaurant,reservation })
-	// 	}
-
-	// }).catch((error) => {
-	// 	response.status(400).send(error)
-	// })
 })
 
 app.post("/api/enroll",
          passport.authenticate("jwt_educator_and_above", { session: false }),
          (request, response) => {
+  console.log("testing enroll API")
   const course = request.body.course;
   const user = request.body.user;
-
-  User.findByIdAndUpdate(user, { courses: { $push: course }}).then((result) => {
-    response.status(201).send(result);
-  }).catch((error) => {
-    console.log(error);
-    response.status(400).send(error);
-  })
+  console.log(course)
+  console.log(user)
+  User.findByIdAndUpdate(user, { $push: { courses: course } }, { 'new': true}).then((newUser) => {
+    console.log("Printing new user value");
+    console.log(newUser)
+    if (newUser) {
+      response.status(200).send(newUser)
+    } else {
+      response.status(400).send();
+    }
+  });
+		
 })
+
 
 app.post("/api/courses/:courseId",
          passport.authenticate("jwt_educator_and_above", { session: false }),
@@ -252,6 +280,22 @@ app.post("/api/courses/:courseId",
     });
   });
 });
+
+app.get("/api/courses/getCourseByID/:courseId", (req, res) => {
+  const courseID = req.params.courseId;
+
+  Course.findById(courseID).then((match) => {
+    console.log("Printing course match value");
+    console.log(match)
+    if (match) {
+      console.log("match successfully found")
+      res.status(202).send(match);
+    } else {
+      res.status(400).send();
+    }
+  })
+})
+
 
 app.get("/api/courses/:userId",
         passport.authenticate("jwt_all_users", { session: false }),

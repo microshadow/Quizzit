@@ -14,6 +14,7 @@ import StudentSummary from './studentSummary.js';
 import { STUDENT, EDUCATOR, ADMIN, getAuthorizedUser } from "./globals.js";
 import Template from './mainTemplate.js';
 import CreateCourse from "./createCourse.js";
+import AddStudentPage from "./addStudentPage.js";
 
 let userType = STUDENT;
 function setUserType(newUserType) {
@@ -71,6 +72,9 @@ class LoggedInPages extends Component {
                         <Route path="/answerPage/:course_id" component={AnswerPage}/>
                         <Route path="/createCourse" render={
                             (props) => <CreateCourse {...props}/>
+                        }/>
+                        <Route path="/addStudentPage/:course_id" render={
+                            (props) => <AddStudentPage {...props}/>
                         }/>
                     </Switch>
                 </Template>

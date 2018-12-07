@@ -28,9 +28,11 @@ class CreateQuizPage extends React.Component {
             participants: [],
             questions: [],
             classAverage: 0
-          }
+          },
+          currentKey: "quiz"
         }
 
+        console.log("making API Call for quizzes")
         axios.get(`/api/quizzes/${this.props.match.params.course_id}`)
              .then((response) => {
           if (response.status < 400) {
@@ -39,7 +41,14 @@ class CreateQuizPage extends React.Component {
             };
             this.setState(newState);
           }
+          console.log("Printing state of quiz!!")
+          console.log(this.state)
+          if (this.state.quiz.active === true) {
+            this.state.currentKey = "question";
+        }
         });
+
+
     }
 
     getQuiz() {
@@ -56,16 +65,13 @@ class CreateQuizPage extends React.Component {
       axios.post(`/api/quizzes/${this.props.match.params.course_id}`, config)
            .then((response) => {
         const newState = {
-          quiz: response.data
+          quiz: response.data,
+          currentKey: "question"
         };
         this.setState(newState);
+        alert("Quiz was successfully created!!")
       });
-      //   let new_quizzes_array = [this.state.quiz];
-      //   new_quizzes_array.push({title: title, questions: []});
-      //   this.setState({quiz: new_quizzes_array});
-      //   //do server request here after "optimistic" UI update
-      //   //we just use a global variable for this phase
-      //   globals.quiz_data.data = new_quizzes_array;
+
     }
 
     componentDidMount() {
@@ -83,7 +89,7 @@ class CreateQuizPage extends React.Component {
     render(){
         return(
             <div className="createquiz_container">
-                <Tabs defaultActiveKey="question" id="uncontrolled-tab-example">
+                <Tabs activeKey={this.state.currentKey} id="uncontrolled-tab-example">
                     <Tab eventKey="quiz" title="New Quiz" >
                         <div id="newquiz_container">
                             <CreatequizForm createQuiz={this.addQuiz.bind(this)}/>
@@ -96,6 +102,7 @@ class CreateQuizPage extends React.Component {
                     </Tab>
                 </Tabs>
             </div>
+
         )
     }
 
@@ -149,8 +156,11 @@ class CreatequestionForm extends React.Component{
             selectedCheckbox: -1,
             questionTitle: "",
             choiceValues: ["","","",""],
-            quizzes: [this.props.quizGen()]
+            quiz: this.props.quizGen()
         }
+
+        console.log("PRINTINT CREATE QUESTION FORM SHIT")
+        console.log(this.state.quiz)
     }
 
     changeActiveQuestion(index){
@@ -189,6 +199,7 @@ class CreatequestionForm extends React.Component{
     }
 
     addQuestion(event){
+        console.log("In addQuestion function:");
         event.preventDefault();
         // const selectedQuiz = this.state.selectedQuiz;
         // let new_quizzes_array = this.props.quiz;
@@ -224,6 +235,7 @@ class CreatequestionForm extends React.Component{
                choiceValues: ["","","",""],
                questionTitle: ""
            });
+           alert("Question Added to quiz Successfully")
         });
     }
 
@@ -278,30 +290,28 @@ class CreatequestionForm extends React.Component{
         const selectedQuiz = this.state.selectedQuiz;
         const activeQuestionIndex = this.state.selectedIndex;
         const hasActiveQuestion = (activeQuestionIndex !== -1);
-        const activeQuiz = this.props.quizGen();
-        console.log(activeQuiz);
-
+        this.state.quiz = this.props.quizGen();
+        console.log("Printing questions present in active quiz");
+        console.log(this.state.quiz)
         return(
         <Form>
             <Form.Group as={Row} controlId="formGridState">
-                <Form.Label column sm={2}>
-                    Quiz
-                </Form.Label>
-                <Form.Control as="select" sm={5} bsPrefix="select_quiz" value={selectedQuiz} onChange={(event, index) => {this.changeActiveQuiz(event);}}>
+                <h>{this.state.quiz.title}</h>
+                {/* <Form.Control as="select" sm={5} bsPrefix="select_quiz" value={selectedQuiz} onChange={(event, index) => {this.changeActiveQuiz(event);}}>
                     {this.state.quizzes.map((quiz, index) => {
                         return (
                             <option value={index} key={index}>{quiz.title}</option>
                             )
                         })
                     }
-                </Form.Control>
+                </Form.Control> */}
             </Form.Group>
             <Form.Group as={Row} controlId="formHorizontalQuestions">
                 <Form.Label column sm={2}>
                     Questions
                 </Form.Label>
                 <QuestionsList
-                    questions={activeQuiz.questions}
+                    questions={this.state.quiz.questions}
                     changeActiveQuestion={this.changeActiveQuestion.bind(this)}
                     deleteQuestion={this.deleteQuestion.bind(this)}
                     />
@@ -334,7 +344,7 @@ class CreatequestionForm extends React.Component{
             {
                 ["A","B","C","D"].map((letter, index) => {
 
-                    const choices = hasActiveQuestion ? activeQuiz.questions[activeQuestionIndex].choices : [];
+                    const choices = hasActiveQuestion ? this.state.quiz.questions[activeQuestionIndex].choices : [];
                     return (
                         <Form.Group key={index} as={Col} controlId="formGridZip">
                             <Form.Label>{"choice "+letter}</Form.Label>
@@ -377,11 +387,15 @@ class CreatequestionForm extends React.Component{
                 {hasActiveQuestion ? "Modify" : "Add"} question
             </Button>
         </Form>
+
+
     )}
 }
 
 class QuestionsList extends React.Component{
     render(){
+        console.log("printing Question List");
+        console.log(this.props.questions)
         if(this.props.questions.length === 0){
             return (
                 <ListGroup>

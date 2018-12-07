@@ -46,6 +46,11 @@ class Sidebar extends Component {
       }
 
       links.push(firstOp);
+      const addStudentComponent = {
+        text: "Add Student",
+        href: `/addStudentPage/${course._id}`
+      }
+      links.push(addStudentComponent)
       if (course.previousQuiz) {
         links.push({
           "text": "Past Quizzes",
