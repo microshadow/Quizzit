@@ -81,7 +81,9 @@ class Sidebar extends Component {
     const linkComponents = linkMeta.map((linkInfo) => {
       if (linkInfo.href) {
         return (
-          <a class="dropdown-item" href={linkInfo.href}>{linkInfo.text}</a>
+          <Link to={linkInfo.href}>
+            <a class="dropdown-item">{linkInfo.text}</a>
+          </Link>
         )
       }
     });
