@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { STUDENT, EDUCATOR, ADMIN, createVerticalDivider,
          getAuthorizedUser } from './globals.js';
 import './style/sidebar.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min';
 
 
 class Sidebar extends Component {
@@ -69,44 +70,29 @@ class Sidebar extends Component {
     const targetSelector = `#${targetID}`;
     const parentSelector = `#${parentID}`;
 
-    const linkMeta = this.getCourseDropdownLinks(course);
+    console.log(controllerID)
+    console.log(targetID)
+    console.log(targetSelector)
+    console.log(parentSelector)
 
+    var linkMeta = this.getCourseDropdownLinks(course);
+    console.log("Printing Link Meta")
+    console.log(linkMeta)
     const linkComponents = linkMeta.map((linkInfo) => {
       if (linkInfo.href) {
         return (
-          <li>
-            <Link to={linkInfo.href}>
-              <div className="qButton">
-                {linkInfo.text}
-              </div>
-            </Link>
-          </li>
+          <a class="dropdown-item" href={linkInfo.href}>{linkInfo.text}</a>
         )
-      } else {
-        return (
-          <li>
-            <div className="qButton">
-             {linkInfo.text}
-            </div>
-          </li>
-        );
       }
     });
 
     return (
-      <div id={controllerID} className="courseControl">
-        <div className="qButton courseLabel textshadow" type="button"
-             data-toggle="collapse" data-target={targetSelector}
-             aria-expanded="true" aria-controls={targetID}
-          >
+      <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           {course.courseCode}
-        </div>
-        <div id={targetID} className="courseMenu collapse"
-             aria-labelledby={controllerID} data-parent={parentSelector}
-          >
-          <ul>
-            { linkComponents }
-          </ul>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          {linkComponents}
         </div>
       </div>
     )
