@@ -182,10 +182,14 @@ app.patch('/api/students/:id', (req, res) => {
 app.post("/api/courses/",
          passport.authenticate("jwt_educator_and_above", { session: false }),
          (request, response) => {
+  console.log("Reached Course Post Method")
   const courseCode = request.body.course;
   const instructor = request.body.instructor;
+  console.log(courseCode);
+  console.log(instructor);
 
   const newEntry = new Course({ courseCode, instructor });
+  console.log(newEntry);
   newEntry.save().then((result) => {
     response.status(201).send(result);
   }).catch((error) => {
