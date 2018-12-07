@@ -21,17 +21,29 @@ class Template extends Component {
     const user = getAuthorizedUser();
     console.log(user, user._id);
     console.log("Entered place for courses to be set");
-    axios.get(`/api/courses/${user._id}`).then((response) => {
-      console.log("PRINTING COURSE LIST:");
-      console.log(response.data.courses);
-      const newState = {
-        userType: user.userType,
-        loggedIn: true,
-        courses: response.data.courses
-      };
-
-      this.setState(newState);
-    });
+    if (user.userType === "S") {
+      axios.get(`/api/students/${user._id}`).then((response) => {
+        console.log(response.data.courses)
+        const newState = {
+          userType: user.userType,
+          loggedIn: true,
+          courses: response.data.courses
+        };
+        this.setState(newState);
+      })
+    } else {
+      axios.get(`/api/courses/${user._id}`).then((response) => {
+        console.log("PRINTING COURSE LIST:");
+        console.log(response.data.courses);
+        const newState = {
+          userType: user.userType,
+          loggedIn: true,
+          courses: response.data.courses
+        };
+  
+        this.setState(newState);
+      });
+    }
   }
 
   render() {
