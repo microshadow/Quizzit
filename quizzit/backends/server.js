@@ -385,27 +385,31 @@ app.get("/api/notifications/:userId",
         let parsedNotifications = [];
         let numTransferred = 0;
 
-        for (let i = 0; i < notifications.length; i++) {
-          const notification = notifications[i];
-          if (notification.quiz.active) {
-            parsedNotifications.push(packageEventNotification(notification));
-
-            if (numTransferred === notifications.length - 1) {
-              response.send({ notifications: parsedNotifications });
-            }
-          } else {
-            packageReportNotification(notification, user).then((noteElem) => {
-              parsedNotifications.push(noteElem);
-
-              if (numTransferred === notifications.length) {
+        if (notifications.length === 0) {
+          response.send({ notifications })
+        } else {
+          for (let i = 0; i < notifications.length; i++) {
+            const notification = notifications[i];
+            if (notification.quiz.active) {
+              parsedNotifications.push(packageEventNotification(notification));
+  
+              if (numTransferred === notifications.length - 1) {
                 response.send({ notifications: parsedNotifications });
               }
-            }).catch((error) => {
-              console.log(error);
-              response.status(400).send(error);
-            });
+            } else {
+              packageReportNotification(notification, user).then((noteElem) => {
+                parsedNotifications.push(noteElem);
+  
+                if (numTransferred === notifications.length) {
+                  response.send({ notifications: parsedNotifications });
+                }
+              }).catch((error) => {
+                console.log(error);
+                response.status(400).send(error);
+              });
+            }
+            numTransferred += 1;
           }
-          numTransferred += 1;
         }
       }).catch((error) => {
         console.log(error);
