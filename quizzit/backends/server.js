@@ -261,37 +261,45 @@ app.get("/api/courses/:userId",
   User.findById(id).populate('courses').then((user) => {
     if (!user) {
       response.status(404).send({ message: `User ${id} not found.`});
-    } else if (!user.courses.length) {
-      response.send({ courses: [] });
     } else {
-      Quiz.find({ course: { $in: user.courses }, active: true },
-                { course: 1, series: 1}).then((actives) => {
-        const collection = [];
+      Course.find({ instructor: id }).then((instrCourses) => {
+        const allCourses = instrCourses.concat(user.courses)
 
-        for (let i = 0; i < user.courses.length; i++) {
-          const course = user.courses[i];
-          const match = actives.find((quiz) => quiz.course.toString() === course._id.toString());
+        Quiz.find({ course: { $in: allCourses }}, { course: 1, series: 1})
+            .sort({ series: -1 }).then((quizzes) => {
+          const collection = [];
 
-          const basis = {
-            _id: course._id,
-            courseCode: course.courseCode,
-            instructor: course.instructor
-          };
-          if (match) {
-            basis.quiz = match._id;
+          for (let i = 0; i < allCourses.length; i++) {
+            const course = allCourses[i];
+            const matchActive = quizzes.find(
+              (quiz) => quiz.active && quiz.course.toString() === course._id.toString());
+            const matchFinished = quizzes.find(
+              (quiz) => !quiz.active && quiz.course.toString() === course._id.toString());
+
+            const basis = {
+              _id: course._id,
+              courseCode: course.courseCode,
+              instructor: course.instructor
+            };
+            if (matchActive) {
+              basis.currentQuiz = matchActive._id;
+            }
+            if (matchFinished) {
+              basis.previousQuiz = matchFinished._id;
+            }
+
+            collection.push(basis);
           }
 
-          collection.push(basis);
-        }
-
-        response.send({
-          user: {
-            _id: user.id,
-            username: user.username,
-            first: user.first,
-            last: user.last
-          },
-          courses: collection
+          response.send({
+            user: {
+              _id: user.id,
+              username: user.username,
+              first: user.first,
+              last: user.last
+            },
+            courses: collection
+          });
         });
       });
     }
@@ -325,6 +333,7 @@ async function packageReportNotification(notification, user) {
   const base = {
     type: "report",
     data: {
+      quizId: quiz._id,
       subject: quiz.course.courseCode,
       series: quiz.series,
       title: quiz.title,
@@ -370,31 +379,24 @@ app.get("/api/notifications/:userId",
     if (!user) {
       response.status(400).send({ message: `User ID ${id} not found.` });
     } else {
-      console.log("A")
       UserNotification.find({ "target": { $in: user.courses }})
                       .populate({ path: 'quiz', populate: { path: 'course' }})
                       .then((notifications) => {
         let parsedNotifications = [];
         let numTransferred = 0;
 
-        console.log(notifications);
         for (let i = 0; i < notifications.length; i++) {
-          console.log(i)
           const notification = notifications[i];
           if (notification.quiz.active) {
             parsedNotifications.push(packageEventNotification(notification));
 
-            console.log("B");
             if (numTransferred === notifications.length - 1) {
-              console.log("D");
               response.send({ notifications: parsedNotifications });
-              console.log("E");
             }
           } else {
             packageReportNotification(notification, user).then((noteElem) => {
               parsedNotifications.push(noteElem);
 
-              console.log("C");
               if (numTransferred === notifications.length) {
                 response.send({ notifications: parsedNotifications });
               }
@@ -413,20 +415,20 @@ app.get("/api/notifications/:userId",
   });
 });
 
-app.get('/api/quizzes/:quizId',
-        passport.authenticate("jwt_educator_and_above", { session: false }),
-        (request, response) => {
-  const quizId = request.params.quizId;
-
-  Quiz.findById(quizId).populate('course').then((quiz) => {
-    if (!quiz) {
-      response.status(404).send({ message: "Quiz not found."});
-    }
-
-    // Incomplete. Next steps: populate questions and return.
-    response.send(quiz);
-  })
-});
+// app.get('/api/quizzes/:quizId',
+//         passport.authenticate("jwt_educator_and_above", { session: false }),
+//         (request, response) => {
+//   const quizId = request.params.quizId;
+//
+//   Quiz.findById(quizId).populate('course').then((quiz) => {
+//     if (!quiz) {
+//       response.status(404).send({ message: "Quiz not found."});
+//     }
+//
+//     // Incomplete. Next steps: populate questions and return.
+//     response.send(quiz);
+//   })
+// });
 
 // Create a new quiz with no questions.
 app.post("/api/quizzes/:course",
@@ -441,7 +443,7 @@ app.post("/api/quizzes/:course",
       return Quiz.find({}, { series: 1 }).sort({series: -1}).limit(1);
     }
   }).then((maxSeries) => {
-    const newSeries = maxSeries.length ? maxSeries[0] + 1 : 1;
+    const newSeries = maxSeries && maxSeries.length ? maxSeries[0].series + 1 : 1;
     const body = request.body;
 
     const quiz = new Quiz({
@@ -458,6 +460,23 @@ app.post("/api/quizzes/:course",
     return quiz.save();
   }).then((quiz) => {
     response.status(201).send(quiz);
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
+  });
+});
+
+app.get("/api/quizzes/:course",
+         passport.authenticate("jwt_educator_and_above", { session: false }),
+         (request, response) => {
+  const courseId = request.params.course;
+
+  Quiz.findOne({ course: courseId, active: true }).then((match) => {
+    if (match) {
+      response.send(match);
+    } else {
+      response.status(404).send({ message: `No active quiz found for course ${courseId}` });
+    }
   }).catch((error) => {
     console.log(error);
     response.status(400).send(error);
@@ -787,8 +806,21 @@ app.get("/api/performance/quiz/:studentId/:quizId/",
     Answer.find({ student: uid, question: { $in: questionIds }})
                 .populate('question').populate('choice').populate('student')
                 .then((answers) => {
-      if (!answers || !answers.length) {
+      if (!answers) {
         response.status(404).send();
+      } else if (!answers.length) {
+        User.findById(uid).then((user) => {
+          response.send({
+            student: user,
+            quiz: quiz,
+            performance: {
+              answers: [],
+              grade: 0,
+              classAverage: quiz.classAverage
+            }
+          });
+        });
+        return;
       }
 
       const grade = gradeInQuiz(answers);
@@ -820,7 +852,7 @@ app.get("/api/performance/subject/:studentId/:course/",
   const uid = request.params.studentId;
   const courseId = request.params.course;
 
-  Quiz.find({ course: courseId }, { display: 1, text: 1, weight: 1, correct: 1})
+  Quiz.find({ course: courseId })
       .populate({ path: 'questions', populate: { path: 'options'}})
       .populate({ path: 'course'}).then(async function(quizzes) {
     if (!quizzes) {
