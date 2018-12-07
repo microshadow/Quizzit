@@ -21,7 +21,7 @@ class Template extends Component {
     const user = getAuthorizedUser();
     console.log(user, user._id);
 
-    axios.get(`/api/courseEvents/${user._id}`).then((response) => {
+    axios.get(`/api/courses/${user._id}`).then((response) => {
       console.log(response.data.courses);
       const newState = {
         userType: user.userType,

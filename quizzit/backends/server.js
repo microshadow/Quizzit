@@ -75,7 +75,6 @@ passport.use("login", new LocalStrategy((username, password, done) => {
     if (!user.checkPassword(password)) {
       return done(null, false, "Incorrect username or password.");
     }
-
     done(null, prepareToken(user));
   });
 }));
@@ -182,7 +181,6 @@ app.patch('/api/students/:id', (req, res) => {
 app.post("/api/courses/",
          passport.authenticate("jwt_educator_and_above", { session: false }),
          (request, response) => {
-  console.log("Reached Course Post Method")
   const courseCode = request.body.course;
   const instructor = request.body.instructor;
   console.log(courseCode);
@@ -193,6 +191,20 @@ app.post("/api/courses/",
   newEntry.save().then((result) => {
     response.status(201).send(result);
   }).catch((error) => {
+    response.status(400).send(error);
+  })
+})
+
+app.post("/api/enroll",
+         passport.authenticate("jwt_educator_and_above", { session: false }),
+         (request, response) => {
+  const course = request.body.course;
+  const user = request.body.user;
+
+  User.findByIdAndUpdate(user, { courses: { $push: course }}).then((result) => {
+    response.status(201).send(result);
+  }).catch((error) => {
+    console.log(error);
     response.status(400).send(error);
   })
 })
@@ -222,11 +234,39 @@ app.get("/api/courses/:userId",
         (request, response) => {
   const id = request.params.userId;
 
-  User.findById(id).then((user) => {
+  User.findById(id).populate('courses').then((user) => {
     if (!user) {
       response.status(404).send({ message: `User ${id} not found.`});
     } else if (!user.courses.length) {
       response.send({ courses: [] });
+    } else {
+      Quiz.find({ course: { $in: user.courses }, active: true},
+                { course: 1, series: 1}).then((actives) => {
+        const collection = [];
+
+        for (let i = 0; i < user.courses.length; i++) {
+          const course = user.courses[i];
+          const match = actives.find((quiz) => quiz.course.toString() === course._id.toString());
+
+          const basis = course;
+
+          if (!match) {
+            basis.quiz = match._id;
+          }
+
+          collection.push(basis);
+        }
+
+        response.send({
+          user: {
+            _id: user.id,
+            username: user.username,
+            first: user.first,
+            last: user.last
+          },
+          courses: collection
+        });
+      });
     }
   });
 });
@@ -239,6 +279,7 @@ function packageEventNotification(notification) {
   return {
     type: "event",
     data: {
+      quizId: quiz._id,
       subject: quiz.course.courseCode,
       series: quiz.series,
       title: quiz.title,
@@ -251,9 +292,8 @@ function packageEventNotification(notification) {
   };
 }
 
-async function packageReportNotification(notification) {
+async function packageReportNotification(notification, user) {
   const quiz = notification.quiz;
-  const user = notification.target;
 
   const base = {
     type: "report",
@@ -277,13 +317,21 @@ async function packageReportNotification(notification) {
 
   await Answer.find(query)
               .sort({ score: 1 }).populate('options', { display: 1, text: 1 })
+              .populate('question', { display: 1, text: 1, weight: 1})
               .then((answers) => {
-    const numSelections = min(answers.length, 3);
+    const numSelections = Math.min(answers.length, 3);
     const selections = answers.slice(0, numSelections);
+    console.log(answers);
 
     base.extra = {
-      grade: gradeFunc(answers),
-      worstQuestions: selections
+      score: gradeFunc(answers),
+      questions: selections
+    }
+
+    console.log(user.userType);
+    if (user.userType === 'S') {
+      base.extra.average = gradeInQuiz(answers);
+      console.log(base.extra.average);
     }
   });
 
@@ -296,24 +344,39 @@ app.get("/api/notifications/:userId",
   const id = request.params.userId;
   User.findById(id).then((user) => {
     if (!user) {
-      return Promise.reject({ message: `User ID ${id} not found.` });
+      response.status(400).send({ message: `User ID ${id} not found.` });
     } else {
-      return UserNotification.find({ "target": { $in: user.courses }})
-                             .populate({ path: 'quiz', populate: { path: 'course' }});
-    }
-  }).then((notifications) => {
-    const convertToReports = (notification) => {
-      return notification.quiz.active
-             ? packageEventNotification(notification)
-             : packageReportNotification(notification);
-    }
+      UserNotification.find({ "target": { $in: user.courses }})
+                      .populate({ path: 'quiz', populate: { path: 'course' }})
+                      .then((notifications) => {
+        let parsedNotifications = [];
+        let numTransferred = 0;
 
-    const parsedNotifications = notifications.map(convertToReports);
-    response.send({ notifications: parsedNotifications });
-  }).catch((error) => {
-    console.log(error);
-    response.status(400).send(error);
-  })
+        for (let i = 0; i < notifications.length; i++) {
+          const notification = notifications[i];
+          if (notification.quiz.active) {
+            parsedNotifications.push(packageEventNotification(notification));
+
+            if (numTransferred === notifications.length) {
+              response.send({ notifications: parsedNotifications });
+            }
+          } else {
+            packageReportNotification(notification, user).then((noteElem) => {
+              parsedNotifications.push(noteElem);
+
+              if (numTransferred === notifications.length) {
+                response.send({ notifications: parsedNotifications });
+              }
+            });
+          }
+        }
+        numTransferred += 1;
+      }).catch((error) => {
+        console.log(error);
+        response.status(400).send(error);
+      });
+    }
+  });
 });
 
 app.get('/api/quizzes/:quizId',
@@ -663,6 +726,7 @@ const gradeInQuiz = (answers) => {
   for (let i = 0; i < answers.length; i++) {
     score += answers[i].score;
     denominator += answers[i].question.weight;
+    console.log(score, denominator);
   }
 
   const grade = denominator === 0 ? 0 : 100 * score / denominator;
@@ -687,17 +751,17 @@ app.get("/api/performance/quiz/:studentId/:quizId/",
     const questions = quiz.questions;
     const questionIds = questions.map((question) => question._id);
 
-    Answer.find({ student: uid, question: { $in: questionIds }},
-                { question: 1, choice: 1, score: 1 })
-                .populate('question').populate('choice')
+    Answer.find({ student: uid, question: { $in: questionIds }})
+                .populate('question').populate('choice').populate('student')
                 .then((answers) => {
-      if (!answers) {
-        response.status(404).send({});
+      if (!answers || !answers.length) {
+        response.status(404).send();
       }
 
       const grade = gradeInQuiz(answers);
 
       const report = {
+        student: answers[0].student,
         quiz: quiz,
         performance: {
           answers: answers,

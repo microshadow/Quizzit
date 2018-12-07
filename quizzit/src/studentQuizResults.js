@@ -1,11 +1,13 @@
 import React from 'react';
 import Button from 'react-bootstrap/lib/Button';
+import axios from 'axios';
 
 import Template from './mainTemplate.js';
 import ProgressBar from './progressBar.js';
 import PieChart from './pieChart.js';
 import { Table } from './statTable.js';
-import { createHorizontalDivider, toPercent, nRange } from './globals.js';
+import { createHorizontalDivider, toPercent,
+         nRange, getAuthorizedUser } from './globals.js';
 
 import './style/template.css';
 
@@ -38,166 +40,14 @@ export default class StudentQuizResults extends React.Component{
   }
 
   getQuizResults() {
-    return {
-      student: {
-        studentId: 39000,
-        first: "Daniel",
-        last: "Hubbs"
-      },
-      quiz: {
-        id: 1,
-        subject: this.props.match.params.course,
-        series: this.props.match.params.quizNum,
-        title: "Matter and the Elements",
-        description: "Description goes here...",
-        questions: [
-          {
-            id: 1,
-            display: "Q1",
-            text: "Which of the following is an example of a chemical change?",
-            weight: 1,
-            correct: [1],
-            options: [
-              {
-                id: 1,
-                display: "(a)",
-                text: "Oil and water separate into layers after mixing."
-              },
-              {
-                id: 2,
-                display: "(b)",
-                text: "A white powder emerges when two liquids are mixed."
-              },
-              {
-                id: 3,
-                display: "(c)",
-                text: "Salt dissolves in water when stirred."
-              },
-              {
-                id: 4,
-                display: "(d)",
-                text: "An electric current heats up metal in a lightbulb."
-              }
-            ]
-          },
-          {
-            id: 2,
-            display: "Q2",
-            text: "Which of the following substances are pure substances?",
-            weight: 1,
-            correct: [1, 3],
-            options: [
-              {
-                id: 5,
-                display: "(a)",
-                text: "Air."
-              },
-              {
-                id: 6,
-                display: "(b)",
-                text: "Water."
-              },
-              {
-                id: 7,
-                display: "(c)",
-                text: "Granite."
-              },
-              {
-                id: 8,
-                display: "(d)",
-                text: "Helium gas."
-              }
-            ]
-          },
-          {
-            id: 3,
-            display: "Q3",
-            text: "Francium, element 87, is located in the leftmost column"
-                  + " in the periodic table. Which of the following properties"
-                  + " is francium unlikely to have?",
-            weight: 1,
-            correct: [3],
-            options: [
-              {
-                id: 9,
-                display: "(a)",
-                text: "Solid at room temperature."
-              },
-              {
-                id: 10,
-                display: "(b)",
-                text: "Metallic but soft."
-              },
-              {
-                id: 11,
-                display: "(c)",
-                text: "Reacts explosively with water."
-              },
-              {
-                id: 12,
-                display: "(d)",
-                text: "Forms mostly covalent compounds."
-              }
-            ]
-          },
-          {
-            id: 4,
-            display: "Q4",
-            text: "Which of the following experiments was performed by Ernest Rutherford?",
-            weight: 1,
-            correct: [2],
-            options: [
-              {
-                id: 13,
-                display: "(a)",
-                text: "Electrolyzed common materials until they stopped changing."
-              },
-              {
-                id: 14,
-                display: "(b)",
-                text: "Observed particles passing through a cathode ray tube."
-              },
-              {
-                id: 15,
-                display: "(c)",
-                text: "Shot alpha particles through a sheet of gold foil."
-              },
-              {
-                id: 16,
-                display: "(d)",
-                text: "Observed and explained visible spectra of hydrogen gas."
-              }
-            ]
-          }
-        ]
-      },
-      performance: {
-        grade: 75,
-        classAverage: 75,
-        answers: [
-          {
-            id: 1,
-            choice: 1,
-            classAverage: 100
-          },
-          {
-            id: 2,
-            choice: 2,
-            classAverage: 0
-          },
-          {
-            id: 3,
-            choice: 3,
-            classAverage: 100
-          },
-          {
-            id: 4,
-            choice: 2,
-            classAverage: 100
-          }
-        ]
-      }
-    };
+    const user = getAuthorizedUser();
+    const userId = user._id;
+
+    axios.get(`/api/performance/quiz/${userId}/${this.props.match.params.quizId}`)
+         .then((response) => {
+      const newState = response.data;
+      this.setState(newState);
+    });
   }
 
   componentDidMount() {

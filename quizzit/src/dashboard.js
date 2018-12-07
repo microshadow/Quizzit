@@ -30,31 +30,28 @@ class Dashboard extends Component {
 
   getNotifications() {
     const user = getAuthorizedUser();
-    console.log("getNotifications gets called");
-    console.log(user.username);
+
     axios.get(`/api/notifications/${user._id}`).then((response) => {
       const newState = {
         userType: user.userType,
         name: user.first + " " + user.last,
         notifications: response.data.notifications
       }
-      console.log("Callback function for getNotifications:")
-      console.log(response)
+
       this.setState(newState);
-      console.log(this.state);
     })
   }
 
   packageEventNotification(notification) {
     if (this.state.userType === STUDENT) {
-      notification.href = `#/answerPage/${notification.subject}`;
+      notification.href = `#/answerPage/${notification.data.subject}`;
     } else {
-      notification.href = `#/createQuiz/${notification.subject}`;
+      notification.href = `#/createQuiz/${notification.data.subject}`;
     }
 
     return (
-      <EventNotification title={notification.title}
-                         description={notification.description}
+      <EventNotification title={notification.data.title}
+                         description={notification.data.description}
                          href={notification.href}
                          meta={notification.extra}
                          userType={this.props.userType}
@@ -63,7 +60,8 @@ class Dashboard extends Component {
   }
 
   packageReportNotification(notification) {
-    const hrefBase = `#/${notification.subject}/${notification.series}`;
+    console.log("One")
+    const hrefBase = `#/${notification.data.subject}/${notification.data.series}`;
     if (this.state.userType === STUDENT) {
       notification.href = `${hrefBase}/grades`;
     } else {
@@ -73,15 +71,16 @@ class Dashboard extends Component {
     const firstThreeQuestions = notification.extra.questions.length > 3
                                 ? notification.extra.questions.slice(0, 3)
                                 : notification.extra.questions;
+
     const children = firstThreeQuestions.map((question) => (
-      <ProgressBar percent={question.score}>
-        {question.name}
+      <ProgressBar percent={100 * question.score / question.question.weight}>
+        {question.question.display}
       </ProgressBar>
     ));
 
     return (
-      <ReportNotification title={notification.title}
-                          description={notification.description}
+      <ReportNotification title={notification.data.title}
+                          description={notification.data.description}
                           href={notification.href}
                           average={notification.extra.average}
                           userType={this.props.userType}
@@ -99,9 +98,9 @@ class Dashboard extends Component {
     noteData.title = title;
 
     if (notification.type === "event") {
-      return this.packageEventNotification(noteData);
+      return this.packageEventNotification(notification);
     } else if (notification.type === "report") {
-      return this.packageReportNotification(noteData);
+      return this.packageReportNotification(notification);
     }
   }
 
@@ -111,6 +110,7 @@ class Dashboard extends Component {
 
   render() {
     const notifications = this.state.notifications;
+    console.log("LLLLLLLLLLL", notifications);
     const notificationElements = notifications.map(this.packageNotification);
 
     return (

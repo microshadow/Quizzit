@@ -22,13 +22,13 @@ class Sidebar extends Component {
           "text": "View History",
           "href": !course.quiz && course.quiz !== 0
                   ? null
-                  : `/${course.name}/${course.quiz}/grades`
+                  : `/${course.courseCode}/${course.quiz}/grades`
         }];
 
       if (course.quiz != null) {
         links.push({
           "text": "Take Quiz",
-          "href": `/${course.quiz}/${course.name}`
+          "href": `/${course.quiz}/${course.courseCode}`
         });
       }
 
@@ -37,10 +37,10 @@ class Sidebar extends Component {
       let firstOp = {}
       if (course.quiz != null) {
         firstOp["text"] = "Open Quiz";
-        firstOp["href"] = `${course.quiz}/${course.name}/`;
+        firstOp["href"] = `${course.quiz}/${course.courseCode}/`;
       } else {
         firstOp["text"] = "Create Quiz";
-        firstOp["href"] = `/createQuiz/${course.name}`;
+        firstOp["href"] = `/createQuiz/${course.courseCode}`;
       }
 
       return [firstOp,
@@ -48,7 +48,7 @@ class Sidebar extends Component {
           "text": "Past Quizzes",
           "href": course.quiz === null
                   ? null
-                  : `/${course.name}/${course.quiz}/overview`
+                  : `/${course.courseCode}/${course.quiz}/overview`
         },
       ];
     } else if (this.props.userType === ADMIN) {
@@ -59,17 +59,19 @@ class Sidebar extends Component {
         },
         {
           "text": "View History",
-          "href": `/${course.name}/${course.quiz}/overview`
+          "href": `/${course.courseCode}/${course.quiz}/overview`
         },
       ];
     }
   }
 
   constructCourseMenu(course, parentID) {
-    const controllerID   = `${course.name}Ctrl`;
-    const targetID       = `${course.name}Menu`;
+    const controllerID   = `${course.courseCode}Ctrl`;
+    const targetID       = `${course.courseCode}Menu`;
     const targetSelector = `#${targetID}`;
     const parentSelector = `#${parentID}`;
+
+    console.log(course, parentID);
 
     const linkMeta = this.getCourseDropdownLinks(course);
 
@@ -95,13 +97,14 @@ class Sidebar extends Component {
       }
     });
 
+    console.log(course);
     return (
       <div id={controllerID} className="courseControl">
         <div className="qButton courseLabel textshadow" type="button"
              data-toggle="collapse" data-target={targetSelector}
              aria-expanded="true" aria-controls={targetID}
           >
-          {course.name}
+          {course.courseCode}
         </div>
         <div id={targetID} className="courseMenu collapse"
              aria-labelledby={controllerID} data-parent={parentSelector}

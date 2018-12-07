@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 
 import Template from './mainTemplate.js';
 import StudentCourseSummary from './studentCourseSummary.js';
@@ -13,13 +14,24 @@ export default class StudentSummary extends Component {
     super(props);
 
     this.state = {
-      studentId: null,
-      first: null,
-      last: null,
+      student: {
+        studentId: null,
+        first: null,
+        last: null,
+      },
       courses: []
     };
 
+    this.getStudentCourses = this.getStudentCourses.bind(this);
     this.getCourseSummaries = this.getCourseSummaries.bind(this);
+  }
+
+  getStudentCourses() {
+    axios.get(`/api/courses/${this.props.match.params.studentId}`)
+         .then((response) => {
+      const newState = response.data;
+      this.setState(newState);
+    })
   }
 
   getCourseSummaries(studentId) {
@@ -33,22 +45,11 @@ export default class StudentSummary extends Component {
   }
 
   componentDidMount() {
-    const loadState = {
-      studentId: this.props.match.params.studentId,
-      first: "Daniel",
-      last: "Hubbs",
-      courses: [
-        "ICS2P1",
-        "MPM1D3",
-        "SNC1D3"
-      ]
-    };
-
-    this.setState(loadState);
+    this.getStudentCourses();
   }
 
   render() {
-    const fullName = this.state.first + " " + this.state.last;
+    const fullName = this.state.student.first + " " + this.state.last;
     return (
       <div className="studentWholeSummary">
         <div className="blockTitle ml-4 mb-3 mt-3">

@@ -28,7 +28,8 @@ class ProgressBar extends Component {
 
   render() {
     const percentFull = this.props.percent;
-    const barWidth = `${percentFull.toFixed(2)}%`;
+    console.log(this.props.percent);
+    const barWidth = percentFull ? `${percentFull.toFixed(2)}%` : "0.00%";
     const color = this.percentToColor(percentFull);
     const colorStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
 

@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 
 import Template from './mainTemplate.js';
 import ProgressBar from './progressBar.js';
 import { Table } from './statTable.js';
-import { createHorizontalDivider, toPercent } from './globals.js';
+import { createHorizontalDivider, toPercent,
+         getAuthorizedUser } from './globals.js';
 
 
 export default class StudentCourseSummary extends Component {
@@ -22,8 +24,19 @@ export default class StudentCourseSummary extends Component {
       }
     };
 
+    this.getCourseGrades = this.getCourseGrades.bind(this);
     this.createAverageBar = this.createAverageBar.bind(this);
     this.createPerformanceGraph = this.createPerformanceGraph.bind(this);
+  }
+
+  getCourseGrades() {
+    const user = getAuthorizedUser();
+    const userId = user._id;
+    axios.get(`/api/performance/subject/${userId}/${this.props.course}`)
+         .then((response) => {
+      const newState = response.data;
+      this.setState(newState);
+    })
   }
 
   createAverageBar() {
@@ -69,40 +82,7 @@ export default class StudentCourseSummary extends Component {
   }
 
   componentDidMount() {
-    const loadState = {
-      student: {
-        id: this.props.studentId,
-        first: "Daniel",
-        last: "Hubbs"
-      },
-      performance: {
-        average: 60.25126126,
-        history: [
-          {
-            series: 1,
-            title: "Units and Scientific Notation",
-            grade: 92.2125152
-          },
-          {
-            series: 2,
-            title: "Stars and Planets",
-            grade: null
-          },
-          {
-            series: 3,
-            title: "Astronomy Unit Test",
-            grade: 96.2951251
-          },
-          {
-            series: 4,
-            title: "Matter and the Elements",
-            grade: 75.0000000
-          }
-        ]
-      }
-    };
-
-    this.setState(loadState);
+    this.getCourseGrades();
   }
 
   render() {
