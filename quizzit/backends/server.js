@@ -216,7 +216,7 @@ app.post("/api/courses/",
 	// 		})
 	// 		response.send({ restaurant,reservation })
 	// 	}
-		
+
 	// }).catch((error) => {
 	// 	response.status(400).send(error)
 	// })
@@ -277,7 +277,7 @@ app.get("/api/courses/:userId",
 
           const basis = course;
 
-          if (!match) {
+          if (match) {
             basis.quiz = match._id;
           }
 
@@ -296,6 +296,7 @@ app.get("/api/courses/:userId",
       });
     }
   });
+});
 
 function packageEventNotification(notification) {
   const quiz = notification.quiz;
@@ -957,7 +958,7 @@ app.get("/api/performance/quiz/:quizId/",
     console.log(error);
     response.status(400).send(error);
   });
-})
+});
 
 
 // // serve the React SPA for all other routes
@@ -966,5 +967,5 @@ app.get("/api/performance/quiz/:quizId/",
 // });
 
 app.listen(port, () => {
-	console.log(`Listening on port ${port}...`)
+	console.log(`Listening on port ${port}...`);
 });

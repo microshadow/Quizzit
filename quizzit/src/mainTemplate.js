@@ -19,30 +19,15 @@ class Template extends Component {
 
   componentDidMount() {
     const user = getAuthorizedUser();
-    console.log(user, user._id);
-    if (user.userType === "S") {
-      axios.get(`/api/students/${user._id}`).then((response) => {
-        console.log(response.data.courses)
-        const newState = {
-          userType: user.userType,
-          loggedIn: true,
-          courses: response.data.courses
-        };
-        this.setState(newState);
-      })
-    } else {
-      axios.get(`/api/courses/${user._id}`).then((response) => {
-        console.log("PRINTING COURSE LIST:");
-        console.log(response.data.courses);
-        const newState = {
-          userType: user.userType,
-          loggedIn: true,
-          courses: response.data.courses
-        };
-  
-        this.setState(newState);
-      });
-    }
+
+    axios.get(`/api/courses/${user._id}`).then((response) => {
+      const newState = {
+        userType: user.userType,
+        loggedIn: true,
+        courses: response.data.courses
+      };
+      this.setState(newState);
+    });
   }
 
   render() {
