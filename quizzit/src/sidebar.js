@@ -16,57 +16,51 @@ class Sidebar extends Component {
   }
 
   getCourseDropdownLinks(course) {
-    if (this.props.userType === STUDENT) {
-      console.log("Printing student quiz")
-      console.log(course.quiz);
-      const links = [
-        {
-          "text": "View History",
-          "href": !course.quiz && course.quiz !== 0
-                  ? null
-                  : `/${course.quiz}/grades`
-        }];
+    const links = [];
 
-      if (course.quiz != null) {
+    if (this.props.userType === STUDENT) {
+      if (course.previousQuiz) {
+        links.push({
+          "text": "View History",
+          "href": `/${course.previousQuiz}/grades`
+        })
+      }
+
+      if (course.activeQuiz) {
         links.push({
           "text": "Take Quiz",
-          "href": !course.quiz && course.quiz !== 0
-                  ? null
-                  : `/answerPage/${course._id}`
+          "href": `/answerPage/${course._id}`
         });
       }
 
       return links;
     } else if (this.props.userType === "E") {
       let firstOp = {}
-      if (course.quiz != null) {
+      if (course.activeQuiz) {
         firstOp["text"] = "Open Quiz";
-        firstOp["href"] = `${course.quiz}/`;
+        firstOp["href"] = `${course.activeQuiz}/`;
       } else {
         firstOp["text"] = "Create Quiz";
-        firstOp["href"] = `/createQuiz/${course.courseCode}`;
+        firstOp["href"] = `/createQuiz/${course._id}`;
       }
 
-      return [firstOp,
-        {
+      links.push(firstOp);
+      if (course.previousQuiz) {
+        links.push({
           "text": "Past Quizzes",
-          "href": course.quiz === null
-                  ? null
-                  : `/${course.quiz}/overview`
-        },
-      ];
+          "href": `/${course.previousQuiz}/overview`
+        })
+      }
     } else if (this.props.userType === ADMIN) {
-      return [
-        {
-          "text": "Edit Staff",
-          "href": "#"
-        },
-        {
-          "text": "View History",
-          "href": `/${course.quiz}/overview`
-        },
-      ];
+      if (course.previousQuiz) {
+        links.push({
+          "text": "Past Quizzes",
+          "href": `/${course.previousQuiz}/overview`
+        })
+      }
     }
+
+    return links;
   }
 
   constructCourseMenu(course, parentID) {
@@ -121,8 +115,6 @@ class Sidebar extends Component {
   getCourseListComponent() {
     const courses = this.props.courses;
     const parentId = "coursesMenu";
-    console.log("Printing courses recieved in the sidebar")
-    console.log(courses)
 
     const blank = !courses.length && this.props.userType === STUDENT;
     const baseComponents = blank ? (
@@ -141,9 +133,6 @@ class Sidebar extends Component {
         </Link>
       ))
     }
-
-    console.log("Printing base components")
-    console.log(baseComponents);
 
     return baseComponents;
   }

@@ -58,13 +58,13 @@ class LoggedInPages extends Component {
                 <Template userType={user.userType} loggedIn={true}>
                     <Switch>
                         <Route path="/:quizId/grades" render={
-                            (props) => <StudentQuizResults userType={user.userType} {...props}/>
+                            (props) => <StudentQuizResults {...props}/>
                         }/>
                         <Route path="/:quizId/overview" render={
-                            (props) => <ClassQuizResults userType={user.userType} {...props}/>
+                            (props) => <ClassQuizResults {...props}/>
                         }/>
                         <Route path="/summary/:studentId" render={
-                            (props) => <StudentSummary userType={user.userType} {...props}/>
+                            (props) => <StudentSummary {...props}/>
                         }/>
                         <Route path="/dashboard" exact render={() => <Dashboard userType={user.userType}/>} />
                         <Route path="/createQuiz/:course_id" component={CreateQuizPage}/>

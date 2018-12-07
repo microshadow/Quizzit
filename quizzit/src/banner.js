@@ -52,8 +52,9 @@ class Banner extends Component {
 
   getStatsLink() {
     if (this.props.userType === STUDENT) {
-      const studentId = 1;
-      let href = `/summary/${studentId}`;
+      const user = getAuthorizedUser();
+      const userId = user._id;
+      const href = `/summary/${userId}`;
 
       return (
         <Link to={href}>

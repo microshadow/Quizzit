@@ -60,8 +60,7 @@ class Dashboard extends Component {
   }
 
   packageReportNotification(notification) {
-    console.log("One")
-    const hrefBase = `#/${notification.data.subject}/${notification.data.series}`;
+    const hrefBase = `#/${notification.data.quizId}`;
     if (this.state.userType === STUDENT) {
       notification.href = `${hrefBase}/grades`;
     } else {
@@ -110,7 +109,6 @@ class Dashboard extends Component {
 
   render() {
     const notifications = this.state.notifications;
-    console.log("LLLLLLLLLLL", notifications);
     const notificationElements = notifications.map(this.packageNotification);
 
     return (
