@@ -40,12 +40,11 @@ export default class CreateCourse extends Component {
 
                 if (status === 201) {
                     console.log("Course successfully added");
-                    this.props.history.push('/dashboard');
                     alert("Course successfully added");
                 } else {
                     alert("Course Could not be created");
                 }
-                
+
             })
         }
     }

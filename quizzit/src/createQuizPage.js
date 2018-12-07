@@ -7,25 +7,77 @@ import Col from 'react-bootstrap/lib/Col';
 import Row from 'react-bootstrap/lib/Row';
 import ListGroup from 'react-bootstrap/lib/ListGroup';
 
+import axios from 'axios';
+
 import './createquizpage.css';
-var globals = require('./globals');
+const globals = require('./globals');
 
 class CreateQuizPage extends React.Component {
     constructor(props){
         super(props);
         /*here we would get the data from the database*/
+
         this.state = {
-            quizzes: globals.quiz_data
+          quiz: {
+            course: null,
+            series: 0,
+            title: null,
+            weight: 0,
+            description: null,
+            active: false,
+            participants: [],
+            questions: [],
+            classAverage: 0
+          }
         }
+
+        axios.get(`/api/quizzes/${this.props.match.params.course_id}`)
+             .then((response) => {
+          if (response.status < 400) {
+            const newState = {
+              quiz: response.data
+            };
+            this.setState(newState);
+          }
+        });
+    }
+
+    getQuiz() {
+      return this.state.quiz;
     }
 
     addQuiz(title){
-        let new_quizzes_array = this.state.quizzes;
-        new_quizzes_array.push({title: title, questions: []});
-        this.setState({quizzes: new_quizzes_array});
-        //do server request here after "optimistic" UI update
-        //we just use a global variable for this phase
-        globals.quiz_data.data = new_quizzes_array;
+      const config = {
+        title: title,
+        weight: 1,
+        description: ""
+      };
+
+      axios.post(`/api/quizzes/${this.props.match.params.course_id}`, config)
+           .then((response) => {
+        const newState = {
+          quiz: response.data
+        };
+        this.setState(newState);
+      });
+      //   let new_quizzes_array = [this.state.quiz];
+      //   new_quizzes_array.push({title: title, questions: []});
+      //   this.setState({quiz: new_quizzes_array});
+      //   //do server request here after "optimistic" UI update
+      //   //we just use a global variable for this phase
+      //   globals.quiz_data.data = new_quizzes_array;
+    }
+
+    componentDidMount() {
+      axios.get(`/api/quizzes/${this.props.match.params.course_id}`)
+           .then((response) => {
+        if (response.status < 400) {
+          const newState = {
+            quiz: response.data
+          };
+          this.setState(newState);
+        }
+      });
     }
 
     render(){
@@ -39,7 +91,7 @@ class CreateQuizPage extends React.Component {
                     </Tab>
                     <Tab eventKey="question" title="Modify Questions" >
                         <div id="showquizzes_container">
-                            <CreatequestionForm quizzes={this.state.quizzes}/>
+                            <CreatequestionForm quizGen={this.getQuiz.bind(this)}/>
                         </div>
                     </Tab>
                 </Tabs>
@@ -52,7 +104,13 @@ class CreateQuizPage extends React.Component {
 class CreatequizForm extends React.Component {
     constructor(props){
         super(props);
-        this.state = {title: ""}
+        this.state = {
+          title: ""
+        };
+    }
+
+    createNewQuiz(title) {
+      axios.post()
     }
 
     setTitle(newtitle){
@@ -75,7 +133,7 @@ class CreatequizForm extends React.Component {
                         this.props.createQuiz(this.state.title)
                         this.setTitle("");
                     }}>
-                    Create quiz
+                    Create Quiz
                 </Button>
             </div>
         )
@@ -91,84 +149,115 @@ class CreatequestionForm extends React.Component{
             selectedCheckbox: -1,
             questionTitle: "",
             choiceValues: ["","","",""],
-            quizzes: props.quizzes,
+            quizzes: [this.props.quizGen()]
         }
     }
 
     changeActiveQuestion(index){
-        if(index === -1){
-            //changing to "add question" mode, reset the "selected question" index
-            // and the selected checkbox
-            this.setState({
-                selectedIndex: index,
-                selectedCheckbox: index,
-                choiceValues: ["","","",""],
-                questionTitle: ""
-            });
-        }
-        else{
-            const activeQuiz = this.props.quizzes[this.state.selectedQuiz];
-            if(activeQuiz == null) return;
-            const activeIndex = activeQuiz.questions[index].correct_index;
-            this.setState({selectedIndex: index,
-                selectedCheckbox: activeIndex,
-                questionTitle: activeQuiz.questions[index].question,
-                choiceValues: activeQuiz.questions[index].choices});
-        }
+    //     if(index === -1){
+    //         //changing to "add question" mode, reset the "selected question" index
+    //         // and the selected checkbox
+    //         this.setState({
+    //             selectedIndex: index,
+    //             selectedCheckbox: index,
+    //             choiceValues: ["","","",""],
+    //             questionTitle: ""
+    //         });
+    //     }
+    //     else{
+    //         const activeQuiz = this.props.quiz;
+    //         if(activeQuiz == null) return;
+    //         const activeIndex = activeQuiz.questions[index].correct_index;
+    //         this.setState({selectedIndex: index,
+    //             selectedCheckbox: activeIndex,
+    //             questionTitle: activeQuiz.questions[index].question,
+    //             choiceValues: activeQuiz.questions[index].choices});
+    //     }
     }
 
     deleteQuestion(index){
-        const selectedQuiz = this.state.selectedQuiz;
-        let new_quizzes_array = this.props.quizzes;
-        new_quizzes_array[selectedQuiz].questions.splice(index, 1);
-        //make sure that you clear the modify field in case the deleted question is displayed there
-        this.setState({selectedIndex: -1, quizzes: new_quizzes_array});
-        //do server request here after "optimistic" UI update
-        //we just use a global variable for this phase
-        globals.quiz_data.data = new_quizzes_array;
+    //     const selectedQuiz = this.state.selectedQuiz;
+    //     let new_quizzes_array = this.props.quizzes;
+    //     new_quizzes_array[selectedQuiz].questions.splice(index, 1);
+    //     //make sure that you clear the modify field in case the deleted question is displayed there
+    //     this.setState({selectedIndex: -1, quizzes: new_quizzes_array});
+    //     //do server request here after "optimistic" UI update
+    //     //we just use a global variable for this phase
+    //
+    //
+    //     // globals.quiz_data.data = new_quizzes_array;
     }
 
     addQuestion(event){
         event.preventDefault();
-        const selectedQuiz = this.state.selectedQuiz;
-        let new_quizzes_array = this.props.quizzes;
-        const new_question = {
-            question: this.state.questionTitle,
-            choices: this.state.choiceValues,
-            correct_index: this.state.selectedCheckbox,
-            }
-        new_quizzes_array[selectedQuiz].questions.push(new_question)
-        this.setState({
-            quizzes: new_quizzes_array,
-            selectedCheckbox: -1,
-            choiceValues: ["","","",""],
-            questionTitle: ""
+        // const selectedQuiz = this.state.selectedQuiz;
+        // let new_quizzes_array = this.props.quiz;
+        const answerIndices = globals.nRange(this.state.choiceValues.length);
+        const answerLabels  = answerIndices.map(
+          (index) => `(${String.fromCharCode(index + 97)})`);
+
+        const answers = answerIndices.map((index) => {
+          return {
+            display: answerLabels[index],
+            text: this.state.choiceValues[index]
+          };
         });
-        //do server request here after "optimistic" UI update
-        //we just use a global variable for this phase
-        globals.quiz_data.data = new_quizzes_array;
+
+        const correctIndex = this.state.selectedCheckbox;
+        const selectedQuiz = this.props.quizGen();
+        const newQuestion = {
+            question: {
+                display: `Q${selectedQuiz.questions.length + 1}`,
+                text: this.state.questionTitle,
+                correct: [correctIndex],
+                weight: 1
+            },
+            answers: answers
+        };
+
+        console.log(selectedQuiz);
+        axios.post(`/api/quiz/${selectedQuiz._id}`, newQuestion)
+             .then((response) => {
+           this.setState({
+               quiz: response.data,
+               selectedCheckbox: 0,
+               choiceValues: ["","","",""],
+               questionTitle: ""
+           });
+        });
     }
 
-    modifyQuestion(event, index){
+    modifyQuestion(event, index) {
         event.preventDefault();
-        const selectedQuiz = this.state.selectedQuiz;
-        const activeQuestionIndex = this.state.selectedIndex;
-        let new_quizzes_array = this.props.quizzes;
-        const new_question = {
-            question: this.state.questionTitle,
-            choices: this.state.choiceValues,
-            correct_index: this.state.selectedCheckbox,
-            }
-        new_quizzes_array[selectedQuiz].questions[activeQuestionIndex] = new_question;
-        this.setState({quizzes: new_quizzes_array});
-        //do server request here after "optimistic" UI update
-        //we just use a global variable for this phase
-        globals.quiz_data.data = new_quizzes_array;
+
+        const question = this.state.quiz.questions[index];
+        const questionId = question._id;
+
+        const newDisplay = question.display;
+        const newText    = this.state.questionTitle;
+        const newWeight  = 1;
+        const newOptions = this.state.choiceValues;
+        const newCorrect = [this.state.selectedCheckbox];
+
+        const newQuestion = {
+          display: newDisplay,
+          text: newText,
+          weight: newWeight,
+          options: newOptions,
+          correct: newCorrect
+        };
+
+        axios.patch(`/api/quiz/${this.state.quiz._id}/${questionId}`, newQuestion)
+             .then((response) => {
+           const newState = this.getState();
+           newState.quiz = response.data;
+           this.setState(newState);
+        });
     }
 
-    changeActiveQuiz(event){
-        this.setState({selectedQuiz: event.target.value})
-    }
+    // changeActiveQuiz(event){
+    //     this.setState({selectedQuiz: event.target.value})
+    // }
 
     handleSelect(event){
         //need to set selectedCheckbox index to an integer value
@@ -189,7 +278,9 @@ class CreatequestionForm extends React.Component{
         const selectedQuiz = this.state.selectedQuiz;
         const activeQuestionIndex = this.state.selectedIndex;
         const hasActiveQuestion = (activeQuestionIndex !== -1);
-        const activeQuiz = this.props.quizzes[selectedQuiz];
+        const activeQuiz = this.props.quizGen();
+        console.log(activeQuiz);
+
         return(
         <Form>
             <Form.Group as={Row} controlId="formGridState">
@@ -197,7 +288,7 @@ class CreatequestionForm extends React.Component{
                     Quiz
                 </Form.Label>
                 <Form.Control as="select" sm={5} bsPrefix="select_quiz" value={selectedQuiz} onChange={(event, index) => {this.changeActiveQuiz(event);}}>
-                    {this.props.quizzes.map((quiz, index) => {
+                    {this.state.quizzes.map((quiz, index) => {
                         return (
                             <option value={index} key={index}>{quiz.title}</option>
                             )
@@ -223,7 +314,7 @@ class CreatequestionForm extends React.Component{
                     <Form.Label column sm={6}>
                        <Form.Control onChange={(event)=>{this.handleChangeTitle(event)}}
                             value={this.state.questionTitle}
-                            placeholder={this.props.quizzes[selectedQuiz].questions[activeQuestionIndex].question}/>
+                            placeholder={this.state.quizzes[selectedQuiz].questions[activeQuestionIndex].text}/>
                     </Form.Label>
                 :   <Form.Label column sm={4}>
                         <Form.Control onChange={(event)=>{this.handleChangeTitle(event)}}
