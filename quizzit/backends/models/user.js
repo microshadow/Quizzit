@@ -6,40 +6,17 @@ const Schema = mongoose.Schema;
 const ObjectID = Schema.Types.ObjectId;
 
 const CourseSchema = new Schema({
-  courseCode: {
-    type: String,
-    required: true
-  },
-  instructor: {
-    type: ObjectID,
-    ref: 'User',
-    required: true
-  },
+  courseCode: { type: String, required: true },
+  instructor: { type: ObjectID, ref: 'User', required: true },
 });
 
 const UserSchema = new Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  first: {
-    type: String,
-    required: true
-  },
-  last: {
-    type: String,
-    required: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  userType: {
-    type: String,
-    required: true
-  },
-  courses: [CourseSchema]
+  username: { type: String, required: true, unique: true },
+  first: { type: String, required: true },
+  last: { type: String, required: true },
+  password: { type: String, required: true },
+  userType: { type: String, required: true },
+  courses: [ { type: ObjectID, ref: 'Course' } ]
 });
 
 UserSchema.methods.checkPassword = function(password) {

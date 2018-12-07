@@ -2,7 +2,9 @@
 
 const mongoose = require('mongoose');
 
-const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/Quizzit';
+const mongoPort = 27017;
+const mongoURILocal = `mongodb://localhost:${mongoPort}/Quizzit`;
+const mongoURI = process.env.MONGODB_URI || mongoURILocal;
 mongoose.connect(mongoURI, { useNewUrlParser: true, useCreateIndex: true });
 
 module.exports = {

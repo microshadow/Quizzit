@@ -6,67 +6,43 @@ const { CourseSchema, User } = require('./user.js');
 
 
 const QuestionOptionSchema = new Schema({
-  display: {
-    type: String,
-    required: true
-  },
-  text: {
-    type: String,
-    required: true
-  }
+  display: { type: String, required: true },
+  text: { type: String, required: true },
+  chosenBy: Number
 });
 
 const QuestionSchema = new Schema({
-    display: String,
-    text: String,
-    weight: Number,
-    correct: [QuestionOptionSchema],
-    options: [QuestionOptionSchema],
+  display: String,
+  text: String,
+  weight: Number,
+  correct: [ { type: ObjectID, ref: 'Option' } ],
+  options: [ { type: ObjectID, ref: 'Option' } ],
+  classAverage: Number
 });
 
-// Reservations will be embedded in the Restaurant model
 const QuizSchema = new Schema({
-    title: String,
-    course: {
-      type: ObjectID,
-      ref: 'Course',
-      required: true
-    },
-    series: Number,
-    description: String,
-    questions: [QuestionSchema],
-    active: Boolean
+  title: String,
+  course: { type: ObjectID, ref: 'Course', required: true },
+  series: Number,
+  weight: Number,
+  description: String,
+  questions: [ { type: ObjectID, ref: 'Question' } ],
+  participants: [ { type: ObjectID, ref: 'User' } ],
+  active: Boolean,
+  classAverage: Number
 });
 
 const UserAnswerSchema = new Schema({
-  student: {
-    type: ObjectID,
-    ref: 'User',
-    required: true
-  },
-  question: {
-    type: ObjectID,
-    ref: 'Question',
-    required: true
-  },
-  choice: {
-    type: ObjectID,
-    ref: 'Option',
-    required: true
-  }
+  student: { type: ObjectID, ref: 'User', required: true },
+  question: { type: ObjectID, ref: 'Question', required: true },
+  choice: { type: ObjectID, ref: 'Option', required: true },
+  score: Number
 })
 
 const NotificationSchema = new Schema({
-  type: {
-    type: String,
-    required: false
-  },
-  target: {
-    type: ObjectID,
-    ref: 'Course',
-    required: true
-  },
-  quiz: QuizSchema
+  type: { type: String, required: false },
+  target: { type: ObjectID, ref: 'Course', required: true },
+  quiz: { type: ObjectID, ref: 'Quiz' }
 })
 
 const Quiz = mongoose.model('Quiz', QuizSchema);

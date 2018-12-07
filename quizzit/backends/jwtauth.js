@@ -39,7 +39,6 @@ const authorizeUserTypes = (userTypes) => new JWTStrategy({
   secretOrKey: jwtSecret,
   jwtFromRequest: jwtFromRequest
 }, (token, done) => {
-  console.log("SDGDSGSGDSG");
   try {
     const userType = token.user.userType;
 

@@ -15,6 +15,7 @@ const { mongoose } = require('./db/mongoose');
 const { User, Course } = require('./models/user.js');
 const { Quiz, Question, QuestionOption,
         Answer, UserNotification } = require('./models/quiz');
+const { Foo, Bar } = require('./models/test.js');
 
 const port = process.env.QUIZZIT_PORT || 8000;    // Port 3000 is already used by
 const app = express();                            // React through npm start.
@@ -193,6 +194,26 @@ app.post("/api/courses/",
   })
 })
 
+app.post("/api/courses/:courseId",
+         passport.authenticate("jwt_educator_and_above", { session: false }),
+         (request, response) => {
+  const uid = request.body.studentId;
+  const courseId = request.params.courseId;
+
+  Course.findById(courseId).then((course) => {
+    if (!course) {
+      response.status(404).send({ message: `Course ${courseId} does not exist.` });
+    }
+
+    User.findByIdAndUpdate(uid, { $push: { courses: course }},
+                           { projection: { courses: 1, first: 1, last: 1, userType: 1 },
+                             new: true })
+        .then((newStudent) => {
+      response.send(newStudent);
+    });
+  });
+});
+
 app.get("/api/courses/:userId",
         passport.authenticate("jwt_all_users", { session: false }),
         (request, response) => {
@@ -227,7 +248,7 @@ function packageEventNotification(notification) {
   };
 }
 
-function packageReportNotification(notification) {
+async function packageReportNotification(notification) {
   const quiz = notification.quiz;
   const user = notification.target;
 
@@ -241,61 +262,27 @@ function packageReportNotification(notification) {
     }
   }
 
-  if (user.userType === "S") {
-    // Get user's average on quiz, and questions they answered wrong.
-    base.extra = {
-      grade: 97.57,
-      worstQuestions: [
-        {
-          id: 1,
-          display: "Q1",
-          text: "Which of the following is an example of a chemical change?",
-          weight: 1,
-          correct: [1],
-          options: [
-            {
-              id: 1,
-              display: "(a)",
-              text: "Oil and water separate into layers after mixing."
-            },
-            {
-              id: 2,
-              display: "(b)",
-              text: "A white powder emerges when two liquids are mixed."
-            },
-            {
-              id: 3,
-              display: "(c)",
-              text: "Salt dissolves in water when stirred."
-            },
-            {
-              id: 4,
-              display: "(d)",
-              text: "An electric current heats up metal in a lightbulb."
-            }
-          ]
-        }
-      ]
-    }
+  let query;
+  let gradeFunc;
+  if (user.userType === 'S') {
+    query = { student: user._id, question: { $in: quiz.questions }};
+    gradeFunc = gradeInQuiz;
   } else {
-    // Get class average and questions with worst performance.
-    base.extra = {
-      average: 97.57,
-      questions: [
-        {
-          name: "Q5",
-          score: 24.31
-        },
-        {
-          name: "Q2",
-          score: 41.20
-        }, {
-          name: "Q3",
-          score: 47.84
-        }
-      ]
-    }
+    query  = { question: { $in: quiz.questions }};
+    gradeFunc = (answers) => quiz.classAverage;
   }
+
+  await Answer.find(query)
+              .sort({ score: 1 }).populate('options', { display: 1, text: 1 })
+              .then((answers) => {
+    const numSelections = min(answers.length, 3);
+    const selections = answers.slice(0, numSelections);
+
+    base.extra = {
+      grade: gradeFunc(answers),
+      worstQuestions: selections
+    }
+  });
 
   return base;
 }
@@ -304,13 +291,12 @@ app.get("/api/notifications/:userId",
         passport.authenticate("jwt_all_users", { session: false }),
         (request, response) => {
   const id = request.params.userId;
-  console.log("Attempting to find by ID");
-  console.log(id);
   User.findById(id).then((user) => {
     if (!user) {
       return Promise.reject({ message: `User ID ${id} not found.` });
     } else {
-      return UserNotification.find({ "target": { $in: user.courses }});
+      return UserNotification.find({ "target": { $in: user.courses }})
+                             .populate({ path: 'quiz', populate: { path: 'course' }});
     }
   }).then((notifications) => {
     const convertToReports = (notification) => {
@@ -327,7 +313,7 @@ app.get("/api/notifications/:userId",
   })
 });
 
-app.get('api/quizzes/:quizId',
+app.get('/api/quizzes/:quizId',
         passport.authenticate("jwt_educator_and_above", { session: false }),
         (request, response) => {
   const quizId = request.params.quizId;
@@ -338,6 +324,7 @@ app.get('api/quizzes/:quizId',
     }
 
     // Incomplete. Next steps: populate questions and return.
+    response.send(quiz);
   })
 });
 
@@ -361,9 +348,11 @@ app.post("/api/quizzes/:course",
       course: courseId,
       series: newSeries,
       title: request.body.title,
+      weight: request.body.weight,
       description: request.body.description,
-      questions: [],
-      active: true
+      active: true,
+      participants: [],
+      classAverage: 0
     });
 
     return quiz.save();
@@ -398,41 +387,54 @@ app.post("/api/quiz/:quizId",
          (request, response) => {
   const quizId = request.params.quizId;
   const questionMeta = request.body.question;
-  const answersMeta  = request.body.answers;
-
-  const question = new Question({
-    display: questionMeta.display,
-    text: questionMeta.text,
-    weight: questionMeta.weight,
-    correct: [],
-    options: answersMeta
+  const answersMeta  = request.body.answers.map((answer) => {
+    return {
+      display: answer.display,
+      text: answer.text,
+      chosenBy: 0
+    };
   });
 
-  return question.save().then((question) => {
-    if (!question) {
-      response.status(400).send({ message: "Unable to create new question." });
+  QuestionOption.create(answersMeta, (error, options) => {
+    if (error) {
+      console.log(error);
+      response.status(400).send(error);
     }
 
-    const correctAnswers = questionMeta.correct.map((index) => question.options[index]);
+    const optionIds = options.map((option) => option._id);
+    const correctIds = questionMeta.correct.map((index) => optionIds[index]);
 
-    for (let i = 0; i < correctAnswers.length; i++) {
-      question.correct.push(correctAnswers[i]);
-    }
-    return question.save();
-  }).then((question) => {
-    Quiz.findById(quizId).then((quiz) => {
-      if (quiz) {
-        quiz.questions.push(question);
-        return quiz.save();
-      } else {
-        return Promise.reject({ message: `Quiz with ID ${quizId} not found.`});
-      }
-    }).then((quiz) => {
-      response.status(201).send(quiz);
+    const question = new Question({
+      display: questionMeta.display,
+      text: questionMeta.text,
+      weight: questionMeta.weight,
+      options: optionIds,
+      correct: correctIds,
+      classAverage: 0
     });
-  }).catch((error) => {
-    console.log(error);
-    response.status(400).send(error);
+
+    return question.save().then((question) => {
+      if (!question) {
+        response.status(400).send({ message: "Unable to create new question." });
+      }
+
+      Quiz.findById(quizId).then((quiz) => {
+        if (quiz) {
+          quiz.questions.push(question);
+          return quiz.save();
+        } else {
+          return Promise.reject({ message: `Quiz with ID ${quizId} not found.`});
+        }
+      }).then((quiz) => {
+        response.status(201).send(quiz);
+      }).catch((error) => {
+        console.log(error);
+        response.status(400).send(error);
+      });
+    }).catch((error) => {
+      console.log(error);
+      response.status(400).send(error);
+    });
   });
 });
 
@@ -443,7 +445,8 @@ app.get("/api/quiz/:quizId/:prevQuestion",
   const quizId = request.params.quizId;
   const prevId = request.params.prevQuestion;
 
-  Quiz.findById(quizId).then((quiz) => {
+  Quiz.findById(quizId).populate({ path: 'questions', populate: { path: 'options'}})
+                       .then((quiz) => {
     if (!quiz) {
       return response.status(404).send({ message: `Quiz ${quizId} not found.`});
     }
@@ -453,7 +456,6 @@ app.get("/api/quiz/:quizId/:prevQuestion",
       nextQuestionIndex = 0;
     } else {
       for (let i = 0; i < quiz.questions.length; i++) {
-        console.log(quiz.questions[i]._id.toString(), prevId[0]);
         if (quiz.questions[i]._id.toString() === prevId) {
           nextQuestionIndex = i + 1;
         }
@@ -466,6 +468,7 @@ app.get("/api/quiz/:quizId/:prevQuestion",
       response.send({ next: null });
     } else {
       const question = quiz.questions[nextQuestionIndex];
+
       // Remove correct answers from the question incase hackers try to cheat.
       const strippedQuestion = {
         _id: question._id,
@@ -482,58 +485,6 @@ app.get("/api/quiz/:quizId/:prevQuestion",
     response.status(400).send(error);
   });
 });
-
-app.post("/api/quiz/:quizId/:question",
-         passport.authenticate("jwt_student_only", { session: false }),
-         (request, response) => {
-  const quizId = request.params.quizId;
-  const question = request.params.question;
-  const stuId  = request.body.studentId;
-  const choice = request.body.answer;
-
-  console.log("A");
-
-  const answer = new Answer({
-    student: stuId,
-    question: question,
-    choice: choice._id
-  });
-
-  answer.save().then((newAnswer) => {
-    console.log("B");
-    if (!newAnswer) {
-      response.status(404).send({ message: `Failed to save answer.` });
-    }
-
-    console.log("C");
-    newAnswer.populate('question', (error, newerAnswer) => {
-      console.log("D");
-      if (error) {
-        response.send(404).send({ message: `Failed to save answer` });
-      }
-
-      const question = newerAnswer.question;
-      const correctIds = question.correct.map((option) => option._id.toString());
-      const score = correctIds.includes(choice._id) ? question.weight : 0;
-      console.log("E");
-
-      question.score = score;
-      console.log(question);
-      response.send({
-        _id: question.id,
-        display: question.display,
-        text: question.text,
-        weight: question.weight,
-        correct: question.correct,
-        options: question.options,
-        score: score
-      });
-    })
-  }).catch((error) => {
-    console.log(error);
-    response.status(400).send(error);
-  })
-})
 
 app.patch("/api/quiz/:quizId/:question",
           passport.authenticate("jwt_educator_and_above", { session: false }),
@@ -569,7 +520,8 @@ app.post("/api/quiz/:quizId/publish",
          (request, response) => {
   const quizId = request.params.quizId;
 
-  Quiz.findById(quizId).then((quiz) => {
+  Quiz.findById(quizId).populate({ path: 'questions', populate: { path: 'options' }})
+                       .then((quiz) => {
     if (!quiz) {
       return Promise.reject({ message: `Quiz with id ${quizId} not found.`});
     }
@@ -577,7 +529,7 @@ app.post("/api/quiz/:quizId/publish",
     const note = new UserNotification({
       type: "event",
       target: quiz.course,
-      quiz: quiz
+      quiz: quiz._id
     });
 
     return note.save().then((notification) => {
@@ -589,6 +541,64 @@ app.post("/api/quiz/:quizId/publish",
   });
 });
 
+app.post("/api/quiz/:quizId/:studentId",
+         passport.authenticate("jwt_student_only", { session: false }),
+         (request, response) => {
+  const questionId = request.params.question;
+  const stuId  = request.params.studentId;
+  const choice = request.body.answer;
+
+  const answer = new Answer({
+    student: stuId,
+    question: questionId,
+    choice: choice,
+    score: 0
+  });
+
+  answer.save().then((newAnswer) => {
+    newAnswer.populate({ path: 'question', populate: { path: 'options'}},
+             (error, newerAnswer) => {
+      if (error) {
+        response.status(404).send({ message: `Failed to save answer.` });
+      }
+
+      const question = newerAnswer.question;
+      const correctIds = question.correct.map((id) => id.toString());
+      const score = correctIds.includes(choice) ? question.weight : 0
+
+      newerAnswer.score = score;
+      const isThisAnswer = (opt) => opt._id.toString() === choice;
+      const chosen = question.options.filter(isThisAnswer)[0];
+
+      chosen.chosenBy += 1;
+
+      // TODO: Also update number of participants in tne quiz.
+      Quiz.findOne({ questions: questionId }).then((quiz) => {
+        if (!quiz.participants.includes(stuId)) {
+          quiz.participants.push(stuId);
+          quiz.save();
+        }
+      })
+
+      chosen.save();
+      newerAnswer.save();
+
+      response.send({
+        _id: question.id,
+        display: question.display,
+        text: question.text,
+        weight: question.weight,
+        correct: question.correct,
+        options: question.options,
+        score: score
+      });
+    });
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
+  })
+})
+
 // End a quiz, and remove all active quiz notifications from the students.
 // Replace those notifications with complete event report notifications.
 app.delete("/api/quiz/:quizId",
@@ -596,7 +606,8 @@ app.delete("/api/quiz/:quizId",
            (request, response) => {
   const quizId = request.params.quizId;
 
-  Quiz.findById(quizId).then((quiz) => {
+  Quiz.findById(quizId).populate({ path: 'questions', populate: { path: 'options'}})
+                       .then((quiz) => {
     quiz.active = false;
     return quiz.save();
   }).then((quiz) => {
@@ -604,15 +615,256 @@ app.delete("/api/quiz/:quizId",
       return Promise.reject({ message: `Quiz ID ${quizId} not found.` });
     }
 
-    return UserNotification.update({ "quiz._id" : quizId },
-                                   { $set: { type: "report" }});
-  }).then((result) => {
-    response.send(result);
+    let quizTotalPercent = 0;
+    const questions = quiz.questions;
+    for (let i = 0; i < questions.length; i++) {
+      const question = questions[i];
+      const correctIds = question.correct.map((id) => id.toString());
+
+      let correctAnswers = 0;
+      let overallAnswers = 0;
+      for (let m = 0; m < question.options.length; m++) {
+        const option = question.options[m];
+        overallAnswers += option.chosenBy;
+
+        if (correctIds.includes(option._id.toString())) {
+          correctAnswers += option.chosenBy;
+        }
+      }
+
+      const correctPercent = overallAnswers === 0 ? 0 : 100 * correctAnswers / overallAnswers;
+      quizTotalPercent += correctPercent;
+      question.classAverage = correctPercent;
+    }
+
+    quiz.classAverage = questions.length === 0 ? 0 : quizTotalPercent / questions.length;
+    quiz.save();
+
+    UserNotification.updateMany({ quiz : quizId },
+                                { $set: { type: "report" }}).then((result) => {
+      response.send(quiz);
+    }).catch((error) => {
+      console.log(error);
+      response.status(400).send(error);
+    });
   }).catch((error) => {
     console.log(error);
     response.status(400).send(error);
   });
 });
+
+
+const gradeInQuiz = (answers) => {
+  let score = 0;
+  let denominator = 0;
+  for (let i = 0; i < answers.length; i++) {
+    score += answers[i].score;
+    denominator += answers[i].question.weight;
+  }
+
+  const grade = denominator === 0 ? 0 : 100 * score / denominator;
+  return grade;
+}
+
+
+app.get("/api/performance/quiz/:studentId/:quizId/",
+        passport.authenticate("jwt_all_users", { session: false }),
+        (request, response) => {
+  const uid = request.params.studentId;
+  const quizId = request.params.quizId;
+
+  Quiz.findById(quizId).populate({ path: 'questions', populate: { path: 'options'}})
+                       .populate({ path: 'course'}).then((quiz) => {
+    if (!quiz) {
+      response.status(404).send({ message: `No quiz found with ID ${quizId}.` });
+    } else if (quiz.active) {
+      response.status(400).send({ message: `Cannot get performance for an active quiz.` })
+    }
+
+    const questions = quiz.questions;
+    const questionIds = questions.map((question) => question._id);
+
+    Answer.find({ student: uid, question: { $in: questionIds }},
+                { question: 1, choice: 1, score: 1 })
+                .populate('question').populate('choice')
+                .then((answers) => {
+      if (!answers) {
+        response.status(404).send({});
+      }
+
+      const grade = gradeInQuiz(answers);
+
+      const report = {
+        quiz: quiz,
+        performance: {
+          answers: answers,
+          grade: grade,
+          classAverage: quiz.classAverage
+        }
+      };
+
+      response.send(report);
+    }).catch((error) => {
+      console.log(error);
+      response.status(400).send(error);
+    });
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
+  });
+})
+
+app.get("/api/performance/subject/:studentId/:course/",
+        passport.authenticate("jwt_all_users", { session: false }),
+        (request, response) => {
+  const uid = request.params.studentId;
+  const courseId = request.params.course;
+
+  Quiz.find({ course: courseId }, { display: 1, text: 1, weight: 1, correct: 1})
+      .populate({ path: 'questions', populate: { path: 'options'}})
+      .populate({ path: 'course'}).then(async function(quizzes) {
+    if (!quizzes) {
+      response.status(404).send({ message: `No quiz found with ID ${quizId}.` });
+    }
+
+    const history = [];
+    let courseMark = 0;
+    let denominator = 0;
+
+    for (let i = 0; i < quizzes.length; i++) {
+      const quiz = quizzes[i];
+      if (quizzes.active) {
+        continue;
+      }
+
+      const questions = quiz.questions;
+      const questionIds = questions.map((question) => question._id);
+
+      await Answer.find({ student: uid, question: { $in: questionIds }},
+                  { question: 1, choice: 1, score: 1 })
+                  .populate('question').populate('choice')
+                  .then((answers) => {
+        if (!answers) {
+          response.status(404).send({});
+        }
+
+        const grade = gradeInQuiz(answers);
+        history.push({
+          _id: quiz._id,
+          series: quiz.series,
+          title: quiz.title,
+          grade: grade,
+          classAverage: quiz.classAverage
+        });
+
+        courseMark += grade * quiz.weight / 100;
+        denominator += quiz.weight;
+      }).catch((error) => {
+        console.log(error);
+        response.status(400).send(error);
+      });
+    }
+
+    User.findById(uid, { first: 1, last: 1, username: 1 }).then((student) => {
+      const courseAvg = denominator === 0 ? 0 : 100 * courseMark / denominator;
+
+      response.send({
+        student: student,
+        performance: {
+          average: courseAvg,
+          history: history
+        }
+      });
+    })
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
+  });
+})
+
+
+async function enrolment(course) {
+  return User.find({ userType: 'S', courses: course })
+}
+
+
+app.get("/api/performance/quiz/:quizId/",
+        passport.authenticate("jwt_educator_and_above", { session: false }),
+        (request, response) => {
+  const quizId = request.params.quizId;
+
+  Quiz.findById(quizId).populate({ path: 'questions', populate: { path: 'options'}})
+                       .populate({ path: 'course'})
+                       .populate({ path: 'participants',
+                                   select: { first: 1, last: 1, username: 1 }})
+                       .then((quiz) => {
+    if (!quiz) {
+      response.status(404).send({ message: `No quiz found with ID ${quizId}.` });
+    } else if (quiz.active) {
+      response.status(400).send({ message: `Cannot get performance for an active quiz.` })
+    }
+
+    const questions = quiz.questions;
+    const questionIds = questions.map((question) => question._id);
+
+    const attendees = quiz.participants;
+    const attendance = attendees.length;
+
+    User.find({ userType: 'S', courses: quiz.course._id },
+              { username: 1, first: 1, last: 1 })
+        .then(async function(enrolled) {
+      const enrolment = enrolled.length;
+      const performance = [];
+      let courseGrades = 0;
+
+      for (let i = 0; i < enrolment; i++) {
+        const student = enrolled[i];
+        await Answer.find({ student: student, question: { $in: questionIds }},
+                    { question: 1, choice: 1, score: 1 })
+                    .populate('question').populate('choice')
+                    .then((answers) => {
+
+          const grade = answers ? gradeInQuiz(answers) : 0;
+          performance.push({
+            student: student,
+            grade: grade,
+            answers: answers.length ? answers : null
+          });
+
+          courseGrades += grade;
+        }).catch((error) => {
+          console.log(error);
+          response.status(400).send(error);
+        });
+      }
+
+      const classAverage = courseGrades / enrolment;
+      const attendanceRate = 100 * attendance / enrolment;
+
+      response.send({
+        quiz: {
+          _id: quiz._id,
+          subject: quiz.course,
+          series: quiz.series,
+          title: quiz.title,
+          description: quiz.description,
+          questions: quiz.questions
+        },
+        stats: {
+          average: classAverage,
+          attendance: attendanceRate,
+          performance: performance
+        }
+      });
+    }).catch((error) => {
+      console.log(error);
+      response.status(400).send(error);
+    });
+  }).catch((error) => {
+    console.log(error);
+    response.status(400).send(error);
+  });
+})
 
 
 // // serve the React SPA for all other routes
