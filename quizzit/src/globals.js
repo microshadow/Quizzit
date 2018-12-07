@@ -86,7 +86,6 @@ function trashAuthToken() {
   const token = localStorage.getItem("token");
 
   if (token) {
-    console.log(`Restoring token ${token}`);
     axios.defaults.headers.common['Authorization'] = 'JWT ' + token;
   }
 })();
