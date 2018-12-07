@@ -193,6 +193,33 @@ app.post("/api/courses/",
   }).catch((error) => {
     response.status(400).send(error);
   })
+
+
+  // if(!ObjectID.isValid(instructor)) {
+	// 	return res.status(404).send()
+	// }
+
+	// User.findById(instructor).then((user) => {
+	// 	if (!user) {
+	// 		response.status(404).send()
+	// 	} else {
+	// 		const newEntry = new Course({ courseCode, instructor });
+  //     console.log(newEntry);
+  //     user.courses.push(newEntry)
+  //     console.log(user);
+	// 		user.save().then((result) => {
+  //       console.log("successfullly added the course")
+  //       console.log(result)
+	// 			response.send({result})
+	// 		}, (error) => {
+	// 			response.status(400).send(error)
+	// 		})
+	// 		response.send({ restaurant,reservation })
+	// 	}
+		
+	// }).catch((error) => {
+	// 	response.status(400).send(error)
+	// })
 })
 
 app.post("/api/enroll",
@@ -269,7 +296,6 @@ app.get("/api/courses/:userId",
       });
     }
   });
-});
 
 function packageEventNotification(notification) {
   const quiz = notification.quiz;

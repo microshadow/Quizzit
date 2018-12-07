@@ -16,6 +16,8 @@ class Sidebar extends Component {
   }
 
   getCourseDropdownLinks(course) {
+    console.log("In course drop down area");
+    console.log(this.props.userType)
     if (this.props.userType === STUDENT) {
       const links = [
         {
@@ -33,7 +35,8 @@ class Sidebar extends Component {
       }
 
       return links;
-    } else if (this.props.userType === EDUCATOR) {
+    } else if (this.props.userType === "E") {
+      console.log("Entered Educator if statement")
       let firstOp = {}
       if (course.quiz != null) {
         firstOp["text"] = "Open Quiz";
@@ -74,30 +77,33 @@ class Sidebar extends Component {
     console.log(course, parentID);
 
     const linkMeta = this.getCourseDropdownLinks(course);
+    console.log("Printing link meta");
+    console.log(linkMeta)
+    console.log("Printing course shit");
+    console.log(course)
 
     const linkComponents = linkMeta.map((linkInfo) => {
       if (linkInfo.href) {
         return (
           <li>
             <Link to={linkInfo.href}>
-              <div className="qButton">
+              <div>
                 {linkInfo.text}
               </div>
             </Link>
           </li>
-        );
+        )
       } else {
         return (
           <li>
             <div className="qButton">
-              {linkInfo.text}
+             {linkInfo.text}
             </div>
           </li>
         );
       }
     });
 
-    console.log(course);
     return (
       <div id={controllerID} className="courseControl">
         <div className="qButton courseLabel textshadow" type="button"
@@ -114,12 +120,15 @@ class Sidebar extends Component {
           </ul>
         </div>
       </div>
+
     )
   }
 
   getCourseListComponent() {
     const courses = this.props.courses;
     const parentId = "coursesMenu";
+    console.log("Printing courses recieved in the sidebar")
+    console.log(courses)
 
     const blank = !courses.length && this.props.userType === STUDENT;
     const baseComponents = blank ? (
@@ -138,6 +147,9 @@ class Sidebar extends Component {
         </Link>
       ))
     }
+
+    console.log("Printing base components")
+    console.log(baseComponents);
 
     return baseComponents;
   }
