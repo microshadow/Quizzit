@@ -30,6 +30,7 @@ class LogInScreen extends Component {
   logIn(e) {
     const username = this.refs.username.value;
     const password = this.refs.password.value;
+    console.log(username, password)
 
     if (username && password) {
       axios.post("/login", { username, password }).then((response) => {
