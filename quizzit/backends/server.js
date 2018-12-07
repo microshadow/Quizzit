@@ -15,7 +15,6 @@ const { mongoose } = require('./db/mongoose');
 const { User, Course } = require('./models/user.js');
 const { Quiz, Question, QuestionOption,
         Answer, UserNotification } = require('./models/quiz');
-const { Foo, Bar } = require('./models/test.js');
 
 const port = process.env.QUIZZIT_PORT || 8000;    // Port 3000 is already used by
 const app = express();                            // React through npm start.
