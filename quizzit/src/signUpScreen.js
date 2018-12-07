@@ -86,7 +86,7 @@ class SignUpScreen extends Component {
           <input style={inputStyle} className="form-control" type="password"
                  placeholder="Confirm Password" ref="confirmpassword"></input>
           <br/>
-          <select style={inputStyle} class="form-control" ref="userTypeSelect">
+          <select style={inputStyle} className="form-control" ref="userTypeSelect">
             <option>Student</option>
             <option>Educator</option>
           </select>

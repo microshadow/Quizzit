@@ -87,18 +87,18 @@ class Sidebar extends Component {
       if (linkInfo.href) {
         return (
           <Link to={linkInfo.href}>
-            <a class="dropdown-item">{linkInfo.text}</a>
+            <a className="dropdown-item">{linkInfo.text}</a>
           </Link>
         )
       }
     });
 
     return (
-      <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <div className="dropdown">
+        <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           {course.courseCode}
         </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
           {linkComponents}
         </div>
       </div>
