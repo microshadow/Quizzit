@@ -53,7 +53,7 @@ class Dashboard extends Component {
       <EventNotification title={notification.data.title}
                          description={notification.data.description}
                          href={notification.href}
-                         meta={notification.extra}
+                         meta={notification.data.extra}
                          userType={this.props.userType}
       />
     );

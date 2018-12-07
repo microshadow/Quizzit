@@ -16,31 +16,32 @@ class Sidebar extends Component {
   }
 
   getCourseDropdownLinks(course) {
-    console.log("In course drop down area");
-    console.log(this.props.userType)
     if (this.props.userType === STUDENT) {
+      console.log("Printing student quiz")
+      console.log(course.quiz);
       const links = [
         {
           "text": "View History",
           "href": !course.quiz && course.quiz !== 0
                   ? null
-                  : `/${course.courseCode}/${course.quiz}/grades`
+                  : `/${course.quiz}/grades`
         }];
 
       if (course.quiz != null) {
         links.push({
           "text": "Take Quiz",
-          "href": `/${course.quiz}/${course.courseCode}`
+          "href": !course.quiz && course.quiz !== 0
+                  ? null
+                  : `/answerPage/${course._id}`
         });
       }
 
       return links;
     } else if (this.props.userType === "E") {
-      console.log("Entered Educator if statement")
       let firstOp = {}
       if (course.quiz != null) {
         firstOp["text"] = "Open Quiz";
-        firstOp["href"] = `${course.quiz}/${course.courseCode}/`;
+        firstOp["href"] = `${course.quiz}/`;
       } else {
         firstOp["text"] = "Create Quiz";
         firstOp["href"] = `/createQuiz/${course.courseCode}`;
@@ -51,7 +52,7 @@ class Sidebar extends Component {
           "text": "Past Quizzes",
           "href": course.quiz === null
                   ? null
-                  : `/${course.courseCode}/${course.quiz}/overview`
+                  : `/${course.quiz}/overview`
         },
       ];
     } else if (this.props.userType === ADMIN) {
@@ -62,7 +63,7 @@ class Sidebar extends Component {
         },
         {
           "text": "View History",
-          "href": `/${course.courseCode}/${course.quiz}/overview`
+          "href": `/${course.quiz}/overview`
         },
       ];
     }
@@ -74,20 +75,14 @@ class Sidebar extends Component {
     const targetSelector = `#${targetID}`;
     const parentSelector = `#${parentID}`;
 
-    console.log(course, parentID);
-
     const linkMeta = this.getCourseDropdownLinks(course);
-    console.log("Printing link meta");
-    console.log(linkMeta)
-    console.log("Printing course shit");
-    console.log(course)
 
     const linkComponents = linkMeta.map((linkInfo) => {
       if (linkInfo.href) {
         return (
           <li>
             <Link to={linkInfo.href}>
-              <div>
+              <div className="qButton">
                 {linkInfo.text}
               </div>
             </Link>
@@ -120,7 +115,6 @@ class Sidebar extends Component {
           </ul>
         </div>
       </div>
-
     )
   }
 

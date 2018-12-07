@@ -183,11 +183,8 @@ app.post("/api/courses/",
          (request, response) => {
   const courseCode = request.body.course;
   const instructor = request.body.instructor;
-  console.log(courseCode);
-  console.log(instructor);
 
   const newEntry = new Course({ courseCode, instructor });
-  console.log(newEntry);
   newEntry.save().then((result) => {
     response.status(201).send(result);
   }).catch((error) => {
@@ -267,7 +264,7 @@ app.get("/api/courses/:userId",
     } else if (!user.courses.length) {
       response.send({ courses: [] });
     } else {
-      Quiz.find({ course: { $in: user.courses }, active: true},
+      Quiz.find({ course: { $in: user.courses }, active: true },
                 { course: 1, series: 1}).then((actives) => {
         const collection = [];
 
@@ -275,8 +272,11 @@ app.get("/api/courses/:userId",
           const course = user.courses[i];
           const match = actives.find((quiz) => quiz.course.toString() === course._id.toString());
 
-          const basis = course;
-
+          const basis = {
+            _id: course._id,
+            courseCode: course.courseCode,
+            instructor: course.instructor
+          };
           if (match) {
             basis.quiz = match._id;
           }
@@ -348,17 +348,14 @@ async function packageReportNotification(notification, user) {
               .then((answers) => {
     const numSelections = Math.min(answers.length, 3);
     const selections = answers.slice(0, numSelections);
-    console.log(answers);
 
     base.extra = {
       score: gradeFunc(answers),
       questions: selections
     }
 
-    console.log(user.userType);
     if (user.userType === 'S') {
       base.extra.average = gradeInQuiz(answers);
-      console.log(base.extra.average);
     }
   });
 
@@ -373,31 +370,41 @@ app.get("/api/notifications/:userId",
     if (!user) {
       response.status(400).send({ message: `User ID ${id} not found.` });
     } else {
+      console.log("A")
       UserNotification.find({ "target": { $in: user.courses }})
                       .populate({ path: 'quiz', populate: { path: 'course' }})
                       .then((notifications) => {
         let parsedNotifications = [];
         let numTransferred = 0;
 
+        console.log(notifications);
         for (let i = 0; i < notifications.length; i++) {
+          console.log(i)
           const notification = notifications[i];
           if (notification.quiz.active) {
             parsedNotifications.push(packageEventNotification(notification));
 
-            if (numTransferred === notifications.length) {
+            console.log("B");
+            if (numTransferred === notifications.length - 1) {
+              console.log("D");
               response.send({ notifications: parsedNotifications });
+              console.log("E");
             }
           } else {
             packageReportNotification(notification, user).then((noteElem) => {
               parsedNotifications.push(noteElem);
 
+              console.log("C");
               if (numTransferred === notifications.length) {
                 response.send({ notifications: parsedNotifications });
               }
+            }).catch((error) => {
+              console.log(error);
+              response.status(400).send(error);
             });
           }
+          numTransferred += 1;
         }
-        numTransferred += 1;
       }).catch((error) => {
         console.log(error);
         response.status(400).send(error);
@@ -753,7 +760,6 @@ const gradeInQuiz = (answers) => {
   for (let i = 0; i < answers.length; i++) {
     score += answers[i].score;
     denominator += answers[i].question.weight;
-    console.log(score, denominator);
   }
 
   const grade = denominator === 0 ? 0 : 100 * score / denominator;
