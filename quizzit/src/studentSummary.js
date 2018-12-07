@@ -14,8 +14,8 @@ export default class StudentSummary extends Component {
     super(props);
 
     this.state = {
-      student: {
-        studentId: null,
+      user: {
+        _id: null,
         first: null,
         last: null,
       },
@@ -37,7 +37,7 @@ export default class StudentSummary extends Component {
   getCourseSummaries(studentId) {
     return this.state.courses.map((course) => {
       return (
-        <StudentCourseSummary studentId={this.state.studentId}
+        <StudentCourseSummary studentId={this.state.user._id}
                               course={course}>
         </StudentCourseSummary>
       )
@@ -49,7 +49,7 @@ export default class StudentSummary extends Component {
   }
 
   render() {
-    const fullName = this.state.student.first + " " + this.state.last;
+    const fullName = this.state.user.first + " " + this.state.user.last;
     return (
       <div className="studentWholeSummary">
         <div className="blockTitle ml-4 mb-3 mt-3">
@@ -57,7 +57,7 @@ export default class StudentSummary extends Component {
             {fullName}
           </h3>
           <h5 className="subhead font-dark">
-            Student ID: {this.state.studentId}
+            Student ID: {this.state.user.username}
           </h5>
         </div>
         { this.getCourseSummaries() }

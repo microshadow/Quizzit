@@ -10,13 +10,17 @@ export default class PieChart extends Component {
     const data = this.props.answers.map((datum) => datum.value);
     const labels = this.props.answers.map((datum) => datum.label);
 
-    const indexOfCorrect = this.props.answers.findIndex(
-      (datum) => datum.label === this.props.correctAnswer
-    );
+    console.log(this.props.answers);
+    console.log(this.props.correctAnswers);
 
-    data[indexOfCorrect] = {value: data[indexOfCorrect], className: "correctAnswer"};
     const classNames = Array(this.props.answers.length).fill("");
-    classNames[indexOfCorrect] = "correctAnswer";
+
+    for (let i = 0; i < labels.length; i++) {
+      if (this.props.correctAnswers.includes(labels[i])) {
+        data[i] = {value: data[i], className: "correctAnswer"};
+        classNames[i] = "correctAnswer";
+      }
+    }
 
     const chartData = {
       series: data,

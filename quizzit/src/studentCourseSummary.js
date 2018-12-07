@@ -32,7 +32,7 @@ export default class StudentCourseSummary extends Component {
   getCourseGrades() {
     const user = getAuthorizedUser();
     const userId = user._id;
-    axios.get(`/api/performance/subject/${userId}/${this.props.course}`)
+    axios.get(`/api/performance/subject/${userId}/${this.props.course._id}`)
          .then((response) => {
       const newState = response.data;
       this.setState(newState);
@@ -63,18 +63,18 @@ export default class StudentCourseSummary extends Component {
       };
 
       if (quiz.grade) {
-        basis.href = `/${this.props.course}/${quiz.series}/grades`;
+        basis.href = `/${quiz._id}/grades`;
       }
 
       return basis;
     });
 
     return (
-      <Table title={`${this.props.course} Performance Record`}
-             columnHeads={[""].concat(headers)}
-             data={[["Grade"].concat(data)]}
+      <Table title={`${this.props.course.courseCode} Performance Record`}
+             columnHeads={headers}
+             data={[data]}
              highlight={(row, column, ind) => row[ind].text === "A"}
-             heads={[]}
+             heads={[{colHead: "", rows: ["Grade"]}]}
              tails={[{colHead: "Average", generate: (ind, row) => toPercent(this.state.performance.average, 2)},
                      {colHead: "Attendance", generate: (ind, row) => toPercent(row.filter((cell) => cell.text !== "A").length * 100.0 / row.length)}]}>
       </Table>
@@ -91,7 +91,7 @@ export default class StudentCourseSummary extends Component {
         <div className="blockTitle ml-4 mb-3">
           { createHorizontalDivider(2, "background-medium") }
           <h4 className="font-dark ml-2">
-            {this.props.course}
+            {this.props.course.courseCode}
           </h4>
           { createHorizontalDivider(2, "background-medium") }
         </div>

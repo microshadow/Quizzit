@@ -17,9 +17,11 @@ export default class ClassQuizResults extends Component {
 
     this.state = {
       quiz: {
-        id: 0,
-        subject: this.props.match.params.course,
-        series: this.props.match.params.quizNum,
+        _id: 0,
+        subject: {
+          courseCode: ""
+        },
+        series: 0,
         title: null,
         description: null,
         questions: [],
@@ -35,11 +37,12 @@ export default class ClassQuizResults extends Component {
     this.extractAttendanceRate = this.extractAttendanceRate.bind(this);
     this.extractAverageGrade = this.extractAverageGrade.bind(this);
     this.getPerformanceRecord = this.getPerformanceRecord.bind(this);
-    this.getQuestionStats = this.getQuestionStats.bind(this);
+    this.generateQuestionStatsChart = this.generateQuestionStatsChart.bind(this);
   }
 
   getPerformance() {
-    axios.get(`/api/performance/quiz/${this.props.quizId}/`).then((response) => {
+    axios.get(`/api/performance/quiz/${this.props.match.params.quizId}/`)
+         .then((response) => {
       const newState = response.data;
       this.setState(newState);
     });
@@ -54,7 +57,7 @@ export default class ClassQuizResults extends Component {
   }
 
   getPerformanceRecord() {
-    const courseCode = this.props.match.params.course;
+    const courseCode = this.state.quiz.subject.courseCode;
     const questionNames = this.state.quiz.questions.map((question) => question.display);
     const questionIndices = nRange(this.state.quiz.questions.length);
 
@@ -72,9 +75,11 @@ export default class ClassQuizResults extends Component {
         if (studentData.answers === null) {
           return "A";
         } else if ("choice" in studentData.answers[qIndex]) {
-          const choiceIndex = studentData.answers[qIndex].choice;
+          const choiceId = studentData.answers[qIndex].choice._id;
           const question    = this.state.quiz.questions[qIndex];
-          return question.options[choiceIndex].display;
+          const match = question.options.find((option) => option._id.toString() === choiceId.toString())
+
+          return match.display;
         } else {
           return "X";
         }
@@ -108,48 +113,20 @@ export default class ClassQuizResults extends Component {
     );
   }
 
-  getQuestionStats() {
-    const questionsMap = [];
-    const numQuestions = this.state.quiz.questions.length;
-    // Build a map of question index to another map, which translates answer
-    // index of the parent question to the number of students who chose that
-    // answer. Initially zero for all.
-    for (let qIndex = 0; qIndex < numQuestions; qIndex++) {
-      const question = this.state.quiz.questions[qIndex];
-      questionsMap.push(Array(question.options.length).fill(0));
-    }
-
-    // Repeatedly add 1 to each answer each student chooses.
-    const reducer = (acc, student) => {
-      if (student.answers !== null) {
-        for (let qIndex = 0; qIndex < numQuestions; qIndex++) {
-          // Loop through all answers the student gave to any question.
-          const question = this.state.quiz.questions[qIndex];
-          const answer   = student.answers[qIndex].choice;
-
-          if (answer) {
-            // The student provided this answer to this question.
-            console.log(answer);
-            acc[qIndex][answer] += 1
-          }
-        }
-      }
-
-      return acc;
-    }
-
-    return this.state.stats.performance.reduce(reducer, questionsMap);
-  }
-
-  generateQuestionStatsChart(questionStats) {
-    const qIndices = nRange(questionStats.length);
+  generateQuestionStatsChart() {
+    const qIndices = nRange(this.state.quiz.questions.length);
     return qIndices.map((qIndex) => {
       // Generate one pie chart per question.
       const question = this.state.quiz.questions[qIndex];
       const title = `${question.display} Answer Distribution`;
-      const correct = question.correct;
+      const correct = question.correct.map(
+        (correct) => question.options.find(
+          (option) => option._id.toString() === correct.toString()
+        ).display
+      );
 
-      const qStats = questionStats[qIndex];
+      const oIndices = nRange(question.options.length);
+      const qStats = oIndices.map((index) => question.options[index].chosenBy)
       const usedAnswers = nRange(qStats.length).filter((aIndex) => qStats[aIndex] > 0);
 
       if (usedAnswers.length === 0) {
@@ -168,7 +145,7 @@ export default class ClassQuizResults extends Component {
         return (
           <PieChart title={title}
                     answers={answerDistr}
-                    correctAnswer={correct}>
+                    correctAnswers={correct}>
           </PieChart>
         );
       }
@@ -176,24 +153,20 @@ export default class ClassQuizResults extends Component {
   }
 
   componentDidMount() {
-    const loadedState = this.getPerformance();
-    loadedState.subject = this.props.match.params.course;
-    loadedState.series  = this.props.match.params.quizNum;
-
-    this.setState(loadedState);
+    this.getPerformance();
   }
 
   render() {
-    const subject = this.props.match.params.course;
-    const quizNum = this.props.match.params.quizNum;
+    console.log("Class Quiz Stats", this.state);
+    const subject = this.state.quiz.subject.courseCode;
+    const quizNum = this.state.quiz.series;
     const quizTitle = `${subject} Quiz ${quizNum}`;
 
     const attendanceRate = this.extractAttendanceRate();
     const performanceRecord = this.getPerformanceRecord();
     const averageGrade  = this.extractAverageGrade();
 
-    const questionStats = this.getQuestionStats();
-    const questionStatCharts = this.generateQuestionStatsChart(questionStats);
+    const questionStatCharts = this.generateQuestionStatsChart();
 
     return (
       <div className="classResults">

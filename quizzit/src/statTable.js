@@ -14,8 +14,13 @@ function highlightWrongAnswer(row, col, ind) {
   }
   const question = this.state.quiz.questions[qIndex];
 
-  const answerIndex = question.options.findIndex((a) => a.display === cell.text);
-  return !question.correct.includes(answerIndex);
+  const answer = question.options.find((a) => a.display === cell.text);
+  if (!answer) {
+    return true;
+  } else {
+    const answerId = answer._id;
+    return !question.correct.includes(answerId);
+  }
 }
 
 
