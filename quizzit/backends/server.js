@@ -708,6 +708,7 @@ app.post("/api/quiz/:quizId/publish",
   });
 });
 
+
 app.post("/api/quiz/:quizId/:studentId",
          passport.authenticate("jwt_student_only", { session: false }),
          (request, response) => {
