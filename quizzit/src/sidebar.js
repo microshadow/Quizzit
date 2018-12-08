@@ -5,6 +5,7 @@ import { STUDENT, EDUCATOR, ADMIN, createVerticalDivider,
          getAuthorizedUser } from './globals.js';
 import './style/sidebar.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
+import axios from 'axios';
 
 
 class Sidebar extends Component {
@@ -19,6 +20,25 @@ class Sidebar extends Component {
   getCourseDropdownLinks(course) {
     const links = [];
 
+    console.log("Printing current active quizzes");
+    console.log(this.props.activeQuizzes)
+    const activeQuizzes = this.props.activeQuizzes;
+    var activeQuizBool = false;
+
+    console.log("PRINTING ACTIVE QUIZZES")
+    console.log(activeQuizzes[0])
+    activeQuizzes.map((quiz) => {
+      // console.log(quiz.course)
+      // console.log(course._id)
+      // if (quiz.course === course._id) {
+      //   activeQuizBool = true;
+      // }
+      console.log("looping")
+    })
+
+    console.log("ACTIVE QUIZ BOOL")
+    console.log(activeQuizBool)
+
     if (this.props.userType === STUDENT) {
       if (course.previousQuiz) {
         links.push({
@@ -27,7 +47,7 @@ class Sidebar extends Component {
         })
       }
 
-      if (course.activeQuiz) {
+      if (activeQuizBool) {
         links.push({
           "text": "Take Quiz",
           "href": `/answerPage/${course._id}`
@@ -37,7 +57,7 @@ class Sidebar extends Component {
       return links;
     } else if (this.props.userType === "E") {
       let firstOp = {}
-      if (course.activeQuiz) {
+      if (activeQuizBool) {
         firstOp["text"] = "Open Quiz";
         firstOp["href"] = `${course.activeQuiz}/`;
       } else {
@@ -69,20 +89,18 @@ class Sidebar extends Component {
     return links;
   }
 
-  constructCourseMenu(course, parentID) {
-    const controllerID   = `${course.courseCode}Ctrl`;
-    const targetID       = `${course.courseCode}Menu`;
-    const targetSelector = `#${targetID}`;
-    const parentSelector = `#${parentID}`;
+  getCourseActiveQuiz(courseID) {
 
-    console.log(controllerID)
-    console.log(targetID)
-    console.log(targetSelector)
-    console.log(parentSelector)
+  }
+
+  constructCourseMenu(course, parentID) {
 
     var linkMeta = this.getCourseDropdownLinks(course);
     console.log("Printing Link Meta")
     console.log(linkMeta)
+    console.log("PRINTING QUIZZES EARLIER")
+    console.log(this.props.activeQuizzes)
+    console.log(typeof this.props.activeQuizzes)
     const linkComponents = linkMeta.map((linkInfo) => {
       if (linkInfo.href) {
         return (

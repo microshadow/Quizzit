@@ -515,7 +515,6 @@ app.post("/api/quizzes/:course",
 });
 
 app.get("/api/quizzes/:course",
-         passport.authenticate("jwt_educator_and_above", { session: false }),
          (request, response) => {
   const courseId = request.params.course;
 
