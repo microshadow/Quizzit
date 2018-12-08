@@ -109,3 +109,4 @@ prof.insertMany([prof1, prof2, prof3,prof4, prof5], err => {
         log("prof data inserted successfully...")
     }
 });
+/***/
