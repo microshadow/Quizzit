@@ -11,6 +11,7 @@ const courseSchema = new mongoose.Schema({
 });
 
 const profSchema = new mongoose.Schema({
+    profId:Number,
     name:String,
     course:String
 });
@@ -64,26 +65,31 @@ const course7 = new course({
 });
 
 const prof1 = new prof({
+    profId:1,
     name:"daniela rosu",
     course: "CSC343"
 });
 
 const prof2 = new prof({
+    profId:2,
     name:"Mark Kazakevich",
     course:"CSC309"
 });
 
 const prof3 = new prof({
+    profId:3,
     name:"Micheal Stumm",
     course:["ECE421", "ECE444"]
 });
 
 const prof4 = new prof({
+    profId:4,
     name:"Shokrollah-Timorabadi, Hamid",
     course:["ECE361", "ECE450"]
 });
 
 const prof5 = new prof({
+    profId:5,
     name:"Blinda Wang",
     course:["ECE110", "ECE231","ECE334"]
 });
