@@ -58,6 +58,19 @@ function ScoreData() {
 var score_data = new ScoreData();
 score_data.data = []
 
+function CourseData() {
+  Object.defineProperty(this, 'data', {
+    get: function() {
+      return course_data;
+    },
+    set: function(value) {
+      course_data = value;
+    }
+  });
+}
+var course_data = new CourseData();
+course_data.data = []
+
 const STUDENT  = "S";
 const EDUCATOR = "T";
 const ADMIN    = "A";
@@ -119,6 +132,7 @@ function toPercent(num, digits) {
 export {
   quiz_data,
   score_data,
+  course_data,
   STUDENT,
   EDUCATOR,
   ADMIN,

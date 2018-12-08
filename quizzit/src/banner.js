@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-
+import Backend from './backend.js';
 import { STUDENT, createHorizontalDivider,
-         registerAuthToken, getAuthorizedUser,
-         trashAuthToken } from './globals.js';
+         registerAuthToken, getAuthorizedUser } from './globals.js';
 import bannerImage from './media/QuizzitLogoHorizontal.png';
 import './style/banner.css';
 
@@ -21,6 +20,7 @@ class Banner extends Component {
     this.makeLogo  = this.makeLogo.bind(this);
     this.getLoginButton = this.getLoginButton.bind(this);
     this.getStatsLink   = this.getStatsLink.bind(this);
+    this.backend = new Backend();
   }
 
   makeLogo() {
@@ -31,7 +31,8 @@ class Banner extends Component {
   }
 
   logOut() {
-    trashAuthToken();
+    console.log(this.backend);
+    this.backend.logout();
   }
 
   getLoginButton() {
@@ -39,7 +40,7 @@ class Banner extends Component {
     const buttonText = loggedIn ? "Log Out" : "Log In";
 
     const href = loggedIn ? "/" : "/dashboard"
-    const onClickFunc = loggedIn ? trashAuthToken : null;
+    const onClickFunc = loggedIn ? this.logOut : null;
 
     return (
       <Link to={href} onClick={onClickFunc}>

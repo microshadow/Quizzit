@@ -4,7 +4,6 @@ const Schema = mongoose.Schema;
 const ObjectID = Schema.Types.ObjectId;
 const { CourseSchema, User } = require('./user.js');
 
-
 const QuestionOptionSchema = new Schema({
   display: { type: String, required: true },
   text: { type: String, required: true },

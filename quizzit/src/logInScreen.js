@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { Link, Redirect } from 'react-router-dom';
+import { registerAuthToken, getAuthorizedUser } from './globals.js';
 
-import { registerAuthToken } from './globals.js';
 
 const divStyle = {
   width: '500px',
@@ -53,6 +54,18 @@ class LogInScreen extends Component {
   }
 
   render() {
+    const user = getAuthorizedUser();
+    if(user){
+        console.log(this.props);
+        return (
+            <Redirect
+                to={{
+                pathname: "/dashboard",
+                state: { from: this.props.location }
+                }}
+            />
+        );
+    }
     return (
       <div className="mx-auto" style={divStyle} align="center">
         <form>
@@ -67,6 +80,9 @@ class LogInScreen extends Component {
                   onClick={this.logIn}>
             Log In
           </button>
+          <div>
+            <Link to="/signUp">go to registration</Link>
+          </div>
         </form>
       </div>
     );

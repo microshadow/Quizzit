@@ -1,5 +1,7 @@
 'use strict'
 
+const MockData = require('./createMockData.js');
+
 const express = require('express');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -24,6 +26,7 @@ app.use(express.static(path.join(__dirname, 'build')));
 
 const STUDENT = "S", EDUCATOR = "E", ADMIN = "A";
 
+MockData.createMockData();
 
 // For those who want to run the server against React using npm start,
 // turn on the Chrome extension Allow-Control-Allow-Origin*.

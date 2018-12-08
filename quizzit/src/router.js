@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { HashRouter, Switch, Route, Redirect} from 'react-router-dom';
+import { BrowserRouter, Switch, Route, Redirect} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import WelcomeScreen from "./welcomeScreen.js";
@@ -15,6 +15,10 @@ import { STUDENT, EDUCATOR, ADMIN, getAuthorizedUser } from "./globals.js";
 import Template from './mainTemplate.js';
 import CreateCourse from "./createCourse.js";
 import AddStudentPage from "./addStudentPage.js";
+import Backend from './backend.js';
+import { withRouter } from "react-router";
+
+const globals = require("./globals.js");
 
 let userType = STUDENT;
 function setUserType(newUserType) {
@@ -24,7 +28,7 @@ function setUserType(newUserType) {
 class Router extends Component {
     render() {
         return (
-            <HashRouter>
+            <BrowserRouter>
                 <Switch>
                     <Route path="/" exact component={WelcomeScreen}/>
                     <Route path="/login" exact render={
@@ -35,12 +39,19 @@ class Router extends Component {
                     }/>
                     <LoggedInPages />
                 </Switch>
-            </HashRouter>
+            </BrowserRouter>
         );
     }
 }
 
-class LoggedInPages extends Component {
+class LoggedInPagesInner extends Component {
+    constructor(props){
+        super(props);
+        this.backend = new Backend();
+        globals.course_data.data = [];
+        globals.course_data.data = this.backend.get_course_data();
+    }
+
     render() {
         const user = getAuthorizedUser();
         if(!user){
@@ -82,5 +93,7 @@ class LoggedInPages extends Component {
         );
     }
 }
+
+const LoggedInPages = withRouter(LoggedInPagesInner);
 
 export default Router;

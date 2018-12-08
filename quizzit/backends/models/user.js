@@ -5,9 +5,16 @@ const bcrypt = require('bcryptjs');
 const Schema = mongoose.Schema;
 const ObjectID = Schema.Types.ObjectId;
 
-const CourseSchema = new Schema({
+const courseSchema = new Schema({
+  name: String,
   courseCode: { type: String, required: true },
   instructor: { type: ObjectID, ref: 'User', required: true },
+});
+
+const profSchema = new mongoose.Schema({
+  profId: Number,
+  name: String,
+  course: String
 });
 
 const UserSchema = new Schema({
@@ -40,6 +47,6 @@ UserSchema.pre('save', function (next) {
 
 
 const User = mongoose.model('User', UserSchema);
-const Course = mongoose.model('Course', CourseSchema);
+const Course = mongoose.model('Course', courseSchema);
 
-module.exports = { Course, CourseSchema, User, UserSchema };
+module.exports = { Course, courseSchema, profSchema, User, UserSchema };

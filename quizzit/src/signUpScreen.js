@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-
-import { registerAuthToken } from './globals.js';
+import { Link, Redirect } from 'react-router-dom';
+import { registerAuthToken, getAuthorizedUser } from './globals.js';
 
 const divStyle = {
     width: '500px',
@@ -67,6 +67,18 @@ class SignUpScreen extends Component {
   }
 
   render() {
+    const user = getAuthorizedUser();
+    if(user){
+        console.log(this.props);
+        return (
+            <Redirect
+                to={{
+                pathname: "/dashboard",
+                state: { from: this.props.location }
+                }}
+            />
+        );
+    }
     return (
       <div className="mx-auto" style={divStyle} align="center">
         <form>
@@ -92,7 +104,11 @@ class SignUpScreen extends Component {
           </select>
           <br/>
           <button className="btn btn-primary" style={buttonStyle}
-                  onClick={this.registerAccount}>Sign Up</button>
+              onClick={this.registerAccount}>Sign Up
+          </button>
+          <div>
+            <Link to="/login">go to login</Link>
+          </div>
         </form>
       </div>
     );

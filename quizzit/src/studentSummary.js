@@ -57,7 +57,7 @@ export default class StudentSummary extends Component {
             {fullName}
           </h3>
           <h5 className="subhead font-dark">
-            Student ID: {this.state.user.username}
+            Username: {this.state.user.username}
           </h5>
         </div>
         { this.getCourseSummaries() }
