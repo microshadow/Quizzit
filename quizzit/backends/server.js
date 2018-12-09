@@ -25,8 +25,7 @@ app.use(express.static(path.join(__dirname, 'build')));
 const STUDENT = "S", EDUCATOR = "E", ADMIN = "A";
 
 
-// For those who want to run the server against React using npm start,
-// turn on the Chrome extension Allow-Control-Allow-Origin*.
+// For those who want to run the server against React using npm start.
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
@@ -113,15 +112,8 @@ app.get('/api/quizzes', (req, res) => {
 app.get('/api/students/getByUsername/:username', (req, res) => {
   const username = req.params.username;
 
-  console.log("in student search query");
-  console.log(username)
-  console.log(User)
-
   User.findOne({'username' : username}).then((match) => {
-    console.log("Printing the match value")
-    console.log(match)
     if (match) {
-      console.log("match successfully found")
       res.status(202).send(match);
     } else {
       res.status(400).send();
@@ -129,32 +121,6 @@ app.get('/api/students/getByUsername/:username', (req, res) => {
   })
 
 })
-
-// app.post('/api/students/enrollUserByUsername/:username/:courseId', (req, res) => {
-//   const username = req.params.username;
-//   const courseID = req.params.courseId;
-
-//   console.log("in student search query");
-//   console.log(username)
-//   console.log(User)
-
-//   User.findOne({'username' : username}).then((user) => {
-//     console.log("Printing the match value")
-//     console.log(user)
-//     if (user) {
-//       console.log("match successfully found")
-//       user.courses.push(courseID)
-//       user.save().then((result) => {
-//         console.log("User successfully saved")
-// 				response.status(201).send(result);
-// 			}, (error) => {
-//         console.log("user could not be saved")
-// 				response.status(400).send(error)
-//       })
-//     } else {
-//       res.status(400).send();
-//     }
-//   })
 
 // })
 // GET student by id
@@ -243,14 +209,9 @@ app.post("/api/courses/",
 app.post("/api/enroll",
          passport.authenticate("jwt_educator_and_above", { session: false }),
          (request, response) => {
-  console.log("testing enroll API")
   const course = request.body.course;
   const user = request.body.user;
-  console.log(course)
-  console.log(user)
   User.findByIdAndUpdate(user, { $push: { courses: course } }, { 'new': true}).then((newUser) => {
-    console.log("Printing new user value");
-    console.log(newUser)
     if (newUser) {
       response.status(200).send(newUser)
     } else {
@@ -285,10 +246,7 @@ app.get("/api/courses/getCourseByID/:courseId", (req, res) => {
   const courseID = req.params.courseId;
 
   Course.findById(courseID).then((match) => {
-    console.log("Printing course match value");
-    console.log(match)
     if (match) {
-      console.log("match successfully found")
       res.status(202).send(match);
     } else {
       res.status(400).send();
@@ -462,21 +420,6 @@ app.get("/api/notifications/:userId",
     }
   });
 });
-
-// app.get('/api/quizzes/:quizId',
-//         passport.authenticate("jwt_educator_and_above", { session: false }),
-//         (request, response) => {
-//   const quizId = request.params.quizId;
-//
-//   Quiz.findById(quizId).populate('course').then((quiz) => {
-//     if (!quiz) {
-//       response.status(404).send({ message: "Quiz not found."});
-//     }
-//
-//     // Incomplete. Next steps: populate questions and return.
-//     response.send(quiz);
-//   })
-// });
 
 // Create a new quiz with no questions.
 app.post("/api/quizzes/:course",
