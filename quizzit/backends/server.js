@@ -199,11 +199,21 @@ app.post("/api/courses/",
   const instructor = request.body.instructor;
 
   const newEntry = new Course({ courseCode, instructor });
-  newEntry.save().then((result) => {
-    response.status(201).send(result);
-  }).catch((error) => {
-    response.status(400).send(error);
-  })
+
+  User.findById(instructor).then((instructor) => {
+		if (!instructor) {
+			response.status(404).send()
+		} else {
+			instructor.courses.push(newEntry);
+			// console.log(restaurant);
+			instructor.save().then((result) => {
+				// Save and send object that was saved
+				response.send({ instructor })
+			}, (error) => {
+				response.status(400).send(error) // 400 for bad request
+			});
+    }
+  });
 })
 
 app.post("/api/enroll",
