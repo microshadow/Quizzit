@@ -34,8 +34,8 @@ Usage Instructions.
 
 1) Create a Quiz
 
-Log into an Educator account. You can use the username _______ and the password
-_______. Educators have access to restricted pages, such as course management,
+Log into an Educator account. You can use the username Mark and the password
+123456. Educators have access to restricted pages, such as course management,
 quiz creation and deployment, and viewing statistics for all students in a class.
 
 After logging in, click a course on the sidebar or create a new one with the
