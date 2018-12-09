@@ -103,7 +103,7 @@ class Table extends Component {
 
     const rowIndices = [...Array(cells.length).keys()];
 
-    const columnHeads = heads;
+    this.state.columnHeads = heads;
 
     return (
       <div className="displayTable">

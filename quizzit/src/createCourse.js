@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import Backend from './backend.js';
+import axios from 'axios';
+import { getAuthorizedUser } from './globals.js';
 
 const divStyle = {
     width: '500px',
@@ -24,23 +25,35 @@ export default class CreateCourse extends Component {
         super(props);
 
         this.createCourse = this.createCourse.bind(this);
-        this.backend = new Backend();
     }
 
     createCourse() {
         const course = this.refs.courseCode.value;
-        // accesses the backend through our Data Access Object
-        this.backend.create_course(course);
-        setTimeout(function(){
-            window.location.reload();
-        },100);
+        const user = getAuthorizedUser();
+        const instructor = user._id;
+        if (!course) {
+            alert("Please enter a Valid Course Code")
+        } else {
+            const courseDetails = {course,instructor};
+            axios.post('/api/courses/', courseDetails).then((response) => {
+                const status = response.status;
+
+                if (status === 201) {
+                    console.log("Course successfully added");
+                    alert("Course successfully added");
+                } else {
+                    alert("Course Could not be created");
+                }
+
+            })
+        }
     }
 
     render() {
         return (
             <div className="mx-auto" style={divStyle} align="center">
                 <form>
-                <h1 style={headerStyle}>Enter course details below:</h1>
+                <h1 style={headerStyle}>Enter Course Details Below:</h1>
                 <input style={inputStyle} className="form-control" type="text"
                         placeholder="Course Code" ref="courseCode"></input>
                 <br/>

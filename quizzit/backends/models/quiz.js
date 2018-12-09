@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
-mongoose.connect("mongodb://localhost:27017/courses", {useNewUrlParser:true});
 
 const Schema = mongoose.Schema;
 const ObjectID = Schema.Types.ObjectId;
+const { CourseSchema, User } = require('./user.js');
+
 
 const QuestionOptionSchema = new Schema({
   display: { type: String, required: true },
@@ -14,8 +15,8 @@ const QuestionSchema = new Schema({
   display: String,
   text: String,
   weight: Number,
-  correct_index: Number,
-  choices: [String],
+  correct: [ { type: ObjectID, ref: 'Option' } ],
+  options: [ { type: ObjectID, ref: 'Option' } ],
   classAverage: Number
 });
 
