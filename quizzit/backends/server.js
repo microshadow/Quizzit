@@ -229,6 +229,7 @@ app.patch('/api/students/:id', (req, res) => {
 	})
 })
 
+// add course
 app.post("/api/courses/",
          passport.authenticate("jwt_educator_and_above", { session: false }),
          (request, response) => {
@@ -241,6 +242,27 @@ app.post("/api/courses/",
   }).catch((error) => {
     response.status(400).send(error);
   })
+})
+
+
+// delete course
+app.post("/api/courses/delete/",
+         passport.authenticate("jwt_educator_and_above", { session: false }),
+         (req, res) => {
+  const courseID = req.body.courseID;
+  const instructor = req.body.instructor;
+
+  console.log(req.body);
+  Course.findByIdAndRemove(courseID).then((course) => {
+    console.log("Printing new user value");
+    console.log(course)
+    if (course) {
+      res.status(201).send(course)
+    } else {
+      res.status(400).send();
+    }
+  });
+
 })
 
 app.post("/api/enroll",

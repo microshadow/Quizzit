@@ -58,7 +58,7 @@ class SignUpScreen extends Component {
           const user  = response.data.user;
 
           registerAuthToken(token, user);
-          this.props.history.push("/dashboard");
+          this.props.history.push("/dashboard");      
         } else {
           alert(`Failed to log in with status ${status}`);
         }

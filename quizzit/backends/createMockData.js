@@ -1,95 +1,125 @@
-const schemas = require('./models/user');
 
 const log = console.log;
 
-const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/courses", {useNewUrlParser:true});
-
 const createMockData = () => {
+
+    const mongoose = require("mongoose");
+    mongoose.connect("mongodb://localhost:27017/courses", {useNewUrlParser:true});
+
+    const schemas = require('./models/user');
+    const schemas2 = require('./models/quiz');
 
     // create models
     const course = mongoose.model("course", schemas.courseSchema);
-    const prof = mongoose.model("prof", schemas.profSchema);
+    const user = mongoose.model("user", schemas.userSchema);
+    const quiz = mongoose.model("quiz", schemas2.QuizSchema);
+    const question = mongoose.model("question", schemas2.QuestionSchema);
 
     // clear database before inserting mock data
+    console.log("cleaning database");
     course.remove();
-    prof.remove();
-    // const course3 = mongoose.model("course3", courseSchema);
-   
-    const prof1 = new prof({
-        name:"Daniela Rosu",
-        course: "CSC343"
-    });
-
-    const prof2 = new prof({
-        name:"Mark Kazakevich",
-        course:"CSC309"
-    });
-
-    const prof3 = new prof({
-        name:"Micheal Stumm",
-        course:["ECE421", "ECE444"]
-    });
-
-    const prof4 = new prof({
-        name:"Shokrollah-Timorabadi, Hamid",
-        course:["ECE361", "ECE450"]
-    });
-
-    const prof5 = new prof({
-        name:"Blinda Wang",
-        course:["ECE110", "ECE231","ECE334"]
-    });
-
-    const course1 = new course({
-        name: "Intro to databases",
-        courseCode: "CSC343",
-        instructor: prof1._id
-    });
+    user.remove();
+    quiz.remove();
+    question.remove();
 
     const course2 = new course({
         name:"Programming on web",
         courseCode:"CSC309",
-        instructor: prof5._id
-    });
-
-    const course3 = new course({
-        name: "Machine Learning",
-        courseCode:"ECE421",
-        instructor:prof5._id
-    });
-
-    const course4 = new course({
-        name:"Software engineering I",
-        courseCode:"ECE444",
-        instructor:prof4._id
     });
 
     const course5 = new course({
         name:"Software engineering II",
         courseCode:"ECE450",
-        instructor:prof3._id
     });
 
-    const course6 = new course({
-        name:"Computer networks",
-        courseCode:"ECE361",
-        instructor:prof2._id
+    const course7 = new course({
+        name:"History 101",
+        courseCode:"Hist101",
     });
 
-    course.insertMany([course1, course2, course3,course4,course5,course6], err => {
+    const prof1 = new user({
+        username:"MarkKazakevich",
+        first: "Mark",
+        last: "Kazakevich",
+        userType: "T",
+        courses: [course2._id, course5._id, course7._id],
+        password: "123456",
+    });
+
+    const student1 = new user({
+        username:"MichaelMaster",
+        first: "Michael",
+        last: "Smith",
+        userType: "S",
+        courses: [course2._id, course7._id],
+        password: "123456",
+    });
+
+    const question1 = new question({
+        question: "Where was the battle of Culloden?",
+        choices: ["England", "Scottland", "Canada", "USA"],
+        correct_index: 1,
+    });
+
+    const question2 = new question({
+        question: "When was the battle of the Somme?",
+        choices: ["1916", "2001", "1943", "1945"],
+        correct_index: 0,
+    });
+
+    const question3 = new question({
+        question: "Who invented the induction motor?",
+        choices: ["Nikola Tesla", "Elon Musk", "Thomas Edison", "Bill Gates"],
+        correct_index: 0,
+    });
+
+    const question4 = new question({
+        question: "Who was the 40th president of the US?",
+        choices: ["Donald Trump", "Barack Obama", "Ronald Reagan", "Jimmy Carter"],
+        correct_index: 2,
+    });
+
+    const quiz1 = new quiz({
+        title: "Quiz 1 - historical battles",
+        course: course7._id,
+        questions: [question1, question2]
+    });
+    
+    const quiz2 = new quiz({
+        title: "Quiz 2 - famous people",
+        course: course7._id,
+        questions: [question3, question4]
+    });
+
+    course.insertMany([course2, course5, course7], err => {
         if(err){
             log(err)
-        }else {
+        } else {
             log("course data inserted successfully...")
         }
     });
 
-    prof.insertMany([prof1, prof2, prof3,prof4, prof5], err => {
+    user.insertMany([prof1, student1], err => {
         if(err){
             log(err);
-        }else {
+        } else {
             log("prof data inserted successfully...")
+        }
+    });
+
+    question.insertMany([question1, question2, question3, question4], err => {
+        if(err){
+            log(err);
+        } else {
+            log("question data inserted successfully...")
+        }
+    });
+
+    quiz.insertMany([quiz1, quiz2], err => {
+        if(err){
+            log(err);
+        } else {
+            log("quiz data inserted successfully...")
         }
     });
 }

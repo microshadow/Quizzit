@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAuthorizedUser, trashAuthToken } from './globals.js';
+import { getAuthorizedUser, trashAuthToken, registerAuthToken } from './globals.js';
 
 export default class Backend {
     constructor(url = "") {
@@ -112,7 +112,7 @@ export default class Backend {
         const user = getAuthorizedUser();
         const instructor = user._id;
         if (!course) {
-            alert("Please enter a Valid Course Code")
+            alert("Please enter a valid course code")
         } else {
             const courseDetails = {course,instructor};
             axios.post(this.url + '/api/courses/', courseDetails).then((response) => {
@@ -122,7 +122,7 @@ export default class Backend {
                     console.log("Course successfully added");
                     alert("Course successfully added");
                 } else {
-                    alert("Course Could not be created");
+                    alert("Course could not be created");
                 }
 
             })
@@ -169,13 +169,55 @@ export default class Backend {
     }
 
     // DELETE: 
-    remove_course = (course_id) => {
-        // => success code
+    remove_course = (courseID) => {
+        console.log(courseID);
+        // returns course object
+        const course = courseID;
+        const user = getAuthorizedUser();
+        const instructor = user._id;
+        if (!course) {
+            alert("Please enter a valid course code")
+        } else {
+            const courseDetails = {courseID, instructor};
+            axios.post(this.url + '/api/courses/delete/', courseDetails).then((response) => {
+                const status = response.status;
+
+                if (status === 201) {
+                    console.log("Course successfully deleted.");
+                    alert("Course successfully deleted.");
+                    setTimeout(function(){
+                        window.location.reload();
+                    },100);
+                } else {
+                    alert("Course could not be deleted.");
+                }
+
+            })
+        }
     }
 
     // Auth API using Express and Passport.js -- Alex
-    login = (username, password) => {
+    login = (username, password, history) => {
         // => returns JWT token, and user_type 
+        if (username && password) {
+            axios.post("/login", { username, password }).then((response) => {
+              const status = response.status;
+              console.log("Printing Log In status");
+              console.log(response.status);
+              if (status === 200) {
+                const token = response.data.token;
+                const user  = response.data.user;
+                console.log(user);
+                registerAuthToken(token, user);
+                history.push("/dashboard");
+              }
+            }).catch((error) => {
+              console.log(error)
+              alert("Incorrect username or password.");
+            });
+          } else {
+            alert("Username or password not provided.");
+          }
     }
     
     register = (username, password, user_type) => {

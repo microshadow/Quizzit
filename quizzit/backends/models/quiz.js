@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 const ObjectID = Schema.Types.ObjectId;
-const { CourseSchema, User } = require('./user.js');
 
 const QuestionOptionSchema = new Schema({
   display: { type: String, required: true },
@@ -14,8 +13,8 @@ const QuestionSchema = new Schema({
   display: String,
   text: String,
   weight: Number,
-  correct: [ { type: ObjectID, ref: 'Option' } ],
-  options: [ { type: ObjectID, ref: 'Option' } ],
+  correct_index: Number,
+  choices: [String],
   classAverage: Number
 });
 

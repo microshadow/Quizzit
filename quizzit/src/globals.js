@@ -12,38 +12,7 @@ function QuizData() {
   });
 }
 var quiz_data = new QuizData();
-quiz_data.data = [
-  {
-      title: "Quiz 1 - historical battles",
-      questions: [
-          {
-              question: "Where was the battle of Culloden?",
-              choices: ["England", "Scottland", "Canada", "USA"],
-              correct_index: 1,
-          },
-          {
-              question: "When was the battle of the Somme?",
-              choices: ["1916", "2001", "1943", "1945"],
-              correct_index: 0,
-          },
-      ]
-  },
-  {
-      title: "Quiz 2 - famous people",
-      questions: [
-          {
-              question: "Who invented the induction motor?",
-              choices: ["Nikola Tesla", "Elon Musk", "Thomas Edison", "Bill Gates"],
-              correct_index: 0,
-          },
-          {
-              question: "Who was the 40th president of the US?",
-              choices: ["Donald Trump", "Barack Obama", "Ronald Reagan", "Jimmy Carter"],
-              correct_index: 2,
-          },
-      ]
-  }
-]
+quiz_data.data = [];
 
 function ScoreData() {
   Object.defineProperty(this, 'data', {

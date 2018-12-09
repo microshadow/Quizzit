@@ -18,16 +18,10 @@ class CreateQuizPageInner extends React.Component {
         console.log(props);
         this.backend = new Backend();
 
-        const courses = globals.course_data.data;
-        const course_id = props.match.params.course_id;
-        console.log(courses);
-        const activeCourse = courses.find((course) => course._id == course_id);
-        console.log(courses);
-        console.log(activeCourse)
+        const courses = this.props.courses;
         this.state = {
             quizzes: globals.quiz_data,
             courses: courses,
-            activeCourse: activeCourse,
         }
     }
 
@@ -37,12 +31,19 @@ class CreateQuizPageInner extends React.Component {
         this.setState({quizzes: new_quizzes_array});
         //do server request here after "optimistic" UI update
         //we just use a global variable for this phase
-        this.backend.addQuiz();
+        const course_id = this.props.match.params.course_id;
+        this.backend.create_quiz(title, course_id, "");
         globals.quiz_data.data = new_quizzes_array;
     }
 
     render(){
-        if(this.state.activeCourse == undefined){
+        console.log("rerender createquizpage");
+        const course_id = this.props.match.params.course_id;
+        console.log(this.props.courses);
+        console.log(course_id);
+        const activeCourse = this.props.courses.find((course) => course._id == course_id);
+        console.log(activeCourse)
+        if(activeCourse == undefined){
             return (
                 <div>
                     Course not found.
@@ -51,7 +52,7 @@ class CreateQuizPageInner extends React.Component {
         }
         return( 
             <div className="createquiz_container">
-                <h2>Course: {this.state.activeCourse.courseCode}</h2>
+                <h2>Course: {activeCourse.courseCode}</h2>
                 <Tabs defaultActiveKey="question" id="uncontrolled-tab-example">
                     <Tab eventKey="quiz" title="New Quiz" >
                         <div id="newquiz_container">
@@ -208,10 +209,14 @@ class CreatequestionForm extends React.Component{
     }
 
     render(){
+        if(this.props.quizzes.length == 0){
+            return (<div></div>);
+        }
         const selectedQuiz = this.state.selectedQuiz;
         const activeQuestionIndex = this.state.selectedIndex;
         const hasActiveQuestion = (activeQuestionIndex !== -1);
         const activeQuiz = this.props.quizzes[selectedQuiz];
+        
         return(
         <Form>
             <Form.Group as={Row} controlId="formGridState">
