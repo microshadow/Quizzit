@@ -54,7 +54,7 @@ newly formed quiz.
 
 With a quiz published, students in the course may access the quiz from their
 dashboards. Click the Log Out button in the banner, then log in with username
-________ and password _______ to enter a user account. Click on the dark, bold
+Michael and password 123456 to enter a user account. Click on the dark, bold
 text at the top of the dashboard notification to be taken into the active quiz.
 One question will be asked at a time, and the students may select an answer from
 a dropdown menu and click a button to advance to the next question. After
