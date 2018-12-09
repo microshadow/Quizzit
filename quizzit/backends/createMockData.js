@@ -31,7 +31,7 @@ const createMockData = () => {
     });
 
     const prof1 = new user({
-        username:"MarkKazakevich",
+        username:"Mark",
         first: "Mark",
         last: "Kazakevich",
         userType: "T",
@@ -40,7 +40,7 @@ const createMockData = () => {
     });
 
     const student1 = new user({
-        username:"MichaelMaster",
+        username:"Michael",
         first: "Michael",
         last: "Smith",
         userType: "S",
