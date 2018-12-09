@@ -39,8 +39,10 @@ class CreateQuizPageInner extends React.Component {
              .then((response) => {
           if (response.status < 400) {
             const newState = {
-              quiz: response.data
+              quizzes: response.data
             };
+            console.log("/api/quizzes/");
+            console.log(newState);
             this.setState(newState);
           }
           if (this.state.quiz.active === true) {
@@ -49,14 +51,10 @@ class CreateQuizPageInner extends React.Component {
     }
 
     addQuiz(title){
-        let new_quizzes_array = this.state.quizzes;
-        new_quizzes_array.push({title: title, questions: []});
-        this.setState({quizzes: new_quizzes_array});
         //do server request here after "optimistic" UI update
         //we just use a global variable for this phase
         const course_id = this.props.match.params.course_id;
         this.backend.create_quiz(title, course_id, "");
-        globals.quiz_data.data = new_quizzes_array;
     }
 
     render(){
@@ -84,7 +82,7 @@ class CreateQuizPageInner extends React.Component {
                     </Tab>
                     <Tab eventKey="question" title="Modify Questions" >
                         <div id="showquizzes_container">
-                            <CreatequestionForm quizzes={this.state.quizzes}/>
+                            <CreatequestionForm quizzes={this.props.quizzes}/>
                         </div>
                     </Tab>
                 </Tabs>
@@ -268,7 +266,8 @@ class CreatequestionForm extends React.Component{
     }
 
     render(){
-        if(this.props.quizzes.length == 0){
+        console.log(this.props.quizzes);
+        if(this.props.quizzes == undefined || this.props.quizzes.length == 0){
             return (<div></div>);
         }
         const selectedQuiz = this.state.selectedQuiz;
