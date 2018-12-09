@@ -257,7 +257,7 @@ app.post("/api/enroll",
       response.status(400).send();
     }
   });
-		
+
 })
 
 
@@ -436,14 +436,14 @@ app.get("/api/notifications/:userId",
             const notification = notifications[i];
             if (notification.quiz.active) {
               parsedNotifications.push(packageEventNotification(notification));
-  
+
               if (numTransferred === notifications.length - 1) {
                 response.send({ notifications: parsedNotifications });
               }
             } else {
               packageReportNotification(notification, user).then((noteElem) => {
                 parsedNotifications.push(noteElem);
-  
+
                 if (numTransferred === notifications.length) {
                   response.send({ notifications: parsedNotifications });
                 }
@@ -707,7 +707,7 @@ app.post("/api/quiz/:quizId/publish",
   });
 });
 
-app.post("/api/quiz/:quizId/:studentId",
+app.post("/api/quiz/:question/:studentId",
          passport.authenticate("jwt_student_only", { session: false }),
          (request, response) => {
   const questionId = request.params.question;
