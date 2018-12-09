@@ -1,6 +1,199 @@
-Include a phase2.txt explaining in detail how to use the application, the roles of users and how the users would go about using all the features of your website. Using the main features of your project should be intuitive enough that any user with access to your URL should be able to discover all its features.
-Also, provide an overview of the routes in your Express server, and what they are used for in your app.
+CSC309 Project Phase 2, Team 53: Quizzit
 
-You will also create and edit a file called phase2.txt in your repo, which will give the TA instructions on how to use your web app, including appropriate login credentials. It should briefly explain any edits you made to the features of your web application (and any new features), and how an end user would use each of your features (include separate instructions for user and admin).
+This project was submitted 2 days late on Saturday, December 8th.
+
+Features
+
+Quizzit allows students to create an account of their own, automatically given
+student permissions. Educators must be added by administrator straight through
+the database. User permissions are specified by a userType field that is returned
+along with the JWT token on authentication; Student users may take quizzes and
+view their own performance on a quiz, while Educator users may add courses, enrol
+students in courses, create and deploy quizzes, view quiz results for their
+whole class as well as specific results for individual students.
+
+Under the current system, only one quiz may be active in a course at any given
+time. This is because a course is interpreted as an offering, meaning that each
+course has one instructor and one set of students that have no reason to take
+multiple quizzes at the same time. Educators can create multiple-choice questions
+with four answers, and specify one correct answer. However, the backend has
+support for multiple choice questions with any number of answers and any number
+of correct answers, and support for those features could be easily added.
+
+Quiz statistics are displayed in three ways: progress bars report percent scores
+such as individual marks, class average, and attendance rates; pie charts report
+distribution of choices over a single question; and tables report grades over a
+series of quizzes, or over a series of students. Noteworthy results on a table
+are highlighted red, so that instructors can identify which students were absent
+on a certain day, and students and instructors can see in which questions the
+class performed poorly in order to identify weaknesses and prepare for better
+learning. Pie charts are also coloured to quickly display the percentage of
+the class that got a correct answer on each question.
+
+Usage Instructions.
+
+1) Create a Quiz
+
+Log into an Educator account. You can use the username Mark and the password
+123456. Educators have access to restricted pages, such as course management,
+quiz creation and deployment, and viewing statistics for all students in a class.
+
+After logging in, click a course on the sidebar or create a new one with the
+Add Course button at the bottom. Click Create Quiz, and enter a quiz title into
+the text bar that shows. Afterward, a form will appear that prompts inputs for
+creating quiz questions. After adding a question at the topmost input field as
+well as answer text to each of the four side-by-side input fields, and choosing
+which answer is correct, the question can be finalized by clicking the blue
+Add Question button at the bottom. The input fields will be reset and further
+questions can be added in the same manner. Clicking the Publish Quiz button will
+send notifications to all students in the course, including a link to take the
+newly formed quiz.
 
 
+2) Take a Quiz
+
+With a quiz published, students in the course may access the quiz from their
+dashboards. Click the Log Out button in the banner, then log in with username
+________ and password _______ to enter a user account. Click on the dark, bold
+text at the top of the dashboard notification to be taken into the active quiz.
+One question will be asked at a time, and the students may select an answer from
+a dropdown menu and click a button to advance to the next question. After
+completing all questions, the student can immediately see their average. Then,
+clicking on the My Stats button in the dashboard will take the student to a
+view of all their courses, which will contain more data about the new quiz in a
+table. They can click on the cell in the table with the corresponding quiz's
+name to see finer data about their performance on each question and statistics
+on per-question class performance. This page will always be available so students
+can continually come back to remind themselves where to study.
+
+
+3) View Quiz Results
+
+After the quiz has ended, an instructor can view class statistics by clicking
+on the same notification in their dashboard that the students used to take the
+quiz. This page shows statistics such as class average, percent of students who
+took the quiz, breakdown of answers chosen per question, and a table of which
+students chose which questions, highlighted with wrong answers in red. The names
+of students in the table can be clicked on to redirect to a page reporting
+the performance of that individual student.
+
+
+API Specification:
+
+/register  -  Accessible to anyone.
+POST to create a new account, with set username, first and last name, and password.
+
+
+/login  -  Accessible to anyone.
+POST to sign in using username and password; receive JWT, user type, and more user information.
+
+
+/api/enroll  -  Accessible to educator users.
+POST with a { course: x , user: y } to add the user with ID y to course with ID x.
+
+
+/api/courses/:courseId  -  Accessible to educator users.
+POST with a { course: x , user: y } to add the user with ID y to course with ID x.
+
+
+/api/courses/getCourseByID/:courseId  -  Accessible to all users.
+GET full information about the course with ID given in the URL.
+
+
+/api/courses/:userId  -  Accessible by all users.
+GET full information about all courses in which the user is enrolled, including
+  IDs of any ongoing quizzes in these courses.
+
+
+/api/notifications/:userId  -  Accessible by all users.
+GET a series of notifications that contain ongoing or past events, for inclusion
+  in the dashboard.
+
+
+/api/quizzes/:course  -  Accessible to educator users.
+POST to create a new quiz with no questions, given a title, weight, and description
+  in the request body in the following format:
+
+{
+  title: ...           // Quiz title, e.g. Matter and the Elements
+  description: ...     // Short description to remind users about quiz topics.
+  weight: ...          // Weight of the quiz.
+}
+
+GET any quiz currently in development, receiving a 404 code if none is found.
+PATCH to change the title, weight, and/or description of the quiz in this course.
+
+
+/api/quiz/:quizId  -  Accessible to educator users.
+POST a question to add it to the quiz whose ID is given in the URL. Specify the
+  question itself (text, short display, and weight) as well as a list of answers
+  in the following format:
+
+{
+  question {
+    display: ...        // Short display, e.g. Q1
+    text: ...           // Question text presented to students.
+    correct: [ ... ]    // Array of indices of correct answers in the answers below.
+    weight: ...         // Number of points the question is worth.
+  },
+  answers: [
+    {
+      display: ...      // Short display, e.g. (a)
+      text: ...         // Answer text presented to students.
+    },
+    ...
+  ]
+}
+
+DELETE to end the quiz, and compute statistics about the quiz that are stored
+  in the database. Allows users to view these statistics for the quiz.
+
+
+/api/quiz/:quizId/:question  -  Accessible to educator users.
+PATCH to change anything about the question whose ID is supplied in the URL,
+  including question text, including any of the fields in the POST request above
+  or even answer data.
+
+  {
+    display: ...        // Short display, e.g. Q1
+    text: ...           // Question text presented to students.
+    weight: ...         // Number of points the question is worth.
+    correct: [ ... ]    // Array of IDs of correct answers. Subset of options.
+    options: [ ... ]    // Array of IDs of options in this question.
+  }
+
+
+/api/quiz/:quizId/:prevQuestion  -  Accessible to students only.
+GET the question in the specified quiz that occurs after the question ID given
+  at the end of the URL. Returns only question text, ID, and options for answers,
+  not correct answers.
+
+
+/api/quiz/:quizId/publish  -  Accessible to educator users only.
+POST to send notifications to students in the course associated with the quiz
+  in the URL, and provide links for them to start taking the quiz.
+
+
+/api/quiz/:question/:studentId  -  Accessible to students only.
+POST with { answer: ID } in the request body to record that the student with ID
+  given at the end of the URL answered the question with ID in the URL, and
+  selected the answer whose ID was given in the body.
+
+
+/api/performance/quiz/:studentId/:quizId/  -  Accessible to all users.
+GET statistics about the performance of the student on the quiz whose IDs are
+  in the URL. Reports which answers the student chose, which were correct, the
+  student's overall score, and class average on quiz questions.
+
+
+/api/performance/subject/:studentId/:course/  - Accessible to all users.
+GET statistics on the performance of the student in the course, both of the IDs
+  of which are given in the URL. Includes all quizzes in the course, but only
+  reports average scores instead of question-level details. Provides quiz IDs
+  to allow use of the endpoint above for more information.
+
+
+/api/performance/quiz/:quizId/  -  Accessible to educator users.
+GET statistics on the performance of all students in the quiz whose ID is in the
+  URL. Includes grades and attendance details, as well as which students chose
+  which answers for every question in the quiz.
