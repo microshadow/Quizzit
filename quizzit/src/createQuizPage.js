@@ -20,8 +20,30 @@ class CreateQuizPageInner extends React.Component {
 
         const courses = this.props.courses;
         this.state = {
-            quizzes: globals.quiz_data,
-            courses: courses,
+          quiz: {
+            course: null,
+            series: 0,
+            title: null,
+            weight: 0,
+            description: null,
+            active: false,
+            participants: [],
+            questions: [],
+            classAverage: 0
+          },
+          currentKey: "quiz"
+        }
+
+        axios.get(`/api/quizzes/${this.props.match.params.course_id}`)
+             .then((response) => {
+          if (response.status < 400) {
+            const newState = {
+              quiz: response.data
+            };
+            this.setState(newState);
+          }
+          if (this.state.quiz.active === true) {
+            this.state.currentKey = "question";
         }
     }
 
@@ -115,6 +137,8 @@ class CreatequestionForm extends React.Component{
             choiceValues: ["","","",""],
             quizzes: props.quizzes,
         }
+
+        this.publishQuiz = this.publishQuiz.bind(this);
     }
 
     changeActiveQuestion(index){
@@ -153,26 +177,63 @@ class CreatequestionForm extends React.Component{
 
     addQuestion(event){
         event.preventDefault();
-        const selectedQuiz = this.state.selectedQuiz;
-        let new_quizzes_array = this.props.quizzes;
-        const new_question = {
-            question: this.state.questionTitle,
-            choices: this.state.choiceValues,
-            correct_index: this.state.selectedCheckbox,
-            }
-        new_quizzes_array[selectedQuiz].questions.push(new_question)
-        this.setState({
-            quizzes: new_quizzes_array, 
-            selectedCheckbox: -1,
-            choiceValues: ["","","",""], 
-            questionTitle: ""
+
+        const answerIndices = globals.nRange(this.state.choiceValues.length);
+        const answerLabels  = answerIndices.map(
+          (index) => `(${String.fromCharCode(index + 97)})`);
+
+        const answers = answerIndices.map((index) => {
+          return {
+            display: answerLabels[index],
+            text: this.state.choiceValues[index]
+          };
+        });
+
+        const correctIndex = this.state.selectedCheckbox;
+        const selectedQuiz = this.props.quizGen();
+        const newQuestion = {
+            question: {
+                display: `Q${selectedQuiz.questions.length + 1}`,
+                text: this.state.questionTitle,
+                correct: [correctIndex],
+                weight: 1
+            },
+            answers: answers
+        };
+
+        axios.post(`/api/quiz/${selectedQuiz._id}`, newQuestion)
+             .then((response) => {
+           this.setState({
+               quiz: response.data,
+               selectedCheckbox: 0,
+               choiceValues: ["","","",""],
+               questionTitle: ""
+           });
+           alert("Question Added to quiz Successfully")
         });
         //do server request here after "optimistic" UI update
         //we just use a global variable for this phase
         globals.quiz_data.data = new_quizzes_array;
     }
 
-    modifyQuestion(event, index){
+    publishQuiz(event) {
+      event.preventDefault();
+      const selectedQuiz = this.props.quizGen();
+
+      axios.post(`/api/quiz/${selectedQuiz._id}/publish`)
+           .then((response) => {
+         this.setState({
+             quiz: response.data,
+             selectedCheckbox: 0,
+             choiceValues: ["","","",""],
+             questionTitle: ""
+         });
+         alert(`Quiz ${this.state.quiz.series}: ${this.state.quiz.title}
+               has been Published.`)
+      });
+    }
+
+    modifyQuestion(event, index) {
         event.preventDefault();
         const selectedQuiz = this.state.selectedQuiz;
         const activeQuestionIndex = this.state.selectedIndex;
@@ -215,8 +276,9 @@ class CreatequestionForm extends React.Component{
         const selectedQuiz = this.state.selectedQuiz;
         const activeQuestionIndex = this.state.selectedIndex;
         const hasActiveQuestion = (activeQuestionIndex !== -1);
-        const activeQuiz = this.props.quizzes[selectedQuiz];
-        
+
+        this.state.quiz = this.props.quizGen();
+
         return(
         <Form>
             <Form.Group as={Row} controlId="formGridState">
@@ -231,16 +293,6 @@ class CreatequestionForm extends React.Component{
                         })
                     }
                 </Form.Control>
-            </Form.Group>
-            <Form.Group as={Row} controlId="formHorizontalQuestions">
-                <Form.Label column sm={2}>
-                    Questions
-                </Form.Label>
-                <QuestionsList 
-                    questions={activeQuiz.questions} 
-                    changeActiveQuestion={this.changeActiveQuestion.bind(this)}
-                    deleteQuestion={this.deleteQuestion.bind(this)}
-                    />
             </Form.Group>
             <Form.Group as={Row} controlId="formHorizontalQuestions">
                 <Form.Label column sm={2}>
@@ -310,7 +362,10 @@ class CreatequestionForm extends React.Component{
             <Button variant="primary" 
                 type="submit" 
                 onClick={hasActiveQuestion ? (event)=>this.modifyQuestion(event) : (event)=>this.addQuestion(event)}>
-                {hasActiveQuestion ? "Modify" : "Add"} question
+                {hasActiveQuestion ? "Modify" : "Add"} Question
+            </Button>
+            <Button className="ml-3" variant="primary" onClick={this.publishQuiz}>
+              Publish Quiz
             </Button>
         </Form>
     )}
@@ -346,3 +401,4 @@ class QuestionsList extends React.Component{
 
 const CreateQuizPage = withRouter(CreateQuizPageInner);
 export default CreateQuizPage;
+
