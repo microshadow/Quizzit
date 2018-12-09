@@ -55,6 +55,7 @@ class LoggedInPagesInner extends Component {
 
     componentDidMount(){
         const user = getAuthorizedUser();
+        console.log("getting courses");
         axios.get(`/api/courses/${user._id}`).then((response) => {
             console.log("Entering component didmount endpoint")
             const newState = {

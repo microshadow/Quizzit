@@ -11,7 +11,9 @@ const { ObjectID } = require('mongodb');
 const path = require('path');
 
 const { prepareToken, authorizeUserTypes } = require('./jwtauth.js');
-const { mongoose } = require('./db/mongoose');
+
+const mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost:27017/courses", {useNewUrlParser:true});
 
 // Import the models
 const { User, Course } = require('./models/user.js');
@@ -325,6 +327,7 @@ app.get("/api/courses/getCourseByID/:courseId", (req, res) => {
 app.get("/api/courses/:userId",
         passport.authenticate("jwt_all_users", { session: false }),
         (request, response) => {
+  console.log("/api/courses/:userId");
   const id = request.params.userId;
 
   User.findById(id).populate('courses').then((user) => {

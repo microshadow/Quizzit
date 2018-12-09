@@ -38,6 +38,7 @@ const createMockData = () => {
         courses: [course2._id, course5._id, course7._id],
         password: "123456"
     });
+    prof1.save();
 
     const student1 = new user({
         username:"Michael",
@@ -47,6 +48,7 @@ const createMockData = () => {
         courses: [course2._id, course7._id],
         password: "123456",
     });
+    student1.save();
 
     const question1 = new question({
         question: "Where was the battle of Culloden?",
@@ -100,14 +102,6 @@ const createMockData = () => {
                 log(err)
             } else {
                 log("course data inserted successfully...")
-            }
-        });
-
-        user.insertMany([prof1, student1], err => {
-            if(err){
-                log(err);
-            } else {
-                log("prof data inserted successfully...")
             }
         });
 
