@@ -11,7 +11,8 @@ const { ObjectID } = require('mongodb');
 const path = require('path');
 
 const { prepareToken, authorizeUserTypes } = require('./jwtauth.js');
-const { mongoose } = require('./db/mongoose');
+const mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost:27017/courses", {useNewUrlParser:true});
 
 // Import the models
 const { User, Course } = require('./models/user.js');
