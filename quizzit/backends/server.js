@@ -1,7 +1,5 @@
 'use strict'
 
-const MockData = require('./createMockData.js');
-
 const express = require('express');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -11,9 +9,7 @@ const { ObjectID } = require('mongodb');
 const path = require('path');
 
 const { prepareToken, authorizeUserTypes } = require('./jwtauth.js');
-
-const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/courses", {useNewUrlParser:true});
+const { mongoose } = require('./db/mongoose');
 
 // Import the models
 const { User, Course } = require('./models/user.js');
@@ -28,7 +24,6 @@ app.use(express.static(path.join(__dirname, 'build')));
 
 const STUDENT = "S", EDUCATOR = "E", ADMIN = "A";
 
-MockData.createMockData();
 
 // For those who want to run the server against React using npm start.
 app.use(function(req, res, next) {
@@ -197,7 +192,6 @@ app.patch('/api/students/:id', (req, res) => {
 	})
 })
 
-// add course
 app.post("/api/courses/",
          passport.authenticate("jwt_educator_and_above", { session: false }),
          (request, response) => {
@@ -210,27 +204,6 @@ app.post("/api/courses/",
   }).catch((error) => {
     response.status(400).send(error);
   })
-})
-
-
-// delete course
-app.post("/api/courses/delete/",
-         passport.authenticate("jwt_educator_and_above", { session: false }),
-         (req, res) => {
-  const courseID = req.body.courseID;
-  const instructor = req.body.instructor;
-
-  console.log(req.body);
-  Course.findByIdAndRemove(courseID).then((course) => {
-    console.log("Printing new user value");
-    console.log(course)
-    if (course) {
-      res.status(201).send(course)
-    } else {
-      res.status(400).send();
-    }
-  });
-
 })
 
 app.post("/api/enroll",
@@ -285,7 +258,6 @@ app.get("/api/courses/getCourseByID/:courseId", (req, res) => {
 app.get("/api/courses/:userId",
         passport.authenticate("jwt_all_users", { session: false }),
         (request, response) => {
-  console.log("/api/courses/:userId");
   const id = request.params.userId;
 
   User.findById(id).populate('courses').then((user) => {

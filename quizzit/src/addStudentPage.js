@@ -34,9 +34,23 @@ export default class AddStudentPage extends Component {
         var course;
 
         axios.get(`/api/students/getByUsername/${student}`).then((response) => {
+            console.log("trying to fetch Student")
+            if (response.status < 400) {
+                studentID = response.data._id;
+            } else {
+                alert("No student with username");
+            }
 
-            studentID = response.data._id;
             axios.get(`/api/courses/getCourseByID/${courseID}`).then((response) => {
+                console.log("trying to fetch course details")
+                if (response.status < 400) {
+                    console.log("Successful")
+                    course = response.data;
+                    console.log(course)
+                } else {
+                    alert("course related error occurred");
+                }
+
                 const request = {
                     user: studentID,
                     course: courseID
@@ -57,11 +71,7 @@ export default class AddStudentPage extends Component {
                 })
             })
     
-        }).catch(function (error) {
-            // handle error
-            alert("student not found.");
-            console.log(error);
-          })
+        })
 
     }
 
@@ -70,7 +80,7 @@ export default class AddStudentPage extends Component {
         return (
             <div className="mx-auto" style={divStyle} align="center">
                 <form>
-                <h1 style={headerStyle}>Enter information below:</h1>
+                <h1 style={headerStyle}>Enter Information Below Below:</h1>
                 <input style={inputStyle} className="form-control" type="text"
                         placeholder="Student Username" ref="studentUsername"></input>
                 <br/>

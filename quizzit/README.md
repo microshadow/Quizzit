@@ -127,6 +127,3 @@ Quiz: list of questions, title
     }
   ]
 }
-
-// deploy subdirectory to heroku
-git subtree push --prefix quizzit heroku master
