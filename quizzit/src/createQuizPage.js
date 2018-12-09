@@ -32,7 +32,6 @@ class CreateQuizPage extends React.Component {
           currentKey: "quiz"
         }
 
-        console.log("making API Call for quizzes")
         axios.get(`/api/quizzes/${this.props.match.params.course_id}`)
              .then((response) => {
           if (response.status < 400) {
@@ -41,8 +40,6 @@ class CreateQuizPage extends React.Component {
             };
             this.setState(newState);
           }
-          console.log("Printing state of quiz!!")
-          console.log(this.state)
           if (this.state.quiz.active === true) {
             this.state.currentKey = "question";
         }
@@ -159,8 +156,7 @@ class CreatequestionForm extends React.Component{
             quiz: this.props.quizGen()
         }
 
-        console.log("PRINTINT CREATE QUESTION FORM SHIT")
-        console.log(this.state.quiz)
+        this.publishQuiz = this.publishQuiz.bind(this);
     }
 
     changeActiveQuestion(index){
@@ -199,10 +195,8 @@ class CreatequestionForm extends React.Component{
     }
 
     addQuestion(event){
-        console.log("In addQuestion function:");
         event.preventDefault();
-        // const selectedQuiz = this.state.selectedQuiz;
-        // let new_quizzes_array = this.props.quiz;
+
         const answerIndices = globals.nRange(this.state.choiceValues.length);
         const answerLabels  = answerIndices.map(
           (index) => `(${String.fromCharCode(index + 97)})`);
@@ -226,7 +220,6 @@ class CreatequestionForm extends React.Component{
             answers: answers
         };
 
-        console.log(selectedQuiz);
         axios.post(`/api/quiz/${selectedQuiz._id}`, newQuestion)
              .then((response) => {
            this.setState({
@@ -237,6 +230,23 @@ class CreatequestionForm extends React.Component{
            });
            alert("Question Added to quiz Successfully")
         });
+    }
+
+    publishQuiz(event) {
+      event.preventDefault();
+      const selectedQuiz = this.props.quizGen();
+
+      axios.post(`/api/quiz/${selectedQuiz._id}/publish`)
+           .then((response) => {
+         this.setState({
+             quiz: response.data,
+             selectedCheckbox: 0,
+             choiceValues: ["","","",""],
+             questionTitle: ""
+         });
+         alert(`Quiz ${this.state.quiz.series}: ${this.state.quiz.title}
+               has been Published.`)
+      });
     }
 
     modifyQuestion(event, index) {
@@ -291,8 +301,6 @@ class CreatequestionForm extends React.Component{
         const activeQuestionIndex = this.state.selectedIndex;
         const hasActiveQuestion = (activeQuestionIndex !== -1);
         this.state.quiz = this.props.quizGen();
-        console.log("Printing questions present in active quiz");
-        console.log(this.state.quiz)
         return(
         <Form>
             <Form.Group as={Row} controlId="formGridState">
@@ -305,16 +313,6 @@ class CreatequestionForm extends React.Component{
                         })
                     }
                 </Form.Control> */}
-            </Form.Group>
-            <Form.Group as={Row} controlId="formHorizontalQuestions">
-                <Form.Label column sm={2}>
-                    Questions
-                </Form.Label>
-                <QuestionsList
-                    questions={this.state.quiz.questions}
-                    changeActiveQuestion={this.changeActiveQuestion.bind(this)}
-                    deleteQuestion={this.deleteQuestion.bind(this)}
-                    />
             </Form.Group>
             <Form.Group as={Row} controlId="formHorizontalQuestions">
                 <Form.Label column sm={2}>
@@ -384,42 +382,15 @@ class CreatequestionForm extends React.Component{
             <Button variant="primary"
                 type="submit"
                 onClick={hasActiveQuestion ? (event)=>this.modifyQuestion(event) : (event)=>this.addQuestion(event)}>
-                {hasActiveQuestion ? "Modify" : "Add"} question
+                {hasActiveQuestion ? "Modify" : "Add"} Question
+            </Button>
+            <Button className="ml-3" variant="primary" onClick={this.publishQuiz}>
+              Publish Quiz
             </Button>
         </Form>
 
 
     )}
-}
-
-class QuestionsList extends React.Component{
-    render(){
-        console.log("printing Question List");
-        console.log(this.props.questions)
-        if(this.props.questions.length === 0){
-            return (
-                <ListGroup>
-                    <ListGroup.Item key={0}>No questions added</ListGroup.Item>
-                </ListGroup>);
-        }
-        return (
-            <ListGroup>
-                {this.props.questions.map((question, index) => {
-                    return (
-                        <ListGroup.Item key={index}>
-                            <span className="question_list_text">{question.question}</span>
-                            <span className="question_list_button">
-                                <Button variant="outline-secondary" onClick={() => {this.props.changeActiveQuestion(index)}}>Modify</Button>
-                            </span>
-                            <span className="question_list_button">
-                                <Button variant="outline-secondary" onClick={() => {this.props.deleteQuestion(index)}}>Delete</Button>
-                            </span>
-                        </ListGroup.Item>
-                        )
-                })}
-            </ListGroup>
-        );
-    }
 }
 
 export default CreateQuizPage;

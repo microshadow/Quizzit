@@ -111,6 +111,8 @@ class Dashboard extends Component {
     const notifications = this.state.notifications;
     const notificationElements = notifications.map(this.packageNotification);
 
+    const user = getAuthorizedUser();
+
     return (
       <div>
         <div id="dashHeader" className="d-inline-flex align-items-stretch">
@@ -118,7 +120,7 @@ class Dashboard extends Component {
           { createVerticalDivider(6, "background-light") }
           <div id="dashWelcomeContainer">
             <h1 id="dashWelcome" className="stdFont textshadow">
-              Welcome back, {this.state.name}! Here's what's new.
+              Welcome back, {user.username}! Here's what's new.
             </h1>
           </div>
           { createVerticalDivider(6, "background-light") }
