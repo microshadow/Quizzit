@@ -15,13 +15,6 @@ const createMockData = () => {
     const quiz = mongoose.model("quiz", schemas2.QuizSchema);
     const question = mongoose.model("question", schemas2.QuestionSchema);
 
-    // clear database before inserting mock data
-    console.log("cleaning database");
-    course.remove();
-    user.remove();
-    quiz.remove();
-    question.remove();
-
     const course2 = new course({
         name:"Programming on web",
         courseCode:"CSC309",
@@ -43,7 +36,7 @@ const createMockData = () => {
         last: "Kazakevich",
         userType: "T",
         courses: [course2._id, course5._id, course7._id],
-        password: "123456",
+        password: "123456"
     });
 
     const student1 = new user({
@@ -91,36 +84,49 @@ const createMockData = () => {
         questions: [question3, question4]
     });
 
-    course.insertMany([course2, course5, course7], err => {
-        if(err){
-            log(err)
-        } else {
-            log("course data inserted successfully...")
-        }
-    });
+    var db = mongoose.connection;
+    console.log(db);
+    db.once('open', () => {
 
-    user.insertMany([prof1, student1], err => {
-        if(err){
-            log(err);
-        } else {
-            log("prof data inserted successfully...")
-        }
-    });
+        // clear database before inserting mock data
+        console.log("cleaning database");
+        course.remove();
+        user.remove();
+        quiz.remove();
+        question.remove();
 
-    question.insertMany([question1, question2, question3, question4], err => {
-        if(err){
-            log(err);
-        } else {
-            log("question data inserted successfully...")
-        }
-    });
+        course.insertMany([course2, course5, course7], err => {
+            if(err){
+                log(err)
+            } else {
+                log("course data inserted successfully...")
+            }
+        });
 
-    quiz.insertMany([quiz1, quiz2], err => {
-        if(err){
-            log(err);
-        } else {
-            log("quiz data inserted successfully...")
-        }
+        user.insertMany([prof1, student1], err => {
+            if(err){
+                log(err);
+            } else {
+                log("prof data inserted successfully...")
+            }
+        });
+
+        question.insertMany([question1, question2, question3, question4], err => {
+            if(err){
+                log(err);
+            } else {
+                log("question data inserted successfully...")
+            }
+        });
+
+        quiz.insertMany([quiz1, quiz2], err => {
+            if(err){
+                log(err);
+            } else {
+                log("quiz data inserted successfully...")
+            }
+        });
+
     });
 }
 

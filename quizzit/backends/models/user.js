@@ -1,5 +1,7 @@
 'use strict'
 const mongoose = require('mongoose');
+mongoose.connect("mongodb://localhost:27017/courses", {useNewUrlParser:true});
+
 const bcrypt = require('bcryptjs');
 
 const Schema = mongoose.Schema;

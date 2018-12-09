@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+mongoose.connect("mongodb://localhost:27017/courses", {useNewUrlParser:true});
 
 const Schema = mongoose.Schema;
 const ObjectID = Schema.Types.ObjectId;
