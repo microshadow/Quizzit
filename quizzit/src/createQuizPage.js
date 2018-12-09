@@ -8,6 +8,7 @@ import Row from 'react-bootstrap/lib/Row';
 import ListGroup from 'react-bootstrap/lib/ListGroup';
 import Backend from './backend.js';
 import { withRouter } from "react-router";
+import axios from 'axios';
 
 import './createquizpage.css';
 var globals = require('./globals');
@@ -44,7 +45,7 @@ class CreateQuizPageInner extends React.Component {
           }
           if (this.state.quiz.active === true) {
             this.state.currentKey = "question";
-        }
+        }});
     }
 
     addQuiz(title){
@@ -211,9 +212,6 @@ class CreatequestionForm extends React.Component{
            });
            alert("Question Added to quiz Successfully")
         });
-        //do server request here after "optimistic" UI update
-        //we just use a global variable for this phase
-        globals.quiz_data.data = new_quizzes_array;
     }
 
     publishQuiz(event) {
@@ -321,7 +319,8 @@ class CreatequestionForm extends React.Component{
             <Form.Row>
             {
                 ["A","B","C","D"].map((letter, index) => {
-
+                    const activeQuiz = this.props.quizzes[this.state.selectedQuiz];
+                    if(activeQuiz == null) return;
                     const choices = hasActiveQuestion ? activeQuiz.questions[activeQuestionIndex].choices : [];
                     return (
                         <Form.Group key={index} as={Col} controlId="formGridZip">

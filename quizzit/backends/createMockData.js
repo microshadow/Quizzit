@@ -34,7 +34,7 @@ const createMockData = () => {
         username:"Mark",
         first: "Mark",
         last: "Kazakevich",
-        userType: "T",
+        userType: "E",
         courses: [course2._id, course5._id, course7._id],
         password: "123456"
     });
