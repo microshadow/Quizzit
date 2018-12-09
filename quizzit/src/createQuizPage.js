@@ -6,17 +6,19 @@ import Form from 'react-bootstrap/lib/Form';
 import Col from 'react-bootstrap/lib/Col';
 import Row from 'react-bootstrap/lib/Row';
 import ListGroup from 'react-bootstrap/lib/ListGroup';
-
-import axios from 'axios';
+import Backend from './backend.js';
+import { withRouter } from "react-router";
 
 import './createquizpage.css';
-const globals = require('./globals');
+var globals = require('./globals');
 
-class CreateQuizPage extends React.Component {
+class CreateQuizPageInner extends React.Component {
     constructor(props){
         super(props);
-        /*here we would get the data from the database*/
+        console.log(props);
+        this.backend = new Backend();
 
+        const courses = this.props.courses;
         this.state = {
           quiz: {
             course: null,
@@ -43,50 +45,37 @@ class CreateQuizPage extends React.Component {
           if (this.state.quiz.active === true) {
             this.state.currentKey = "question";
         }
-        });
-
-
-    }
-
-    getQuiz() {
-      return this.state.quiz;
     }
 
     addQuiz(title){
-      const config = {
-        title: title,
-        weight: 1,
-        description: ""
-      };
-
-      axios.post(`/api/quizzes/${this.props.match.params.course_id}`, config)
-           .then((response) => {
-        const newState = {
-          quiz: response.data,
-          currentKey: "question"
-        };
-        this.setState(newState);
-        alert("Quiz was successfully created!!")
-      });
-
-    }
-
-    componentDidMount() {
-      axios.get(`/api/quizzes/${this.props.match.params.course_id}`)
-           .then((response) => {
-        if (response.status < 400) {
-          const newState = {
-            quiz: response.data
-          };
-          this.setState(newState);
-        }
-      });
+        let new_quizzes_array = this.state.quizzes;
+        new_quizzes_array.push({title: title, questions: []});
+        this.setState({quizzes: new_quizzes_array});
+        //do server request here after "optimistic" UI update
+        //we just use a global variable for this phase
+        const course_id = this.props.match.params.course_id;
+        this.backend.create_quiz(title, course_id, "");
+        globals.quiz_data.data = new_quizzes_array;
     }
 
     render(){
-        return(
+        console.log("rerender createquizpage");
+        const course_id = this.props.match.params.course_id;
+        console.log(this.props.courses);
+        console.log(course_id);
+        const activeCourse = this.props.courses.find((course) => course._id == course_id);
+        console.log(activeCourse)
+        if(activeCourse == undefined){
+            return (
+                <div>
+                    Course not found.
+                </div>
+            )
+        }
+        return( 
             <div className="createquiz_container">
-                <Tabs activeKey={this.state.currentKey} id="uncontrolled-tab-example">
+                <h2>Course: {activeCourse.courseCode}</h2>
+                <Tabs defaultActiveKey="question" id="uncontrolled-tab-example">
                     <Tab eventKey="quiz" title="New Quiz" >
                         <div id="newquiz_container">
                             <CreatequizForm createQuiz={this.addQuiz.bind(this)}/>
@@ -94,12 +83,11 @@ class CreateQuizPage extends React.Component {
                     </Tab>
                     <Tab eventKey="question" title="Modify Questions" >
                         <div id="showquizzes_container">
-                            <CreatequestionForm quizGen={this.getQuiz.bind(this)}/>
+                            <CreatequestionForm quizzes={this.state.quizzes}/>
                         </div>
                     </Tab>
                 </Tabs>
             </div>
-
         )
     }
 
@@ -108,13 +96,7 @@ class CreateQuizPage extends React.Component {
 class CreatequizForm extends React.Component {
     constructor(props){
         super(props);
-        this.state = {
-          title: ""
-        };
-    }
-
-    createNewQuiz(title) {
-      axios.post()
+        this.state = {title: ""}
     }
 
     setTitle(newtitle){
@@ -132,12 +114,12 @@ class CreatequizForm extends React.Component {
                         <Form.Control value={this.state.title} onChange={(event)=>this.setTitle(event.target.value)} type="text" placeholder="Title" />
                     </Col>
                 </Form.Group>
-                <Button variant="primary" type="submit" onClick={() =>
+                <Button variant="primary" type="submit" onClick={() => 
                     {
                         this.props.createQuiz(this.state.title)
                         this.setTitle("");
                     }}>
-                    Create Quiz
+                    Create quiz
                 </Button>
             </div>
         )
@@ -148,50 +130,49 @@ class CreatequestionForm extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            selectedIndex: -1,
-            selectedQuiz: 0,
+            selectedIndex: -1, 
+            selectedQuiz: 0, 
             selectedCheckbox: -1,
             questionTitle: "",
             choiceValues: ["","","",""],
-            quiz: this.props.quizGen()
+            quizzes: props.quizzes,
         }
 
         this.publishQuiz = this.publishQuiz.bind(this);
     }
 
     changeActiveQuestion(index){
-    //     if(index === -1){
-    //         //changing to "add question" mode, reset the "selected question" index
-    //         // and the selected checkbox
-    //         this.setState({
-    //             selectedIndex: index,
-    //             selectedCheckbox: index,
-    //             choiceValues: ["","","",""],
-    //             questionTitle: ""
-    //         });
-    //     }
-    //     else{
-    //         const activeQuiz = this.props.quiz;
-    //         if(activeQuiz == null) return;
-    //         const activeIndex = activeQuiz.questions[index].correct_index;
-    //         this.setState({selectedIndex: index,
-    //             selectedCheckbox: activeIndex,
-    //             questionTitle: activeQuiz.questions[index].question,
-    //             choiceValues: activeQuiz.questions[index].choices});
-    //     }
+        if(index == -1){ 
+            //changing to "add question" mode, reset the "selected question" index
+            // and the selected checkbox
+            this.setState({
+                selectedIndex: index, 
+                selectedCheckbox: index,
+                choiceValues: ["","","",""], 
+                questionTitle: ""
+            });
+        }
+        else{
+            const activeQuiz = this.props.quizzes[this.state.selectedQuiz];
+            if(activeQuiz == null) return;
+            const activeIndex = activeQuiz.questions[index].correct_index;
+            this.setState({selectedIndex: index, 
+                selectedCheckbox: activeIndex, 
+                questionTitle: activeQuiz.questions[index].question,
+                choiceValues: activeQuiz.questions[index].choices});
+        }
     }
 
     deleteQuestion(index){
-    //     const selectedQuiz = this.state.selectedQuiz;
-    //     let new_quizzes_array = this.props.quizzes;
-    //     new_quizzes_array[selectedQuiz].questions.splice(index, 1);
-    //     //make sure that you clear the modify field in case the deleted question is displayed there
-    //     this.setState({selectedIndex: -1, quizzes: new_quizzes_array});
-    //     //do server request here after "optimistic" UI update
-    //     //we just use a global variable for this phase
-    //
-    //
-    //     // globals.quiz_data.data = new_quizzes_array;
+        const selectedQuiz = this.state.selectedQuiz;
+        const activeQuestionIndex = this.state.selectedIndex;
+        let new_quizzes_array = this.props.quizzes;
+        new_quizzes_array[selectedQuiz].questions.splice(index, 1);
+        //make sure that you clear the modify field in case the deleted question is displayed there
+        this.setState({selectedIndex: -1, quizzes: new_quizzes_array});
+        //do server request here after "optimistic" UI update
+        //we just use a global variable for this phase
+        globals.quiz_data.data = new_quizzes_array;
     }
 
     addQuestion(event){
@@ -230,6 +211,9 @@ class CreatequestionForm extends React.Component{
            });
            alert("Question Added to quiz Successfully")
         });
+        //do server request here after "optimistic" UI update
+        //we just use a global variable for this phase
+        globals.quiz_data.data = new_quizzes_array;
     }
 
     publishQuiz(event) {
@@ -251,35 +235,24 @@ class CreatequestionForm extends React.Component{
 
     modifyQuestion(event, index) {
         event.preventDefault();
-
-        const question = this.state.quiz.questions[index];
-        const questionId = question._id;
-
-        const newDisplay = question.display;
-        const newText    = this.state.questionTitle;
-        const newWeight  = 1;
-        const newOptions = this.state.choiceValues;
-        const newCorrect = [this.state.selectedCheckbox];
-
-        const newQuestion = {
-          display: newDisplay,
-          text: newText,
-          weight: newWeight,
-          options: newOptions,
-          correct: newCorrect
-        };
-
-        axios.patch(`/api/quiz/${this.state.quiz._id}/${questionId}`, newQuestion)
-             .then((response) => {
-           const newState = this.getState();
-           newState.quiz = response.data;
-           this.setState(newState);
-        });
+        const selectedQuiz = this.state.selectedQuiz;
+        const activeQuestionIndex = this.state.selectedIndex;
+        let new_quizzes_array = this.props.quizzes;
+        const new_question = {
+            question: this.state.questionTitle,
+            choices: this.state.choiceValues,
+            correct_index: this.state.selectedCheckbox,
+            }
+        new_quizzes_array[selectedQuiz].questions[activeQuestionIndex] = new_question;
+        this.setState({quizzes: new_quizzes_array});
+        //do server request here after "optimistic" UI update
+        //we just use a global variable for this phase
+        globals.quiz_data.data = new_quizzes_array;
     }
 
-    // changeActiveQuiz(event){
-    //     this.setState({selectedQuiz: event.target.value})
-    // }
+    changeActiveQuiz(event){
+        this.setState({selectedQuiz: event.target.value})
+    }
 
     handleSelect(event){
         //need to set selectedCheckbox index to an integer value
@@ -297,42 +270,49 @@ class CreatequestionForm extends React.Component{
     }
 
     render(){
+        if(this.props.quizzes.length == 0){
+            return (<div></div>);
+        }
         const selectedQuiz = this.state.selectedQuiz;
         const activeQuestionIndex = this.state.selectedIndex;
         const hasActiveQuestion = (activeQuestionIndex !== -1);
+
         this.state.quiz = this.props.quizGen();
+
         return(
         <Form>
             <Form.Group as={Row} controlId="formGridState">
-                <h>{this.state.quiz.title}</h>
-                {/* <Form.Control as="select" sm={5} bsPrefix="select_quiz" value={selectedQuiz} onChange={(event, index) => {this.changeActiveQuiz(event);}}>
-                    {this.state.quizzes.map((quiz, index) => {
+                <Form.Label column sm={2}>
+                    Quiz
+                </Form.Label>
+                <Form.Control as="select" sm={5} bsPrefix="select_quiz" value={selectedQuiz} onChange={(event, index) => {this.changeActiveQuiz(event);}}>
+                    {this.props.quizzes.map((quiz, index) => {
                         return (
                             <option value={index} key={index}>{quiz.title}</option>
                             )
                         })
                     }
-                </Form.Control> */}
+                </Form.Control>
             </Form.Group>
             <Form.Group as={Row} controlId="formHorizontalQuestions">
                 <Form.Label column sm={2}>
                     <b>{(!hasActiveQuestion) ? "Add" : "Modify"} question</b>
                 </Form.Label>
-                {(hasActiveQuestion) ?
+                {(hasActiveQuestion) ? 
                     <Form.Label column sm={6}>
-                       <Form.Control onChange={(event)=>{this.handleChangeTitle(event)}}
-                            value={this.state.questionTitle}
-                            placeholder={this.state.quizzes[selectedQuiz].questions[activeQuestionIndex].text}/>
+                       <Form.Control onChange={(event)=>{this.handleChangeTitle(event)}} 
+                            value={this.state.questionTitle} 
+                            placeholder={this.props.quizzes[selectedQuiz].questions[activeQuestionIndex].question}/>
                     </Form.Label>
                 :   <Form.Label column sm={4}>
-                        <Form.Control onChange={(event)=>{this.handleChangeTitle(event)}}
-                            value={this.state.questionTitle}
+                        <Form.Control onChange={(event)=>{this.handleChangeTitle(event)}} 
+                            value={this.state.questionTitle} 
                             placeholder="type question"/>
                     </Form.Label>
                 }
-                {(hasActiveQuestion) ?
+                {(hasActiveQuestion) ? 
                     <Form.Label column sm={2}>
-                        <button id="changeMode_link" onClick={()=>{this.changeActiveQuestion(-1)}}>Add new question instead</button>
+                        <a id="changeMode_link" onClick={()=>{this.changeActiveQuestion(-1)}}>Add new question instead</a>
                     </Form.Label>
                 : ""
                 }
@@ -342,7 +322,7 @@ class CreatequestionForm extends React.Component{
             {
                 ["A","B","C","D"].map((letter, index) => {
 
-                    const choices = hasActiveQuestion ? this.state.quiz.questions[activeQuestionIndex].choices : [];
+                    const choices = hasActiveQuestion ? activeQuiz.questions[activeQuestionIndex].choices : [];
                     return (
                         <Form.Group key={index} as={Col} controlId="formGridZip">
                             <Form.Label>{"choice "+letter}</Form.Label>
@@ -379,8 +359,8 @@ class CreatequestionForm extends React.Component{
                 </Col>
             </Form.Group>
         </fieldset>
-            <Button variant="primary"
-                type="submit"
+            <Button variant="primary" 
+                type="submit" 
                 onClick={hasActiveQuestion ? (event)=>this.modifyQuestion(event) : (event)=>this.addQuestion(event)}>
                 {hasActiveQuestion ? "Modify" : "Add"} Question
             </Button>
@@ -388,9 +368,37 @@ class CreatequestionForm extends React.Component{
               Publish Quiz
             </Button>
         </Form>
-
-
     )}
 }
 
+class QuestionsList extends React.Component{
+    render(){
+        if(this.props.questions.length == 0){
+            return (
+                <ListGroup>
+                    <ListGroup.Item key={0}>No questions added</ListGroup.Item>
+                </ListGroup>);
+        }
+        return (
+            <ListGroup>
+                {this.props.questions.map((question, index) => {
+                    return (
+                        <ListGroup.Item key={index}>
+                            <span className="question_list_text">{question.question}</span>
+                            <span className="question_list_button">
+                                <Button variant="outline-secondary" onClick={() => {this.props.changeActiveQuestion(index)}}>Modify</Button>
+                            </span>
+                            <span className="question_list_button">
+                                <Button variant="outline-secondary" onClick={() => {this.props.deleteQuestion(index)}}>Delete</Button>
+                            </span>
+                        </ListGroup.Item>
+                        )
+                })}
+            </ListGroup>
+        );
+    }
+}
+
+const CreateQuizPage = withRouter(CreateQuizPageInner);
 export default CreateQuizPage;
+

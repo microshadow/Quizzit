@@ -1,16 +1,18 @@
 'use strict'
 const mongoose = require('mongoose');
+
 const bcrypt = require('bcryptjs');
 
 const Schema = mongoose.Schema;
 const ObjectID = Schema.Types.ObjectId;
 
-const CourseSchema = new Schema({
+const courseSchema = new Schema({
+  name: String,
   courseCode: { type: String, required: true },
-  instructor: { type: ObjectID, ref: 'User', required: true },
+  //instructor: { type: ObjectID, ref: 'User', required: true },
 });
 
-const UserSchema = new Schema({
+const userSchema = new Schema({
   username: { type: String, required: true, unique: true },
   first: { type: String, required: true },
   last: { type: String, required: true },
@@ -19,13 +21,13 @@ const UserSchema = new Schema({
   courses: [ { type: ObjectID, ref: 'Course' } ]
 });
 
-UserSchema.methods.checkPassword = function(password) {
+userSchema.methods.checkPassword = function(password) {
   const user = this;
 
   return bcrypt.compareSync(password, user.password);
 }
 
-UserSchema.pre('save', function (next) {
+userSchema.pre('save', function (next) {
   const user = this;
 
   if (user.isModified('password')) {
@@ -39,7 +41,7 @@ UserSchema.pre('save', function (next) {
 });
 
 
-const User = mongoose.model('User', UserSchema);
-const Course = mongoose.model('Course', CourseSchema);
+const User = mongoose.model('User', userSchema);
+const Course = mongoose.model('Course', courseSchema);
 
-module.exports = { Course, CourseSchema, User, UserSchema };
+module.exports = { Course, courseSchema, User, userSchema };

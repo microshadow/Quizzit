@@ -1,4 +1,6 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
+import { getAuthorizedUser } from './globals.js';
 
 const divStyle = {
     width: '400px',
@@ -34,6 +36,18 @@ class WelcomeScreen extends React.Component {
     }
 
     render() {
+        const user = getAuthorizedUser();
+        if(user){
+            console.log(this.props);
+            return (
+                <Redirect
+                    to={{
+                    pathname: "/dashboard",
+                    state: { from: this.props.location }
+                    }}
+                />
+            );
+        }
         return (
             <div className="mx-auto" align="center" style={divStyle}>
                 <h1 style={headerStyle} >Welcome to Quizzit</h1>

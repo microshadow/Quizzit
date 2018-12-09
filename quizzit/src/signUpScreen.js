@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-
-import { registerAuthToken } from './globals.js';
+import { Link, Redirect } from 'react-router-dom';
+import { registerAuthToken, getAuthorizedUser } from './globals.js';
 
 const divStyle = {
     width: '500px',
@@ -58,7 +58,7 @@ class SignUpScreen extends Component {
           const user  = response.data.user;
 
           registerAuthToken(token, user);
-          this.props.history.push("/dashboard");
+          this.props.history.push("/dashboard");      
         } else {
           alert(`Failed to log in with status ${status}`);
         }
@@ -67,6 +67,18 @@ class SignUpScreen extends Component {
   }
 
   render() {
+    const user = getAuthorizedUser();
+    if(user){
+        console.log(this.props);
+        return (
+            <Redirect
+                to={{
+                pathname: "/dashboard",
+                state: { from: this.props.location }
+                }}
+            />
+        );
+    }
     return (
       <div className="mx-auto" style={divStyle} align="center">
         <form>
@@ -86,13 +98,17 @@ class SignUpScreen extends Component {
           <input style={inputStyle} className="form-control" type="password"
                  placeholder="Confirm Password" ref="confirmpassword"></input>
           <br/>
-          <select style={inputStyle} class="form-control" ref="userTypeSelect">
+          <select style={inputStyle} className="form-control" ref="userTypeSelect">
             <option>Student</option>
             <option>Educator</option>
           </select>
           <br/>
           <button className="btn btn-primary" style={buttonStyle}
-                  onClick={this.registerAccount}>Sign Up</button>
+              onClick={this.registerAccount}>Sign Up
+          </button>
+          <div>
+            <Link to="/login">go to login</Link>
+          </div>
         </form>
       </div>
     );

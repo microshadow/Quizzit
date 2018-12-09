@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { HashRouter, Switch, Route, Redirect} from 'react-router-dom';
+import { BrowserRouter, Switch, Route, Redirect} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import WelcomeScreen from "./welcomeScreen.js";
@@ -15,6 +15,11 @@ import { STUDENT, EDUCATOR, ADMIN, getAuthorizedUser } from "./globals.js";
 import Template from './mainTemplate.js';
 import CreateCourse from "./createCourse.js";
 import AddStudentPage from "./addStudentPage.js";
+import Backend from './backend.js';
+import { withRouter } from "react-router";
+import axios from 'axios';
+
+const globals = require("./globals.js");
 
 let userType = STUDENT;
 function setUserType(newUserType) {
@@ -24,7 +29,7 @@ function setUserType(newUserType) {
 class Router extends Component {
     render() {
         return (
-            <HashRouter>
+            <BrowserRouter>
                 <Switch>
                     <Route path="/" exact component={WelcomeScreen}/>
                     <Route path="/login" exact render={
@@ -35,13 +40,39 @@ class Router extends Component {
                     }/>
                     <LoggedInPages />
                 </Switch>
-            </HashRouter>
+            </BrowserRouter>
         );
     }
 }
 
-class LoggedInPages extends Component {
+class LoggedInPagesInner extends Component {
+    constructor(props){
+        super(props);
+        this.backend = new Backend();
+        globals.course_data.data = [];
+        this.state = {courses: []};
+    }
+
+    componentDidMount(){
+        const user = getAuthorizedUser();
+        console.log("getting courses");
+        axios.get(`/api/courses/${user._id}`).then((response) => {
+            console.log("Entering component didmount endpoint")
+            const newState = {
+              userType: user.userType,
+              loggedIn: true,
+              courses: response.data.courses
+            };
+            console.log(response.data.courses)
+            console.log("cdm courses")
+            this.setState(newState);
+        })
+
+    
+    }
+
     render() {
+        console.log("render Loggedinpagesinner");
         const user = getAuthorizedUser();
         if(!user){
             console.log(this.props);
@@ -56,7 +87,7 @@ class LoggedInPages extends Component {
         }
         return (
             <div>
-                <Template userType={user.userType} loggedIn={true}>
+                <Template courses={this.state.courses} userType={user.userType} loggedIn={true}>
                     <Switch>
                         <Route path="/:quizId/grades" render={
                             (props) => <StudentQuizResults {...props}/>
@@ -68,7 +99,7 @@ class LoggedInPages extends Component {
                             (props) => <StudentSummary {...props}/>
                         }/>
                         <Route path="/dashboard" exact render={() => <Dashboard userType={user.userType}/>} />
-                        <Route path="/createQuiz/:course_id" component={CreateQuizPage}/>
+                        <Route path="/createQuiz/:course_id" render={() => <CreateQuizPage courses={this.state.courses}/>}/>
                         <Route path="/answerPage/:course_id" component={AnswerPage}/>
                         <Route path="/createCourse" render={
                             (props) => <CreateCourse {...props}/>
@@ -83,4 +114,5 @@ class LoggedInPages extends Component {
     }
 }
 
+const LoggedInPages = withRouter(LoggedInPagesInner);
 export default Router;
