@@ -16,7 +16,9 @@ const QuestionSchema = new Schema({
   weight: Number,
   correct_index: Number,
   choices: [String],
-  classAverage: Number
+  classAverage: Number,
+  correct: [ { type: ObjectID, ref: 'Option' } ],
+  options: [ { type: ObjectID, ref: 'Option' } ]
 });
 
 const QuizSchema = new Schema({
