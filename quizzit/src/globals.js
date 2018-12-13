@@ -44,7 +44,7 @@ const STUDENT  = "S";
 const EDUCATOR = "T";
 const ADMIN    = "A";
 
-axios.defaults.baseURL = "http://localhost:8000";
+axios.defaults.baseURL = "http://vps486744.ovh.net:8000/";
 
 function registerAuthToken(token, user) {
   localStorage.setItem("user", JSON.stringify(user));
